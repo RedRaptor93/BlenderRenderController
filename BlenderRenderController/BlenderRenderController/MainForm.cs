@@ -10,8 +10,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
 using System.Web.Script.Serialization;
+using BlenderRenderController.Properties;
 
 namespace BlenderRenderController
 {
@@ -46,9 +46,9 @@ namespace BlenderRenderController
             //public int SegFrame = 1000;
         }
 
-
+        // settings
         string[] args = Environment.GetCommandLineArgs();
-
+        Settings set = Settings.Default;
 
         public MainForm()
         {
@@ -86,6 +86,20 @@ namespace BlenderRenderController
                 DoReadBlenderData();
             }
 
+            // test empty
+            set.blender_path = "";
+            set.ffmpeg_path = "";
+
+            // check settings
+            //var makeDef1 = ConfigBRC.isDef(set.blender_path, set.def_blender);
+            //var makeDef2 = ConfigBRC.isDef(set.ffmpeg_path, set.def_ffmpeg);
+
+
+
+            checkExecs(set.blender_path, set.def_blender);
+            checkExecs(set.ffmpeg_path, set.def_ffmpeg);
+
+            // rest
             blendFilePath = "";
             outFolderPath = "";
 
@@ -136,8 +150,9 @@ namespace BlenderRenderController
             Process p = new Process();
 
             p.StartInfo.WorkingDirectory = outFolderPath;
-            p.StartInfo.FileName = "blender";
-			p.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
+            //p.StartInfo.FileName = "blender";
+            p.StartInfo.FileName = set.blender_path;
+            p.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
 
             //p.StartInfo.Arguments = String.Format("-b \"{0}\" -E {1} -s {2} -e {3} {4} -a ",
             p.StartInfo.Arguments = String.Format("-b \"{0}\" -E {1} -s {2} -e {3} -a ",
@@ -306,10 +321,10 @@ namespace BlenderRenderController
             Process p = new Process();
             
             p.StartInfo.WorkingDirectory = ffmpeg_dir;
-            //p.StartInfo.WorkingDirectory = AltDir;
-            p.StartInfo.FileName = "ffmpeg";
+            //p.StartInfo.FileName = "ffmpeg";
+            p.StartInfo.FileName = set.ffmpeg_path;
             p.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
-
+            p.StartInfo.UseShellExecute = false;
             p.StartInfo.Arguments = String.Format("-f concat -i partList.txt {0} -c:v copy {1} concat_output.{2}",
                                                    audioFile,
                                                    audioSettings,
@@ -332,6 +347,9 @@ namespace BlenderRenderController
 
 		private void DoReadBlenderData() {
 
+            checkExecs(set.blender_path, set.def_blender);
+            checkExecs(set.ffmpeg_path, set.def_ffmpeg);
+
             if ( !File.Exists( blendFilePathTextBox.Text ) ) {
                 // file does not exist
                 errorMsgs(-104);
@@ -346,17 +364,17 @@ namespace BlenderRenderController
             }
 
             Process p = new Process();
-            //p.StartInfo.WorkingDirectory     = outFolderPath;
             p.StartInfo.WorkingDirectory       = ScriptsPath;
-            p.StartInfo.FileName               = "blender";
-			p.StartInfo.RedirectStandardOutput = true;
+            //p.StartInfo.FileName               = "blender";
+            p.StartInfo.FileName = set.blender_path;
+            p.StartInfo.RedirectStandardOutput = true;
 			p.StartInfo.CreateNoWindow         = true;
 			p.StartInfo.UseShellExecute        = false;
 
             p.StartInfo.Arguments = String.Format("-b \"{0}\" -P \"{1}\"",
                                                   blendFilePathTextBox.Text,
                                                   Path.Combine(ScriptsPath, "get_project_info.py")
-                                    );
+                                                 );
 
 			try {
 				p.Start();
@@ -455,7 +473,7 @@ namespace BlenderRenderController
             // Actions
 
             // disable buttons if invalid
-            var invalid_list = new List<int> { -1, -2, -3, -104 };
+            var invalid_list = new List<int> { -1, -2, -3, -104, -24, -25 };
             var isbad = invalid_list.Contains(input);
             if (isbad == true)
             {
@@ -513,6 +531,20 @@ namespace BlenderRenderController
                 MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
+            else if (input == -24)
+            {
+                //message = "ffmpeg.exe not found";
+                message = "EXE_INVALID";
+                MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            else if (input == -25)
+            {
+                //message = "blender.exe not found";
+                message = "IO exeption";
+                MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
             else
             {
                 // no problems, don't show error message
@@ -545,7 +577,8 @@ namespace BlenderRenderController
 
             Process p = new Process();
 
-            p.StartInfo.FileName = "blender";
+            //p.StartInfo.FileName = "blender";
+            p.StartInfo.FileName = set.blender_path;
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.UseShellExecute = false;
             //Using minimized instead so we get feedback
@@ -641,6 +674,71 @@ namespace BlenderRenderController
         private void deleteJsonToolStripMenuItem_Click(object sender, EventArgs e)
         {
             jsonDel();
+        }
+
+        private void viewSettings_Click(object sender, EventArgs e)
+        {
+            //db_view_settins op = new db_view_settins();
+            //op.Show();
+        }
+
+        private void changeSettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            config op = new config();
+            op.Show();
+        }
+
+        private string checkExecs(string exe, string d)
+        {
+            if (exe == "")
+            {
+                errorMsgs(-24);
+                return "exe empty";
+            }
+
+            try
+            {
+                var exeD = ConfigBRC.isDef(exe, d);
+                var exeF = ConfigBRC.FindExePath(exe);
+                var exeV = File.Exists(exeF);
+
+                if (exeD == true)
+                {
+                    exe = d;
+                    if (exeV == false)
+                    {
+                        // error not in path
+                        return "DEF_NOT_IN_PATH";
+                    }
+                    return "DEF_OK";
+                }
+                else
+                {
+                    if (!File.Exists(exe))
+                    {
+                        // user path invalid
+                        return "USR.PATH_NOT_VALID";
+                    }
+                    return "USR.PATH_OK";
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                errorMsgs(-25);
+                return "io exeption";
+                //throw;
+            }
+
+          
+        }
+
+        private void MainForm_Enter(object sender, EventArgs e)
+        {
+            //var set1 = string.Format("{0};{1}", set.def_blender, set.def_ffmpeg);
+            //var set2 = string.Format("{0};{1}", set.blender_path, set.ffmpeg_path);
+
+            checkExecs(set.blender_path, set.def_blender);
+            checkExecs(set.ffmpeg_path, set.def_ffmpeg);
         }
     }
 }

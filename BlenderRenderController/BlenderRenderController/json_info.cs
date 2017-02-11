@@ -16,16 +16,6 @@ namespace BlenderRenderController
         string ScriptsPath;
         string jsonfile;
 
-        public class BlenderData
-        {
-            public int StartFrame;
-            public int EndFrame;
-            public string OutputDirectory;
-            public string ProjectName;
-            public string NumScenes;
-            public string ActiveScene;
-        }
-
         public json_info()
         {
             InitializeComponent();

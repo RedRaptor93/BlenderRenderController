@@ -1,12 +1,17 @@
 # What is this?
 This branch has some modifications I've done to make Isti115's program more useful and remove some annoying limitations that conflicted with my work-flow. I think it all made the program much more stable and useful, so I'm share it ;). I plan to make gradual improvements as I'm learning and this is my first programing project
 
-##HOW TO USE
+## HOW TO USE
 coming soon... someday, maybe...
 
-##CHANGES
+## CHANGES
 
-####03/02/17
+#### 10/02/17
+
+- Updated README
+- 
+
+#### 03/02/17
 
 - Upload to GitHub
 - blend.json is deleted when program closes
@@ -16,7 +21,7 @@ BlenderRenderController.exe “filepath to .blend”
 ```
 - added error message if blendFilePath does not exist
 
-####02/02/17
+#### 02/02/17
 
 - Added detailed error messages
 
@@ -24,7 +29,7 @@ BlenderRenderController.exe “filepath to .blend”
 
 - Added icon
 
-####29/01/17
+#### 29/01/17
 
 - the program now reads project's info from blend file's ACTIVE SCENE, and shows the name and number of total scenes
 
@@ -38,7 +43,7 @@ BlenderRenderController.exe “filepath to .blend”
 
 - Added tooltips, a strip menu w/ some options, plus general adjustments to UI to accommodate new features
 
-##TO DO
+## TO DO
 
 Note that I'm still a learner, I don't know how to do most of these things, so don't expect them anytime soon, of course if anyone is willing to help, I'm all ears.
 
