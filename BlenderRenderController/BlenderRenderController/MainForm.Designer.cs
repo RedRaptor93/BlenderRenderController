@@ -525,7 +525,6 @@
             this.viewSettings.Name = "viewSettings";
             this.viewSettings.Size = new System.Drawing.Size(142, 22);
             this.viewSettings.Text = "view settings";
-            this.viewSettings.Click += new System.EventHandler(this.viewSettings_Click);
             // 
             // label1
             // 
@@ -765,7 +764,6 @@
             this.Text = "Blender Render Controller";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_Close);
             this.Load += new System.EventHandler(this.MainForm_Load);
-            this.Enter += new System.EventHandler(this.MainForm_Enter);
             ((System.ComponentModel.ISupportInitialize)(this.startFrameNumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.endFrameNumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.totalFrameCountNumericUpDown)).EndInit();

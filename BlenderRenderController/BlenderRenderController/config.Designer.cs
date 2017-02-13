@@ -32,12 +32,12 @@
             this.browseFFmpeg = new System.Windows.Forms.Button();
             this.layoutPaths = new System.Windows.Forms.TableLayoutPanel();
             this.panelBlenderEXE = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
+            this.BlenderLabel = new System.Windows.Forms.Label();
             this.blenderPathBox = new System.Windows.Forms.TextBox();
             this.getFromPATH_ffmpeg = new System.Windows.Forms.CheckBox();
             this.getFromPATH_blender = new System.Windows.Forms.CheckBox();
             this.panelFFmpegEXE = new System.Windows.Forms.Panel();
-            this.label2 = new System.Windows.Forms.Label();
+            this.FFmpegLabel = new System.Windows.Forms.Label();
             this.ffmpegPathBox = new System.Windows.Forms.TextBox();
             this.saveAllButton = new System.Windows.Forms.Button();
             this.layoutPaths.SuspendLayout();
@@ -99,23 +99,23 @@
             this.panelBlenderEXE.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.panelBlenderEXE.Controls.Add(this.label1);
+            this.panelBlenderEXE.Controls.Add(this.BlenderLabel);
             this.panelBlenderEXE.Controls.Add(this.blenderPathBox);
             this.panelBlenderEXE.Location = new System.Drawing.Point(3, 3);
             this.panelBlenderEXE.Name = "panelBlenderEXE";
             this.panelBlenderEXE.Size = new System.Drawing.Size(371, 47);
             this.panelBlenderEXE.TabIndex = 7;
             // 
-            // label1
+            // BlenderLabel
             // 
-            this.label1.AutoSize = true;
-            this.label1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
-            this.label1.Location = new System.Drawing.Point(0, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(77, 15);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Blender EXE";
+            this.BlenderLabel.AutoSize = true;
+            this.BlenderLabel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.BlenderLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
+            this.BlenderLabel.Location = new System.Drawing.Point(0, 0);
+            this.BlenderLabel.Name = "BlenderLabel";
+            this.BlenderLabel.Size = new System.Drawing.Size(77, 15);
+            this.BlenderLabel.TabIndex = 2;
+            this.BlenderLabel.Text = "Blender EXE";
             // 
             // blenderPathBox
             // 
@@ -142,6 +142,7 @@
             this.getFromPATH_ffmpeg.TabIndex = 8;
             this.getFromPATH_ffmpeg.Text = "Use PATH";
             this.getFromPATH_ffmpeg.UseVisualStyleBackColor = true;
+            this.getFromPATH_ffmpeg.CheckedChanged += new System.EventHandler(this.getFromPATH_ffmpeg_CheckedChanged);
             this.getFromPATH_ffmpeg.Click += new System.EventHandler(this.getFromPATH_ffmpeg_click);
             // 
             // getFromPATH_blender
@@ -158,6 +159,7 @@
             this.getFromPATH_blender.TabIndex = 7;
             this.getFromPATH_blender.Text = "Use PATH";
             this.getFromPATH_blender.UseVisualStyleBackColor = true;
+            this.getFromPATH_blender.CheckedChanged += new System.EventHandler(this.getFromPATH_blender_CheckedChanged);
             this.getFromPATH_blender.Click += new System.EventHandler(this.getFromPATH_blender_click);
             // 
             // panelFFmpegEXE
@@ -165,23 +167,23 @@
             this.panelFFmpegEXE.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.panelFFmpegEXE.Controls.Add(this.label2);
+            this.panelFFmpegEXE.Controls.Add(this.FFmpegLabel);
             this.panelFFmpegEXE.Controls.Add(this.ffmpegPathBox);
             this.panelFFmpegEXE.Location = new System.Drawing.Point(3, 56);
             this.panelFFmpegEXE.Name = "panelFFmpegEXE";
             this.panelFFmpegEXE.Size = new System.Drawing.Size(371, 48);
             this.panelFFmpegEXE.TabIndex = 8;
             // 
-            // label2
+            // FFmpegLabel
             // 
-            this.label2.AutoSize = true;
-            this.label2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
-            this.label2.Location = new System.Drawing.Point(0, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(80, 15);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "FFmepg EXE";
+            this.FFmpegLabel.AutoSize = true;
+            this.FFmpegLabel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.FFmpegLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
+            this.FFmpegLabel.Location = new System.Drawing.Point(0, 0);
+            this.FFmpegLabel.Name = "FFmpegLabel";
+            this.FFmpegLabel.Size = new System.Drawing.Size(80, 15);
+            this.FFmpegLabel.TabIndex = 3;
+            this.FFmpegLabel.Text = "FFmepg EXE";
             // 
             // ffmpegPathBox
             // 
@@ -206,6 +208,7 @@
             // 
             // config
             // 
+            this.AcceptButton = this.saveAllButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(566, 171);
@@ -240,8 +243,8 @@
         private System.Windows.Forms.TableLayoutPanel layoutPaths;
         private System.Windows.Forms.CheckBox getFromPATH_ffmpeg;
         private System.Windows.Forms.CheckBox getFromPATH_blender;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label FFmpegLabel;
+        private System.Windows.Forms.Label BlenderLabel;
         private System.Windows.Forms.Panel panelBlenderEXE;
         private System.Windows.Forms.Panel panelFFmpegEXE;
         private System.Windows.Forms.Button saveAllButton;

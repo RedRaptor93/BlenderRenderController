@@ -48,11 +48,9 @@ namespace BlenderRenderController
 
         // settings
         string[] args = Environment.GetCommandLineArgs();
-            Settings set = Settings.Default;
-        public enum EXECpath
-        {
-            valid, invalid
-        }
+        Settings set = Settings.Default;
+
+        //string[] execStatus = { "ALL_VALID", "BLENDER_INVALID", "FFMPEG_INVALID", "ALL_INVALID" };
 
         public MainForm()
         {
@@ -66,7 +64,7 @@ namespace BlenderRenderController
 
         }
 
-        // Deletes json on form close
+        // Deletes json and saves sets on form close
         private void MainForm_Close(object sender, FormClosedEventArgs e)
         {
             jsonDel();
@@ -91,7 +89,7 @@ namespace BlenderRenderController
                 DoReadBlenderData();
             }
 
-            // settings check
+            //settings check
             try
             {
                 ConfigBRC.EXECheck();
@@ -352,16 +350,6 @@ namespace BlenderRenderController
 
 		private void DoReadBlenderData() {
 
-            //checkExecs(set.blender_path, set.def_blender);
-            //checkExecs(set.ffmpeg_path, set.def_ffmpeg);
-
-            string p_exec;
-
-            if (true)
-            {
-
-            }
-
             if ( !File.Exists( blendFilePathTextBox.Text ) ) {
                 // file does not exist
                 errorMsgs(-104);
@@ -374,6 +362,7 @@ namespace BlenderRenderController
                 errorMsgs(-404);
                 return;
             }
+
 
             Process p = new Process();
             p.StartInfo.WorkingDirectory       = ScriptsPath;
@@ -485,9 +474,9 @@ namespace BlenderRenderController
             // Actions
 
             // disable buttons if invalid
-            var invalid_list = new List<int> { -1, -2, -3, -104, -24, -25 };
+            var invalid_list = new List<int> { -1, -2, -3, -104, -99, -25 };
             var isbad = invalid_list.Contains(input);
-            if (isbad == true)
+            if (isbad)
             {
                 renderAllButton.Enabled = false;
                 renderSegmentButton.Enabled = false;
@@ -539,16 +528,17 @@ namespace BlenderRenderController
             else if (input == -404)
             {
                 // Error scriptsfolder not found
-                message = "Scripts folder not found. Separate audio mixdown and automatic project info" +
-                          "detection will not work, but you can still use the basic rendering functionality.";
+                message = "Scripts folder not found. Separate audio mixdown and automatic project info detection will not work, but you can still use the basic rendering functionality.";
                 MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
             else if (input == -24)
             {
-                //message = "ffmpeg.exe not found";
-                message = "EXE_INVALID";
+                message = "ffmpeg.exe not found";
+                //message = "EXE_INVALID";
                 MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //concatenatePartsButton.Enabled = false;
+                //MixdownAudio.Enabled = false;
                 return;
             }
             else if (input == -25)
@@ -556,8 +546,6 @@ namespace BlenderRenderController
                 //message = "blender.exe not found";
                 message = "Could not find necessary programs";
                 MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                config op = new config();
-                op.Show();
                 return;
             }
             else
@@ -570,6 +558,25 @@ namespace BlenderRenderController
 
 		private void ReadBlenderData_Click( object sender, EventArgs e ) {
 
+            // check for c
+            var chk1 = reCheck(set.blender_path);
+            var chk2 = reCheck(set.ffmpeg_path);
+            if ((!chk1) || (!chk2))
+            {
+                if ((chk1) && (!chk2))
+                {
+                    errorMsgs(0);
+                    return;
+                }
+                if ((!chk1) && (chk2))
+                {
+                    errorMsgs(0);
+                    return;
+                }
+                errorMsgs(-99);
+                return;
+            }
+            errorMsgs(0);
             DoReadBlenderData();
 		}
 
@@ -614,13 +621,30 @@ namespace BlenderRenderController
 
         }
 
-        /* About this app
-        private void creditsToolStripMenuItem_Click(object sender, EventArgs e)
+        private bool reCheck(string item)
         {
-            About about = new About();
-            about.Show();
+            try
+            {
+                ConfigBRC.FindExePath(item);
+            }
+            catch (FileNotFoundException)
+            {
+                // Execs NOT in PATH, check if user defined is valid
+                if (!File.Exists(item))
+                {
+                    // Exec INVALID
+                    //errorMsgs(-25);
+                    return false;
+                }
+                // else: User defined is valid
+                //errorMsgs(0);
+                return true;
+            }
+            // path is valid
+            //errorMsgs(0);
+            return true;
         }
-        */
+        
 
         private void tipsToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -691,22 +715,11 @@ namespace BlenderRenderController
             jsonDel();
         }
 
-        private void viewSettings_Click(object sender, EventArgs e)
-        {
-            //db_view_settins op = new db_view_settins();
-            //op.Show();
-        }
 
         private void changeSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             config op = new config();
             op.Show();
-        }
-
-        private void MainForm_Enter(object sender, EventArgs e)
-        {
-            //checkExecs(set.blender_path, set.def_blender);
-            //checkExecs(set.ffmpeg_path, set.def_ffmpeg);
         }
 
         private void processCountNumericUpDown_ValueChanged(object sender, EventArgs e)

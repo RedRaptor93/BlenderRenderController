@@ -77,8 +77,8 @@ namespace BlenderRenderController
             Properties.Settings set = Properties.Settings.Default;
             
             // FOR TESTING
-            set.blender_path = "C:\\Program Files\\Blender Foundation\\Blender\\blender.exe";
-            set.ffmpeg_path = "WRONG";
+            //set.blender_path = "C:\\Program Files\\Blender Foundation\\Blender\\blender.exe";
+            //set.ffmpeg_path = "WRONG";
 
             // Fix null or empty sets
             var p1 = set.blender_path;
@@ -97,21 +97,20 @@ namespace BlenderRenderController
 
             foreach (string item in p10)
             {
-                try
+                if (!File.Exists(item))
                 {
-                    FindExePath(item);
-                }
-                catch (FileNotFoundException)
-                {
-                    // Execs NOT in PATH, check if user defined is valid
-                    if (!File.Exists(item))
+                    var test = item;
+                    try
                     {
+                        FindExePath(item);
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        // Execs NOT in PATH, check if user defined is valid
                         // Exec INVALID
-                        throw new FileNotFoundException("Could not find necessary programs","blender and/or ffmpeg");
+                        throw new FileNotFoundException("Could not find necessary programs", "blender and/or ffmpeg");
                         //errorMsgs(-25);
                     }
-                    // else: User defined is valid
-                    //errorMsgs(0);
                 }
             }
             // save any changes

@@ -16,6 +16,10 @@ namespace BlenderRenderController
     {
         Settings set = Settings.Default;
 
+        // saves before val of settings
+        string vbBlender = Settings.Default.blender_path;
+        string vbFFmpeg = Settings.Default.ffmpeg_path;
+
         public config()
         {
             InitializeComponent();
@@ -25,7 +29,8 @@ namespace BlenderRenderController
 
         private void config_Load(object sender, EventArgs e)
         {
-
+            // this mess of code checks for the path values and sets "USE PATH" checkbox on load
+            // works, but I want to use App.config
             if ((set.blender_path == null) || (set.blender_path == "") || (set.blender_path == set.def_blender))
             {
                 getFromPATH_blender.Checked = true;
@@ -57,46 +62,36 @@ namespace BlenderRenderController
 
         private void setBlender_Click(object sender, EventArgs e)
         {
+
             var blenderExecBrowse = new OpenFileDialog();
-            blenderExecBrowse.Filter = "Blender Executable|*.exe";
-            
+            blenderExecBrowse.Filter = "Blender Executable|blender.exe";
+
             var result = blenderExecBrowse.ShowDialog();
 
             if (result == DialogResult.OK)
             {
+                getFromPATH_blender.Checked = false;
                 set.blender_path = blenderExecBrowse.FileName;
                 blenderPathBox.Text = set.blender_path;
-                //savePaths(saveMode.blender);
+                pathToggle();
             }
         }
 
-        void savePaths()
-        {
-            try
-            {
-                ConfigBRC.EXECheck();
-            }
-            catch (FileNotFoundException)
-            {
-                MessageBox.Show("One (or both) paths are invalid");
-                //throw;
-            }
-
-            set.Save();
-        }
 
         private void setFFmpeg_Click(object sender, EventArgs e)
         {
             var ffmpegExecBrowse = new OpenFileDialog();
-            ffmpegExecBrowse.Filter = "FFmpeg Executable|*.exe";
+            ffmpegExecBrowse.Filter = "FFmpeg Executable|ffmpeg.exe";
 
             var result = ffmpegExecBrowse.ShowDialog();
 
             if (result == DialogResult.OK)
             {
+                getFromPATH_ffmpeg.Checked = false;
                 set.ffmpeg_path = ffmpegExecBrowse.FileName;
                 ffmpegPathBox.Text = set.ffmpeg_path;
-                //savePaths(saveMode.ffmpeg);
+                //getFromPATH_ffmpeg.Checked = false;
+                //pathToggle();
             }
         }
 
@@ -105,31 +100,48 @@ namespace BlenderRenderController
             pathToggle();
         }
 
+        /// <summary>
+        /// If the "USE PATH" option is checked, sets EXE_path to def_EXE and disables the 
+        /// </summary>
         void pathToggle()
-        {        
+        {
+            // empty strings before setting
+            BlenderLabel.Text = string.Empty;
+            FFmpegLabel.Text = string.Empty;
+
+            var L11 = "Blender EXE";
+            var L22 = "FFMpeg EXE";
+            string up = "(using PATH)";
+            //StringBuilder LM = new StringBuilder();
+            //LM.
+
             switch (getFromPATH_blender.CheckState)
             {
                 case CheckState.Unchecked:
                     set.blender_path = blenderPathBox.Text;
+                    BlenderLabel.Text = L11;
                     blenderPathBox.Enabled = true;
                     break;
                 case CheckState.Checked:
                     set.blender_path = set.def_blender;
+                    BlenderLabel.Text = (L11 + up);
                     blenderPathBox.Enabled = false;
                     break;
                 case CheckState.Indeterminate:
                     break;
                 default:
                     break;
-            }            
+            }
             switch (getFromPATH_ffmpeg.CheckState)
             {
                 case CheckState.Unchecked:
                     set.ffmpeg_path = ffmpegPathBox.Text;
+                    FFmpegLabel.Text = L22;
                     ffmpegPathBox.Enabled = true;
                     break;
                 case CheckState.Checked:
                     set.ffmpeg_path = set.def_ffmpeg;
+                    FFmpegLabel.Text = (L22 + up);
                     ffmpegPathBox.Enabled = false;
                     break;
                 case CheckState.Indeterminate:
@@ -137,7 +149,7 @@ namespace BlenderRenderController
                 default:
                     break;
             }
-            
+
         }
 
         private void getFromPATH_ffmpeg_click(object sender, EventArgs e)
@@ -147,41 +159,91 @@ namespace BlenderRenderController
 
         private void saveAll_Click(object sender, EventArgs e)
         {
+            try
+            {
+                ConfigBRC.EXECheck();
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show("One (or both) paths are invalid");
+                //throw;
+                return;
+            }
             set.Save();
+            //Close();
         }
 
-        
+
         private void config_FormClosed(object sender, FormClosedEventArgs e)
         { } //breakpoint
 
         private void blenderPathBox_TextChanged(object sender, EventArgs e)
         {
-            set.blender_path = blenderPathBox.Text;
+            //set.blender_path = blenderPathBox.Text;
         }
 
         private void ffmpegPathBox_TextChanged(object sender, EventArgs e)
         {
-            set.ffmpeg_path = ffmpegPathBox.Text;
+            //set.ffmpeg_path = ffmpegPathBox.Text;
         }
 
         private void config_FormClosing(object sender, FormClosingEventArgs e)
         {
-            var message = "Save settings?";
-            var caption = "";
-            MessageBox.Show(message, caption, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            switch (DialogResult)
+            string[] after = { set.blender_path, set.ffmpeg_path };
+            string[] before = { vbBlender, vbFFmpeg };
+            bool compare = after.SequenceEqual(before);
+            try
             {
-                case DialogResult.Yes:
-                    MainForm.EXEcheck();
-                    set.Save();
-                    this.Close();
-                    break;
-                case DialogResult.No:
-                    break;
-                default:
-                    //MessageBox.Show("something went wrong");
-                    break;
+                ConfigBRC.EXECheck();
             }
+            catch (FileNotFoundException)
+            {
+               var er = MessageBox.Show("One (or both) paths are invalid");
+                e.Cancel = (er == DialogResult.OK);
+                return;
+            }
+
+
+            if (!compare)
+            {
+                var message = "Save settings?";
+                var caption = "";
+                var result = MessageBox.Show(message, caption, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                e.Cancel = (result == DialogResult.No);
+                if (result == DialogResult.Yes)
+                {
+                    set.Save();
+                }
+
+            }
+
+        }
+
+        
+        //to do: return to previous val if uncheck
+        private void getFromPATH_blender_CheckedChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void getFromPATH_ffmpeg_CheckedChanged(object sender, EventArgs e)
+        {
+        }
+    }
+
+    public struct check4changes
+    {
+        private string config;
+
+        public check4changes(string name)
+        {
+            this.config = name;
+        }
+
+        public override string ToString()
+        {
+            return this.config;
         }
     }
 }
+
+
