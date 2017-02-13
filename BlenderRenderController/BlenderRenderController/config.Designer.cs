@@ -33,13 +33,13 @@
             this.layoutPaths = new System.Windows.Forms.TableLayoutPanel();
             this.panelBlenderEXE = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
+            this.blenderPathBox = new System.Windows.Forms.TextBox();
             this.getFromPATH_ffmpeg = new System.Windows.Forms.CheckBox();
             this.getFromPATH_blender = new System.Windows.Forms.CheckBox();
             this.panelFFmpegEXE = new System.Windows.Forms.Panel();
             this.label2 = new System.Windows.Forms.Label();
-            this.saveAllButton = new System.Windows.Forms.Button();
-            this.blenderPathBox = new System.Windows.Forms.TextBox();
             this.ffmpegPathBox = new System.Windows.Forms.TextBox();
+            this.saveAllButton = new System.Windows.Forms.Button();
             this.layoutPaths.SuspendLayout();
             this.panelBlenderEXE.SuspendLayout();
             this.panelFFmpegEXE.SuspendLayout();
@@ -117,6 +117,17 @@
             this.label1.TabIndex = 2;
             this.label1.Text = "Blender EXE";
             // 
+            // blenderPathBox
+            // 
+            this.blenderPathBox.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::BlenderRenderController.Properties.Settings.Default, "blender_path", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.blenderPathBox.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.blenderPathBox.Location = new System.Drawing.Point(0, 27);
+            this.blenderPathBox.Name = "blenderPathBox";
+            this.blenderPathBox.Size = new System.Drawing.Size(371, 20);
+            this.blenderPathBox.TabIndex = 0;
+            this.blenderPathBox.Text = global::BlenderRenderController.Properties.Settings.Default.blender_path;
+            this.blenderPathBox.TextChanged += new System.EventHandler(this.blenderPathBox_TextChanged);
+            // 
             // getFromPATH_ffmpeg
             // 
             this.getFromPATH_ffmpeg.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
@@ -172,27 +183,6 @@
             this.label2.TabIndex = 3;
             this.label2.Text = "FFmepg EXE";
             // 
-            // saveAllButton
-            // 
-            this.saveAllButton.Location = new System.Drawing.Point(436, 125);
-            this.saveAllButton.Name = "saveAllButton";
-            this.saveAllButton.Size = new System.Drawing.Size(115, 38);
-            this.saveAllButton.TabIndex = 9;
-            this.saveAllButton.Text = "Save settings";
-            this.saveAllButton.UseVisualStyleBackColor = true;
-            this.saveAllButton.Click += new System.EventHandler(this.saveAll_Click);
-            // 
-            // blenderPathBox
-            // 
-            this.blenderPathBox.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::BlenderRenderController.Properties.Settings.Default, "blender_path", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.blenderPathBox.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.blenderPathBox.Location = new System.Drawing.Point(0, 27);
-            this.blenderPathBox.Name = "blenderPathBox";
-            this.blenderPathBox.Size = new System.Drawing.Size(371, 20);
-            this.blenderPathBox.TabIndex = 0;
-            this.blenderPathBox.Text = global::BlenderRenderController.Properties.Settings.Default.blender_path;
-            this.blenderPathBox.TextChanged += new System.EventHandler(this.blenderPathBox_TextChanged);
-            // 
             // ffmpegPathBox
             // 
             this.ffmpegPathBox.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::BlenderRenderController.Properties.Settings.Default, "ffmpeg_path", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
@@ -203,6 +193,16 @@
             this.ffmpegPathBox.TabIndex = 1;
             this.ffmpegPathBox.Text = global::BlenderRenderController.Properties.Settings.Default.ffmpeg_path;
             this.ffmpegPathBox.TextChanged += new System.EventHandler(this.ffmpegPathBox_TextChanged);
+            // 
+            // saveAllButton
+            // 
+            this.saveAllButton.Location = new System.Drawing.Point(436, 125);
+            this.saveAllButton.Name = "saveAllButton";
+            this.saveAllButton.Size = new System.Drawing.Size(115, 38);
+            this.saveAllButton.TabIndex = 9;
+            this.saveAllButton.Text = "Save settings";
+            this.saveAllButton.UseVisualStyleBackColor = true;
+            this.saveAllButton.Click += new System.EventHandler(this.saveAll_Click);
             // 
             // config
             // 

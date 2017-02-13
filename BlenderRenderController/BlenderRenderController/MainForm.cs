@@ -23,7 +23,7 @@ namespace BlenderRenderController
 		string   blendProjectName = "concat_output.mp4";
 		DateTime startTime        = DateTime.MaxValue;
 
-		string ScriptsPath;
+        string ScriptsPath;
 
         Timer renderAllTimer;
         int runningRenderProcessCount;
@@ -48,7 +48,11 @@ namespace BlenderRenderController
 
         // settings
         string[] args = Environment.GetCommandLineArgs();
-        Settings set = Settings.Default;
+            Settings set = Settings.Default;
+        public enum EXECpath
+        {
+            valid, invalid
+        }
 
         public MainForm()
         {
@@ -66,6 +70,7 @@ namespace BlenderRenderController
         private void MainForm_Close(object sender, FormClosedEventArgs e)
         {
             jsonDel();
+            set.Save();
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -86,18 +91,18 @@ namespace BlenderRenderController
                 DoReadBlenderData();
             }
 
-            // test empty
-            set.blender_path = "";
-            set.ffmpeg_path = "";
+            // settings check
+            try
+            {
+                ConfigBRC.EXECheck();
+            }
+            catch (FileNotFoundException)
+            {
+                errorMsgs(-25);
+                //throw;
+            }
+            set.N_processes = processCountNumericUpDown.Value;
 
-            // check settings
-            //var makeDef1 = ConfigBRC.isDef(set.blender_path, set.def_blender);
-            //var makeDef2 = ConfigBRC.isDef(set.ffmpeg_path, set.def_ffmpeg);
-
-
-
-            checkExecs(set.blender_path, set.def_blender);
-            checkExecs(set.ffmpeg_path, set.def_ffmpeg);
 
             // rest
             blendFilePath = "";
@@ -347,8 +352,15 @@ namespace BlenderRenderController
 
 		private void DoReadBlenderData() {
 
-            checkExecs(set.blender_path, set.def_blender);
-            checkExecs(set.ffmpeg_path, set.def_ffmpeg);
+            //checkExecs(set.blender_path, set.def_blender);
+            //checkExecs(set.ffmpeg_path, set.def_ffmpeg);
+
+            string p_exec;
+
+            if (true)
+            {
+
+            }
 
             if ( !File.Exists( blendFilePathTextBox.Text ) ) {
                 // file does not exist
@@ -366,7 +378,7 @@ namespace BlenderRenderController
             Process p = new Process();
             p.StartInfo.WorkingDirectory       = ScriptsPath;
             //p.StartInfo.FileName               = "blender";
-            p.StartInfo.FileName = set.blender_path;
+            p.StartInfo.FileName               = set.blender_path;
             p.StartInfo.RedirectStandardOutput = true;
 			p.StartInfo.CreateNoWindow         = true;
 			p.StartInfo.UseShellExecute        = false;
@@ -465,8 +477,8 @@ namespace BlenderRenderController
         /// Error central, displays message and does actions
         /// according to given code, then returns
         /// </summary>
-        /// <param name="er"></param>
-        /// <returns>same as er</returns>
+        /// <param name="er">error codes</param>
+        /// <returns>message and does actions</returns>
         void errorMsgs(int er)
         {
             int input = er;
@@ -527,7 +539,8 @@ namespace BlenderRenderController
             else if (input == -404)
             {
                 // Error scriptsfolder not found
-                message = "Scripts folder not found. Separate audio mixdown and automatic project info detection will not work, but you can still use the basic rendering functionality.";
+                message = "Scripts folder not found. Separate audio mixdown and automatic project info" +
+                          "detection will not work, but you can still use the basic rendering functionality.";
                 MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
@@ -541,8 +554,10 @@ namespace BlenderRenderController
             else if (input == -25)
             {
                 //message = "blender.exe not found";
-                message = "IO exeption";
+                message = "Could not find necessary programs";
                 MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                config op = new config();
+                op.Show();
                 return;
             }
             else
@@ -688,57 +703,16 @@ namespace BlenderRenderController
             op.Show();
         }
 
-        private string checkExecs(string exe, string d)
-        {
-            if (exe == "")
-            {
-                errorMsgs(-24);
-                return "exe empty";
-            }
-
-            try
-            {
-                var exeD = ConfigBRC.isDef(exe, d);
-                var exeF = ConfigBRC.FindExePath(exe);
-                var exeV = File.Exists(exeF);
-
-                if (exeD == true)
-                {
-                    exe = d;
-                    if (exeV == false)
-                    {
-                        // error not in path
-                        return "DEF_NOT_IN_PATH";
-                    }
-                    return "DEF_OK";
-                }
-                else
-                {
-                    if (!File.Exists(exe))
-                    {
-                        // user path invalid
-                        return "USR.PATH_NOT_VALID";
-                    }
-                    return "USR.PATH_OK";
-                }
-            }
-            catch (FileNotFoundException)
-            {
-                errorMsgs(-25);
-                return "io exeption";
-                //throw;
-            }
-
-          
-        }
-
         private void MainForm_Enter(object sender, EventArgs e)
         {
-            //var set1 = string.Format("{0};{1}", set.def_blender, set.def_ffmpeg);
-            //var set2 = string.Format("{0};{1}", set.blender_path, set.ffmpeg_path);
+            //checkExecs(set.blender_path, set.def_blender);
+            //checkExecs(set.ffmpeg_path, set.def_ffmpeg);
+        }
 
-            checkExecs(set.blender_path, set.def_blender);
-            checkExecs(set.ffmpeg_path, set.def_ffmpeg);
+        private void processCountNumericUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            //set.N_processes = processCountNumericUpDown.Value;
+            //processCountNumericUpDown.Value = set.N_processes;
         }
     }
 }

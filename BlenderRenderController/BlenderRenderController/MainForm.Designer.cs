@@ -58,11 +58,11 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tipsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.changeSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.autocombineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.debugShow = new System.Windows.Forms.ToolStripMenuItem();
             this.speToolStripMenuItem = new System.Windows.Forms.ToolStripSeparator();
             this.visitGithubToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.changeSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.infoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.readmeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.jsonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -441,6 +441,13 @@
             this.tipsToolStripMenuItem.Text = "Tooltips";
             this.tipsToolStripMenuItem.Click += new System.EventHandler(this.tipsToolStripMenuItem_Click);
             // 
+            // changeSettingsToolStripMenuItem
+            // 
+            this.changeSettingsToolStripMenuItem.Name = "changeSettingsToolStripMenuItem";
+            this.changeSettingsToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.changeSettingsToolStripMenuItem.Text = "Settings";
+            this.changeSettingsToolStripMenuItem.Click += new System.EventHandler(this.changeSettingsToolStripMenuItem_Click);
+            // 
             // autocombineToolStripMenuItem
             // 
             this.autocombineToolStripMenuItem.CheckOnClick = true;
@@ -471,13 +478,6 @@
             this.visitGithubToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.visitGithubToolStripMenuItem.Text = "Visit Github page";
             this.visitGithubToolStripMenuItem.Click += new System.EventHandler(this.visitGithubToolStripMenuItem_Click);
-            // 
-            // changeSettingsToolStripMenuItem
-            // 
-            this.changeSettingsToolStripMenuItem.Name = "changeSettingsToolStripMenuItem";
-            this.changeSettingsToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
-            this.changeSettingsToolStripMenuItem.Text = "Settings";
-            this.changeSettingsToolStripMenuItem.Click += new System.EventHandler(this.changeSettingsToolStripMenuItem_Click);
             // 
             // infoToolStripMenuItem
             // 
@@ -659,6 +659,7 @@
             // 
             // processCountNumericUpDown
             // 
+            this.processCountNumericUpDown.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::BlenderRenderController.Properties.Settings.Default, "N_processes", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.processCountNumericUpDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.processCountNumericUpDown.Location = new System.Drawing.Point(514, 234);
             this.processCountNumericUpDown.Name = "processCountNumericUpDown";
@@ -666,11 +667,8 @@
             this.processCountNumericUpDown.TabIndex = 14;
             this.toolTip1.SetToolTip(this.processCountNumericUpDown, "N# of processes. For best results set acording to \r\nhow many logical cores you ha" +
         "ve.");
-            this.processCountNumericUpDown.Value = new decimal(new int[] {
-            3,
-            0,
-            0,
-            0});
+            this.processCountNumericUpDown.Value = global::BlenderRenderController.Properties.Settings.Default.N_processes;
+            this.processCountNumericUpDown.ValueChanged += new System.EventHandler(this.processCountNumericUpDown_ValueChanged);
             // 
             // label5
             // 

@@ -18,7 +18,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="N_processes" Type="System.Decimal" Scope="User">
-      <Value Profile="(Default)">3</Value>
+      <Value Profile="(Default)">4</Value>
     </Setting>
     <Setting Name="usePath_blender" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>

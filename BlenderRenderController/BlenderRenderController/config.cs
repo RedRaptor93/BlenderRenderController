@@ -20,7 +20,7 @@ namespace BlenderRenderController
         {
             InitializeComponent();
             //string execPath = new Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath;
-            string execPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
+            string execPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
         }
 
         private void config_Load(object sender, EventArgs e)
@@ -29,24 +29,29 @@ namespace BlenderRenderController
             if ((set.blender_path == null) || (set.blender_path == "") || (set.blender_path == set.def_blender))
             {
                 getFromPATH_blender.Checked = true;
+                blenderPathBox.Enabled = false;
             }
             else
             {
                 getFromPATH_blender.Checked = false;
+                blenderPathBox.Enabled = true;
 
             }
             if ((set.ffmpeg_path == null) || (set.ffmpeg_path == "") || (set.ffmpeg_path == set.def_ffmpeg))
             {
                 getFromPATH_ffmpeg.Checked = true;
+                blenderPathBox.Enabled = false;
+
             }
             else
             {
                 getFromPATH_ffmpeg.Checked = false;
+                blenderPathBox.Enabled = true;
 
             }
 
             pathToggle();
-            set.Save();
+            //set.Save();
         }
 
 
@@ -67,27 +72,16 @@ namespace BlenderRenderController
 
         void savePaths()
         {
-            
-            //switch (m)
-            //{
-            //    case saveMode.blender:
-            //        //set.blender_path = set.blender_path;
-            //        set.Save();
-            //        break;
-            //    case saveMode.ffmpeg:
-            //        //set.ffmpeg_path = set.ffmpeg_path;
-            //        set.Save();
-            //        break;
-            //    case saveMode.all:
-            //        //set.ffmpeg_path = set.ffmpeg_path;
-            //        //set.blender_path = set.blender_path;
-            //        set.Save();
-            //        break;
-            //    default:
-            //        MessageBox.Show("Save error", "Error");
-            //        break;
-            //}
-            //set.blender_path = blenderExecPath;
+            try
+            {
+                ConfigBRC.EXECheck();
+            }
+            catch (FileNotFoundException)
+            {
+                MessageBox.Show("One (or both) paths are invalid");
+                //throw;
+            }
+
             set.Save();
         }
 
@@ -153,11 +147,6 @@ namespace BlenderRenderController
 
         private void saveAll_Click(object sender, EventArgs e)
         {
-            //var s = saveMode.all;
-            //savePaths();
-            // triggers showOK
-            //saveOKpic.Visible = true;
-
             set.Save();
         }
 
@@ -183,6 +172,7 @@ namespace BlenderRenderController
             switch (DialogResult)
             {
                 case DialogResult.Yes:
+                    MainForm.EXEcheck();
                     set.Save();
                     this.Close();
                     break;

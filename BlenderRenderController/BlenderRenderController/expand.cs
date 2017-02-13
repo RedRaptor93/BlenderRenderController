@@ -55,20 +55,70 @@ namespace BlenderRenderController
         public static string fixEmpty(string conf)
         {
             if ((conf == null) || (conf == ""))
-            { return "unset"; }
+            { return "PATH%"; }
             else
             { return conf; }
         }
 
+        public static void loopCmd(string[] e)
+        {
+            // loop FindExePath
+            foreach (string item in e)
+            {
+                FindExePath(item);
+            }
+        }
+
+        /// <summary>
+        /// Looks for blender.exe and ffmpeg.exe in PATH or in the user selected dir. If both fail, throw FileNotFoundException
+        /// </summary>
+        public static void EXECheck()
+        {
+            Properties.Settings set = Properties.Settings.Default;
+            
+            // FOR TESTING
+            set.blender_path = "C:\\Program Files\\Blender Foundation\\Blender\\blender.exe";
+            set.ffmpeg_path = "WRONG";
+
+            // Fix null or empty sets
+            var p1 = set.blender_path;
+            var p2 = set.ffmpeg_path;
+
+            if ((p1 == "PATH%") || (p1 == null) || (p1 == ""))
+            {
+                p1 = set.def_blender;
+            }
+            if ((p2 == "PATH%") || (p2 == null) || (p2 == ""))
+            {
+                p2 = set.def_ffmpeg;
+            }
+
+            string[] p10 = { p1, p2 };
+
+            foreach (string item in p10)
+            {
+                try
+                {
+                    FindExePath(item);
+                }
+                catch (FileNotFoundException)
+                {
+                    // Execs NOT in PATH, check if user defined is valid
+                    if (!File.Exists(item))
+                    {
+                        // Exec INVALID
+                        throw new FileNotFoundException("Could not find necessary programs","blender and/or ffmpeg");
+                        //errorMsgs(-25);
+                    }
+                    // else: User defined is valid
+                    //errorMsgs(0);
+                }
+            }
+            // save any changes
+            set.blender_path = p1;
+            set.ffmpeg_path = p2;
+        }
+
     }
 
-
 }
- //if (
- //               ((set.ffmpeg_path != null) || (set.ffmpeg_path != "") || (set.ffmpeg_path != set.def_ffmpeg)) 
- //               ((set.blender_path != null) || (set.blender_path != "") || (set.blender_path != set.def_blender))
- //               )
- //           {
- //               // use user setting
- //               // ffmpeg
- //               return;
