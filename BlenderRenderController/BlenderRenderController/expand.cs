@@ -52,23 +52,6 @@ namespace BlenderRenderController
             { return false; }
         }
 
-        public static string fixEmpty(string conf)
-        {
-            if ((conf == null) || (conf == ""))
-            { return "PATH%"; }
-            else
-            { return conf; }
-        }
-
-        public static void loopCmd(string[] e)
-        {
-            // loop FindExePath
-            foreach (string item in e)
-            {
-                FindExePath(item);
-            }
-        }
-
         /// <summary>
         /// Looks for blender.exe and ffmpeg.exe in PATH or in the user selected dir. If both fail, throw FileNotFoundException
         /// </summary>

@@ -172,7 +172,7 @@
             this.endFrameNumericUpDown.TabIndex = 5;
             this.toolTip1.SetToolTip(this.endFrameNumericUpDown, "Segment\'s end frame");
             this.endFrameNumericUpDown.Value = new decimal(new int[] {
-            3000,
+            2000,
             0,
             0,
             0});
@@ -371,7 +371,7 @@
             // ReadBlenderData
             // 
             this.ReadBlenderData.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.ReadBlenderData.Location = new System.Drawing.Point(566, 139);
+            this.ReadBlenderData.Location = new System.Drawing.Point(565, 111);
             this.ReadBlenderData.Name = "ReadBlenderData";
             this.ReadBlenderData.Size = new System.Drawing.Size(75, 63);
             this.ReadBlenderData.TabIndex = 17;

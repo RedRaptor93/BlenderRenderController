@@ -109,5 +109,26 @@ namespace BlenderRenderController.Properties {
                 this["usePath_ffmpeg"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1500")]
+        public decimal segment_lenth {
+            get {
+                return ((decimal)(this["segment_lenth"]));
+            }
+            set {
+                this["segment_lenth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2000")]
+        public string def_segment {
+            get {
+                return ((string)(this["def_segment"]));
+            }
+        }
     }
 }
