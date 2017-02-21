@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.browseBlender = new System.Windows.Forms.Button();
             this.browseFFmpeg = new System.Windows.Forms.Button();
             this.layoutPaths = new System.Windows.Forms.TableLayoutPanel();
@@ -40,9 +41,15 @@
             this.FFmpegLabel = new System.Windows.Forms.Label();
             this.ffmpegPathBox = new System.Windows.Forms.TextBox();
             this.saveAllButton = new System.Windows.Forms.Button();
+            this.segmentLenLabel = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.segmentLenNum = new System.Windows.Forms.NumericUpDown();
+            this.toolTipConfig = new System.Windows.Forms.ToolTip(this.components);
             this.layoutPaths.SuspendLayout();
             this.panelBlenderEXE.SuspendLayout();
             this.panelFFmpegEXE.SuspendLayout();
+            this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.segmentLenNum)).BeginInit();
             this.SuspendLayout();
             // 
             // browseBlender
@@ -141,6 +148,7 @@
             this.getFromPATH_ffmpeg.Size = new System.Drawing.Size(81, 17);
             this.getFromPATH_ffmpeg.TabIndex = 8;
             this.getFromPATH_ffmpeg.Text = "Use PATH";
+            this.toolTipConfig.SetToolTip(this.getFromPATH_ffmpeg, "Look for ffmpeg.exe on Environment PATH");
             this.getFromPATH_ffmpeg.UseVisualStyleBackColor = true;
             this.getFromPATH_ffmpeg.CheckedChanged += new System.EventHandler(this.getFromPATH_ffmpeg_CheckedChanged);
             this.getFromPATH_ffmpeg.Click += new System.EventHandler(this.getFromPATH_ffmpeg_click);
@@ -158,6 +166,7 @@
             this.getFromPATH_blender.Size = new System.Drawing.Size(81, 17);
             this.getFromPATH_blender.TabIndex = 7;
             this.getFromPATH_blender.Text = "Use PATH";
+            this.toolTipConfig.SetToolTip(this.getFromPATH_blender, "Look for blender.exe on Environment PATH");
             this.getFromPATH_blender.UseVisualStyleBackColor = true;
             this.getFromPATH_blender.CheckedChanged += new System.EventHandler(this.getFromPATH_blender_CheckedChanged);
             this.getFromPATH_blender.Click += new System.EventHandler(this.getFromPATH_blender_click);
@@ -203,8 +212,48 @@
             this.saveAllButton.Size = new System.Drawing.Size(115, 38);
             this.saveAllButton.TabIndex = 9;
             this.saveAllButton.Text = "Save settings";
+            this.toolTipConfig.SetToolTip(this.saveAllButton, "Save settings and close");
             this.saveAllButton.UseVisualStyleBackColor = true;
             this.saveAllButton.Click += new System.EventHandler(this.saveAll_Click);
+            // 
+            // segmentLenLabel
+            // 
+            this.segmentLenLabel.AutoSize = true;
+            this.segmentLenLabel.Location = new System.Drawing.Point(3, 13);
+            this.segmentLenLabel.Name = "segmentLenLabel";
+            this.segmentLenLabel.Size = new System.Drawing.Size(81, 13);
+            this.segmentLenLabel.TabIndex = 11;
+            this.segmentLenLabel.Text = "Segment length";
+            this.toolTipConfig.SetToolTip(this.segmentLenLabel, "Default segment length.");
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.segmentLenNum);
+            this.panel1.Controls.Add(this.segmentLenLabel);
+            this.panel1.Location = new System.Drawing.Point(12, 125);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(156, 38);
+            this.panel1.TabIndex = 12;
+            // 
+            // segmentLenNum
+            // 
+            this.segmentLenNum.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::BlenderRenderController.Properties.Settings.Default, "segment_lenth", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.segmentLenNum.Location = new System.Drawing.Point(90, 11);
+            this.segmentLenNum.Maximum = new decimal(new int[] {
+            9999,
+            0,
+            0,
+            0});
+            this.segmentLenNum.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.segmentLenNum.Name = "segmentLenNum";
+            this.segmentLenNum.Size = new System.Drawing.Size(60, 20);
+            this.segmentLenNum.TabIndex = 10;
+            this.toolTipConfig.SetToolTip(this.segmentLenNum, "Default segment length.");
+            this.segmentLenNum.Value = global::BlenderRenderController.Properties.Settings.Default.segment_lenth;
             // 
             // config
             // 
@@ -212,6 +261,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(566, 171);
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.saveAllButton);
             this.Controls.Add(this.layoutPaths);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
@@ -230,6 +280,9 @@
             this.panelBlenderEXE.PerformLayout();
             this.panelFFmpegEXE.ResumeLayout(false);
             this.panelFFmpegEXE.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.segmentLenNum)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -248,5 +301,9 @@
         private System.Windows.Forms.Panel panelBlenderEXE;
         private System.Windows.Forms.Panel panelFFmpegEXE;
         private System.Windows.Forms.Button saveAllButton;
+        private System.Windows.Forms.NumericUpDown segmentLenNum;
+        private System.Windows.Forms.Label segmentLenLabel;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.ToolTip toolTipConfig;
     }
 }

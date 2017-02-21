@@ -101,7 +101,7 @@ namespace BlenderRenderController
         }
 
         /// <summary>
-        /// If the "USE PATH" option is checked, sets EXE_path to def_EXE and disables the 
+        /// If the "USE PATH" option is checked, sets EXE_path to def_EXE and disables the EXEPathBox
         /// </summary>
         void pathToggle()
         {
@@ -170,7 +170,7 @@ namespace BlenderRenderController
                 return;
             }
             set.Save();
-            //Close();
+            Close();
         }
 
 

@@ -30,8 +30,6 @@ namespace BlenderRenderController
 
         int ErrorCode;
         string AltDir;
-        // Lenth of segments, TEST
-        int SeqFrame = 1000;
 
         public class BlenderData {
 			public int    StartFrame;
@@ -100,6 +98,7 @@ namespace BlenderRenderController
                 //throw;
             }
             set.N_processes = processCountNumericUpDown.Value;
+            //set.segment_lenth = 1500; // static unsettable
 
 
             // rest
@@ -426,8 +425,7 @@ namespace BlenderRenderController
 
                 startFrameNumericUpDown.Value      = blendData.StartFrame;
 				totalFrameCountNumericUpDown.Value = blendData.EndFrame;
-
-                //endFrameNumericUpDown.Value = startFrameNumericUpDown.Value + endFrameNumericUpDown.Value;
+                endFrameNumericUpDown.Value = (blendData.StartFrame + set.segment_lenth) - 1;
 
                 // Remove last bit from file path, if checked
                 if (ajustOutDir.Checked == true)
@@ -544,8 +542,8 @@ namespace BlenderRenderController
             else if (input == -25)
             {
                 //message = "blender.exe not found";
-                message = "Could not find necessary programs";
-                MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                message = "Could not find necessary programs, go to Options -> Settings and make sure paths are valid";
+                MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
             else
@@ -565,14 +563,17 @@ namespace BlenderRenderController
             {
                 if ((chk1) && (!chk2))
                 {
+                    MessageBox.Show("chk1 && !chk2");
                     errorMsgs(0);
                     return;
                 }
                 if ((!chk1) && (chk2))
                 {
+                    MessageBox.Show("!chk1 && chk2");
                     errorMsgs(0);
                     return;
                 }
+                MessageBox.Show("!chk1 && !chk2");
                 errorMsgs(-99);
                 return;
             }
