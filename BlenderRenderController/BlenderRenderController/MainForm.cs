@@ -86,20 +86,34 @@ namespace BlenderRenderController
                 blendFilePathTextBox.Text = blendFilePath;
                 DoReadBlenderData();
             }
+            //set.blender_path = "blender.exe";
+            set.ffmpeg_path = "WRONG";
+            //set.segment_lenth = 1500;
 
             //settings check
-            try
+            var chk1 = reCheck(set.blender_path);
+            var chk2 = reCheck(set.ffmpeg_path);
+            if ((!chk1) || (!chk2))
             {
-                ConfigBRC.EXECheck();
+                if ((chk1) && (!chk2))
+                {
+                    //MessageBox.Show("chk1 && !chk2");
+                    errorMsgs(-24);
+                    return;
+                }
+                if ((!chk1) && (chk2))
+                {
+                    //MessageBox.Show("!chk1 && chk2");
+                    errorMsgs(-99);
+                    return;
+                }
+                //MessageBox.Show("!chk1 && !chk2");
+                errorMsgs(-99);
+                return;
             }
-            catch (FileNotFoundException)
-            {
-                errorMsgs(-25);
-                //throw;
-            }
-            set.N_processes = processCountNumericUpDown.Value;
-            //set.segment_lenth = 1500; // static unsettable
+            errorMsgs(0);
 
+            set.N_processes = processCountNumericUpDown.Value;
 
             // rest
             blendFilePath = "";
@@ -362,6 +376,29 @@ namespace BlenderRenderController
                 return;
             }
 
+            // check for paths
+            var chk1 = reCheck(set.blender_path);
+            var chk2 = reCheck(set.ffmpeg_path);
+            if ((!chk1) || (!chk2))
+            {
+                if ((chk1) && (!chk2))
+                {
+                    //MessageBox.Show("chk1 && !chk2");
+                    errorMsgs(-24);
+                    return;
+                }
+                if ((!chk1) && (chk2))
+                {
+                    //MessageBox.Show("!chk1 && chk2");
+                    errorMsgs(-99);
+                    return;
+                }
+                //MessageBox.Show("!chk1 && !chk2");
+                errorMsgs(-99);
+                return;
+            }
+            errorMsgs(0);
+
 
             Process p = new Process();
             p.StartInfo.WorkingDirectory       = ScriptsPath;
@@ -471,8 +508,8 @@ namespace BlenderRenderController
             int input = er;
             // Actions
 
-            // disable buttons if invalid
-            var invalid_list = new List<int> { -1, -2, -3, -104, -99, -25 };
+            // disable ALL buttons
+            var invalid_list = new List<int> { -1, -2, -3, -104, -99 };
             var isbad = invalid_list.Contains(input);
             if (isbad)
             {
@@ -488,6 +525,20 @@ namespace BlenderRenderController
                 concatenatePartsButton.Enabled = true;
                 MixdownAudio.Enabled = true;
             }
+
+            // disable ffmpeg buttons only
+            var ffmpeg_er = -24;
+            if (input == ffmpeg_er)
+            {
+                concatenatePartsButton.Enabled = false;
+                MixdownAudio.Enabled = false;
+            }
+            else if (!isbad)
+            {
+                concatenatePartsButton.Enabled = true;
+                MixdownAudio.Enabled = true;
+            }
+
 
             // Messages
             string message;
@@ -533,13 +584,10 @@ namespace BlenderRenderController
             else if (input == -24)
             {
                 message = "ffmpeg.exe not found";
-                //message = "EXE_INVALID";
                 MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                //concatenatePartsButton.Enabled = false;
-                //MixdownAudio.Enabled = false;
                 return;
             }
-            else if (input == -25)
+            else if (input == -99)
             {
                 //message = "blender.exe not found";
                 message = "Could not find necessary programs, go to Options -> Settings and make sure paths are valid";
@@ -556,28 +604,6 @@ namespace BlenderRenderController
 
 		private void ReadBlenderData_Click( object sender, EventArgs e ) {
 
-            // check for c
-            var chk1 = reCheck(set.blender_path);
-            var chk2 = reCheck(set.ffmpeg_path);
-            if ((!chk1) || (!chk2))
-            {
-                if ((chk1) && (!chk2))
-                {
-                    MessageBox.Show("chk1 && !chk2");
-                    errorMsgs(0);
-                    return;
-                }
-                if ((!chk1) && (chk2))
-                {
-                    MessageBox.Show("!chk1 && chk2");
-                    errorMsgs(0);
-                    return;
-                }
-                MessageBox.Show("!chk1 && !chk2");
-                errorMsgs(-99);
-                return;
-            }
-            errorMsgs(0);
             DoReadBlenderData();
 		}
 

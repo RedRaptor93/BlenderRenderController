@@ -100,7 +100,6 @@ namespace BlenderRenderController
             set.blender_path = p1;
             set.ffmpeg_path = p2;
         }
-
     }
 
 }
