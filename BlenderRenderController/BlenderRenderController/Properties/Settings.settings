@@ -26,10 +26,10 @@
     <Setting Name="usePath_ffmpeg" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="segment_lenth" Type="System.Decimal" Scope="User">
+    <Setting Name="segment_len" Type="System.Decimal" Scope="User">
       <Value Profile="(Default)">1500</Value>
     </Setting>
-    <Setting Name="def_segment" Type="System.String" Scope="Application">
+    <Setting Name="def_segment" Type="System.Decimal" Scope="Application">
       <Value Profile="(Default)">2000</Value>
     </Setting>
   </Settings>

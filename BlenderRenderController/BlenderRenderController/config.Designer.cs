@@ -237,7 +237,7 @@
             // 
             // segmentLenNum
             // 
-            this.segmentLenNum.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::BlenderRenderController.Properties.Settings.Default, "segment_lenth", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.segmentLenNum.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::BlenderRenderController.Properties.Settings.Default, "segment_len", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.segmentLenNum.Location = new System.Drawing.Point(90, 11);
             this.segmentLenNum.Maximum = new decimal(new int[] {
             9999,
@@ -253,7 +253,7 @@
             this.segmentLenNum.Size = new System.Drawing.Size(60, 20);
             this.segmentLenNum.TabIndex = 10;
             this.toolTipConfig.SetToolTip(this.segmentLenNum, "Default segment length.");
-            this.segmentLenNum.Value = global::BlenderRenderController.Properties.Settings.Default.segment_lenth;
+            this.segmentLenNum.Value = global::BlenderRenderController.Properties.Settings.Default.segment_len;
             // 
             // config
             // 

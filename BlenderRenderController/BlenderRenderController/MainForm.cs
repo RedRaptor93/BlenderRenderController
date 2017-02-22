@@ -74,46 +74,37 @@ namespace BlenderRenderController
             // Arguments
             if (args.Length > 1)
             {
-                //test arguments
-                //for (int i = 0; i < args.Length; i++)
-                //{
-                //    string teste = string.Format("Arg[{0}] = [{1}] \r\n", i, args[i]);
-                //    MessageBox.Show(teste);
-                //}
-
                 // arg 1 = .blend path
                 blendFilePath = args[1];
                 blendFilePathTextBox.Text = blendFilePath;
                 DoReadBlenderData();
             }
-            //set.blender_path = "blender.exe";
-            set.ffmpeg_path = "WRONG";
-            //set.segment_lenth = 1500;
+
+            // for testing!
+            //set.blender_path = "C:\\Program Files\\Blender Foundation\\Blender\\blender.exe";
+            //set.ffmpeg_path = "ffmpeg.exe";
+            //set.segment_len = 1500;
 
             //settings check
-            var chk1 = reCheck(set.blender_path);
-            var chk2 = reCheck(set.ffmpeg_path);
-            if ((!chk1) || (!chk2))
+            var chk = checkEXE();
+            if (chk == "FFMPEG_NOT_FOUND")
             {
-                if ((chk1) && (!chk2))
-                {
-                    //MessageBox.Show("chk1 && !chk2");
-                    errorMsgs(-24);
-                    return;
-                }
-                if ((!chk1) && (chk2))
-                {
-                    //MessageBox.Show("!chk1 && chk2");
-                    errorMsgs(-99);
-                    return;
-                }
-                //MessageBox.Show("!chk1 && !chk2");
+                errorMsgs(-24);
+                return;
+            }
+            else if ((chk == "BLENDER_NOT_FOUND") || (chk == "BOTH_NOT_FOUND"))
+            {
                 errorMsgs(-99);
                 return;
             }
-            errorMsgs(0);
+            else
+            {
+                // both execs found
+                errorMsgs(0);
+            }
 
             set.N_processes = processCountNumericUpDown.Value;
+            set.segment_len = endFrameNumericUpDown.Value;
 
             // rest
             blendFilePath = "";
@@ -376,29 +367,21 @@ namespace BlenderRenderController
                 return;
             }
 
-            // check for paths
-            var chk1 = reCheck(set.blender_path);
-            var chk2 = reCheck(set.ffmpeg_path);
-            if ((!chk1) || (!chk2))
+            var chk = checkEXE();
+            if (chk == "FFMPEG_NOT_FOUND")
             {
-                if ((chk1) && (!chk2))
-                {
-                    //MessageBox.Show("chk1 && !chk2");
-                    errorMsgs(-24);
-                    return;
-                }
-                if ((!chk1) && (chk2))
-                {
-                    //MessageBox.Show("!chk1 && chk2");
-                    errorMsgs(-99);
-                    return;
-                }
-                //MessageBox.Show("!chk1 && !chk2");
+                errorMsgs(-24);
+                return;
+            }
+            else if ((chk == "BLENDER_NOT_FOUND") || (chk == "BOTH_NOT_FOUND"))
+            {
                 errorMsgs(-99);
                 return;
             }
-            errorMsgs(0);
-
+            else
+            {
+                errorMsgs(0);
+            }
 
             Process p = new Process();
             p.StartInfo.WorkingDirectory       = ScriptsPath;
@@ -462,7 +445,7 @@ namespace BlenderRenderController
 
                 startFrameNumericUpDown.Value      = blendData.StartFrame;
 				totalFrameCountNumericUpDown.Value = blendData.EndFrame;
-                endFrameNumericUpDown.Value = (blendData.StartFrame + set.segment_lenth) - 1;
+                endFrameNumericUpDown.Value = (blendData.StartFrame + set.segment_len) - 1;
 
                 // Remove last bit from file path, if checked
                 if (ajustOutDir.Checked == true)
@@ -648,6 +631,11 @@ namespace BlenderRenderController
 
         }
 
+        /// <summary>
+        /// Runs FindExePath for EXEC, if they are not in Env. PATH, checks if they exist in the system
+        /// </summary>
+        /// <param name="item">Exec path string</param>
+        /// <returns>False if EXE is INVALID; True if EXE is in Env. PATH or User defined path is valid</returns>
         private bool reCheck(string item)
         {
             try
@@ -660,18 +648,43 @@ namespace BlenderRenderController
                 if (!File.Exists(item))
                 {
                     // Exec INVALID
-                    //errorMsgs(-25);
                     return false;
                 }
                 // else: User defined is valid
-                //errorMsgs(0);
                 return true;
             }
             // path is valid
-            //errorMsgs(0);
             return true;
         }
         
+        /// <summary>
+        /// Runs reCheck for both EXEs
+        /// </summary>
+        /// <returns>String w/ error, depending on the combination of reCheck's results</returns>
+        private string checkEXE()
+        {
+            // settings check
+            var chk1 = reCheck(set.blender_path);
+            var chk2 = reCheck(set.ffmpeg_path);
+            if ((!chk1) || (!chk2))
+            {
+                if ((chk1) && (!chk2))
+                {
+                    //MessageBox.Show("chk1 && !chk2");
+                    return "FFMPEG_NOT_FOUND";
+                }
+                if ((!chk1) && (chk2))
+                {
+                    //MessageBox.Show("!chk1 && chk2");
+                    return "BLENDER_NOT_FOUND";
+                }
+                //MessageBox.Show("!chk1 && !chk2");
+                return "BOTH_NOT_FOUND";
+            }
+            //errorMsgs(0);
+            return "EXECS_OK";
+
+        }
 
         private void tipsToolStripMenuItem_Click(object sender, EventArgs e)
         {
