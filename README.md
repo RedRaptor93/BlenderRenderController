@@ -20,11 +20,13 @@ PC used: i7 4790, 16GB DDR3 RAM @ 1600Mhz
 
 Really shows the importance of those extra cores huh? Even if you don't use Blender VSE often, thats a LOT of time saved. And the time added by joining the videos toghether is negligible (less then 1min).
 
+
 ## HOW TO USE
 
 ### Dependencies
 - Blender, obviously
 - FFmpeg, required for joining the parts toghether.
+
 
 1. Save your .blend file with the settings you want (output path, resolution, etc)
 
@@ -41,6 +43,7 @@ Really shows the importance of those extra cores huh? Even if you don't use Blen
 4. When all the parts are done, click "Concatenate parts" to join all parts toghether
 
 	- If you get a "Can't find working folder error", try "remove file from path" option beelow, "parts folder" must point to a FOLDER, not a FILE.
+
 	
 5. That's it!
 
