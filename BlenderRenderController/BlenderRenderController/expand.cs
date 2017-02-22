@@ -39,20 +39,6 @@ namespace BlenderRenderController
         }
 
         /// <summary>
-        /// Compare a setting and it's default, if setting is empty or equal to default, return true
-        /// </summary>
-        /// <param name="conf">User accessible setting</param>
-        /// <param name="def">Default if conf is empty</param>
-        /// <returns>True if conf is empty or equal def, else false</returns>
-        public static bool isDef(string conf, string def)
-        {
-            if ((conf == null) || (conf == "") || (conf == def))
-            { return true; }
-            else
-            { return false; }
-        }
-
-        /// <summary>
         /// Looks for blender.exe and ffmpeg.exe in PATH or in the user selected dir. If both fail, throw FileNotFoundException
         /// </summary>
         public static void EXECheck()
@@ -67,11 +53,11 @@ namespace BlenderRenderController
             var p1 = set.blender_path;
             var p2 = set.ffmpeg_path;
 
-            if ((p1 == "PATH%") || (p1 == null) || (p1 == ""))
+            if ((p1 == null) || (p1 == ""))
             {
                 p1 = set.def_blender;
             }
-            if ((p2 == "PATH%") || (p2 == null) || (p2 == ""))
+            if ((p2 == null) || (p2 == ""))
             {
                 p2 = set.def_ffmpeg;
             }

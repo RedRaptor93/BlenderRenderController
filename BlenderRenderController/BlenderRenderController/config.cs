@@ -19,6 +19,7 @@ namespace BlenderRenderController
         // saves before val of settings
         string vbBlender = Settings.Default.blender_path;
         string vbFFmpeg = Settings.Default.ffmpeg_path;
+        string vbSegLen = Settings.Default.segment_len.ToString();
 
         public config()
         {
@@ -189,9 +190,10 @@ namespace BlenderRenderController
 
         private void config_FormClosing(object sender, FormClosingEventArgs e)
         {
-            string[] after = { set.blender_path, set.ffmpeg_path };
-            string[] before = { vbBlender, vbFFmpeg };
+            string[] after = { set.blender_path, set.ffmpeg_path, set.segment_len.ToString() };
+            string[] before = { vbBlender, vbFFmpeg, vbSegLen };
             bool compare = after.SequenceEqual(before);
+
             try
             {
                 ConfigBRC.EXECheck();

@@ -113,21 +113,21 @@ namespace BlenderRenderController.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1500")]
-        public decimal segment_lenth {
+        public decimal segment_len {
             get {
-                return ((decimal)(this["segment_lenth"]));
+                return ((decimal)(this["segment_len"]));
             }
             set {
-                this["segment_lenth"] = value;
+                this["segment_len"] = value;
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("2000")]
-        public string def_segment {
+        public decimal def_segment {
             get {
-                return ((string)(this["def_segment"]));
+                return ((decimal)(this["def_segment"]));
             }
         }
     }
