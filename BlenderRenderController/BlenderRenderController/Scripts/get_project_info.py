@@ -17,6 +17,11 @@ a_data = bpy.context.scene
 N_of_Scenes = str(n_data).partition('[')[-1].rpartition(']')[0]
 ActiveScene = str(a_data).partition('("')[-1].rpartition('")')[0]
 
+# get resolution
+r_x = bpy.data.scenes[ActiveScene].render.resolution_x
+r_y = bpy.data.scenes[ActiveScene].render.resolution_y
+res = "{0}x{1}".format(r_x, r_y)
+
 # set infos acording to active Scene
 startFrame = bpy.data.scenes[ActiveScene].frame_start
 endFrame   = bpy.data.scenes[ActiveScene].frame_end
@@ -54,7 +59,7 @@ altdir = str(outputPath).rpartition('\\')[:-1][0]
 #print( "Start: %s\n" % (startFrame) )
 #print( "end: %s\n" % (endFrame) )
 
-data = { 'ProjectName': projName, 'StartFrame': startFrame, 'EndFrame': endFrame, 'OutputDirectory': outputPath,  
+data = { 'ProjectName': projName, 'StartFrame': startFrame, 'EndFrame': endFrame, 'Resolution': res, 'OutputDirectory': outputPath,  
         'NumScenes': N_of_Scenes, 'ActiveScene': ActiveScene, 'AltDir': altdir, 'ErrorCode': errorcode };
 
 jsonData = json.dumps(data, indent=4, skipkeys=True, sort_keys=True);

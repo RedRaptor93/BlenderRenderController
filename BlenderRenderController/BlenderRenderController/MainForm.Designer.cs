@@ -49,7 +49,6 @@
             this.prevChunkButton = new System.Windows.Forms.Button();
             this.totalFrameCountLabel = new System.Windows.Forms.Label();
             this.totalFrameCountNumericUpDown = new System.Windows.Forms.NumericUpDown();
-            this.processCountNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.processCountLabel = new System.Windows.Forms.Label();
             this.renderAllButton = new System.Windows.Forms.Button();
             this.concatenatePartsButton = new System.Windows.Forms.Button();
@@ -59,6 +58,7 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tipsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.changeSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.autocombineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.debugShow = new System.Windows.Forms.ToolStripMenuItem();
             this.speToolStripMenuItem = new System.Windows.Forms.ToolStripSeparator();
@@ -68,7 +68,7 @@
             this.jsonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteJsonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.cMDArgsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.viewSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
             this.infoPanel = new System.Windows.Forms.Panel();
             this.outFolderPathTextBox = new System.Windows.Forms.TextBox();
@@ -80,6 +80,7 @@
             this.activeWarn = new System.Windows.Forms.ToolTip(this.components);
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.ajustOutDir = new System.Windows.Forms.CheckBox();
+            this.processCountNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.line = new System.Windows.Forms.Label();
@@ -87,9 +88,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.startFrameNumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.endFrameNumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.totalFrameCountNumericUpDown)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.processCountNumericUpDown)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.infoPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.processCountNumericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // renderSegmentButton
@@ -171,7 +172,7 @@
             this.endFrameNumericUpDown.TabIndex = 5;
             this.toolTip1.SetToolTip(this.endFrameNumericUpDown, "Segment\'s end frame");
             this.endFrameNumericUpDown.Value = new decimal(new int[] {
-            3000,
+            2000,
             0,
             0,
             0});
@@ -329,21 +330,6 @@
             0,
             0});
             // 
-            // processCountNumericUpDown
-            // 
-            this.processCountNumericUpDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.processCountNumericUpDown.Location = new System.Drawing.Point(514, 234);
-            this.processCountNumericUpDown.Name = "processCountNumericUpDown";
-            this.processCountNumericUpDown.Size = new System.Drawing.Size(44, 21);
-            this.processCountNumericUpDown.TabIndex = 14;
-            this.toolTip1.SetToolTip(this.processCountNumericUpDown, "N# of processes. For best results set acording to \r\nhow many logical cores you ha" +
-        "ve.");
-            this.processCountNumericUpDown.Value = new decimal(new int[] {
-            3,
-            0,
-            0,
-            0});
-            // 
             // processCountLabel
             // 
             this.processCountLabel.AutoSize = true;
@@ -385,7 +371,7 @@
             // ReadBlenderData
             // 
             this.ReadBlenderData.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.ReadBlenderData.Location = new System.Drawing.Point(566, 139);
+            this.ReadBlenderData.Location = new System.Drawing.Point(565, 111);
             this.ReadBlenderData.Name = "ReadBlenderData";
             this.ReadBlenderData.Size = new System.Drawing.Size(75, 63);
             this.ReadBlenderData.TabIndex = 17;
@@ -434,6 +420,7 @@
             // 
             this.aboutToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tipsToolStripMenuItem,
+            this.changeSettingsToolStripMenuItem,
             this.autocombineToolStripMenuItem,
             this.debugShow,
             this.speToolStripMenuItem,
@@ -453,6 +440,13 @@
             this.tipsToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.tipsToolStripMenuItem.Text = "Tooltips";
             this.tipsToolStripMenuItem.Click += new System.EventHandler(this.tipsToolStripMenuItem_Click);
+            // 
+            // changeSettingsToolStripMenuItem
+            // 
+            this.changeSettingsToolStripMenuItem.Name = "changeSettingsToolStripMenuItem";
+            this.changeSettingsToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.changeSettingsToolStripMenuItem.Text = "Settings";
+            this.changeSettingsToolStripMenuItem.Click += new System.EventHandler(this.changeSettingsToolStripMenuItem_Click);
             // 
             // autocombineToolStripMenuItem
             // 
@@ -513,7 +507,7 @@
             // 
             this.debugToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.deleteJsonToolStripMenuItem,
-            this.cMDArgsToolStripMenuItem});
+            this.viewSettings});
             this.debugToolStripMenuItem.Name = "debugToolStripMenuItem";
             this.debugToolStripMenuItem.Size = new System.Drawing.Size(54, 20);
             this.debugToolStripMenuItem.Text = "Debug";
@@ -522,15 +516,15 @@
             // deleteJsonToolStripMenuItem
             // 
             this.deleteJsonToolStripMenuItem.Name = "deleteJsonToolStripMenuItem";
-            this.deleteJsonToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
+            this.deleteJsonToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
             this.deleteJsonToolStripMenuItem.Text = "Delete json";
             this.deleteJsonToolStripMenuItem.Click += new System.EventHandler(this.deleteJsonToolStripMenuItem_Click);
             // 
-            // cMDArgsToolStripMenuItem
+            // viewSettings
             // 
-            this.cMDArgsToolStripMenuItem.Name = "cMDArgsToolStripMenuItem";
-            this.cMDArgsToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
-            this.cMDArgsToolStripMenuItem.Text = "CMD args";
+            this.viewSettings.Name = "viewSettings";
+            this.viewSettings.Size = new System.Drawing.Size(142, 22);
+            this.viewSettings.Text = "view settings";
             // 
             // label1
             // 
@@ -662,6 +656,19 @@
             this.ajustOutDir.UseVisualStyleBackColor = true;
             this.ajustOutDir.CheckedChanged += new System.EventHandler(this.ajustOutDir_CheckedChanged);
             // 
+            // processCountNumericUpDown
+            // 
+            this.processCountNumericUpDown.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::BlenderRenderController.Properties.Settings.Default, "N_processes", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.processCountNumericUpDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.processCountNumericUpDown.Location = new System.Drawing.Point(514, 234);
+            this.processCountNumericUpDown.Name = "processCountNumericUpDown";
+            this.processCountNumericUpDown.Size = new System.Drawing.Size(44, 21);
+            this.processCountNumericUpDown.TabIndex = 14;
+            this.toolTip1.SetToolTip(this.processCountNumericUpDown, "N# of processes. For best results set acording to \r\nhow many logical cores you ha" +
+        "ve.");
+            this.processCountNumericUpDown.Value = global::BlenderRenderController.Properties.Settings.Default.N_processes;
+            this.processCountNumericUpDown.ValueChanged += new System.EventHandler(this.processCountNumericUpDown_ValueChanged);
+            // 
             // label5
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
@@ -760,11 +767,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.startFrameNumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.endFrameNumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.totalFrameCountNumericUpDown)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.processCountNumericUpDown)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.infoPanel.ResumeLayout(false);
             this.infoPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.processCountNumericUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -825,7 +832,8 @@
         private System.Windows.Forms.ToolStripMenuItem debugShow;
         private System.Windows.Forms.ToolStripMenuItem debugToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteJsonToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem cMDArgsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem viewSettings;
+        private System.Windows.Forms.ToolStripMenuItem changeSettingsToolStripMenuItem;
     }
 }
 

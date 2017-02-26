@@ -1,7 +1,36 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="BlenderRenderController.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="def_blender" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">blender.exe</Value>
+    </Setting>
+    <Setting Name="def_ffmpeg" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">ffmpeg.exe</Value>
+    </Setting>
+    <Setting Name="file_fmts" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">avi, mp4, mkv, flv</Value>
+    </Setting>
+    <Setting Name="blender_path" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ffmpeg_path" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="N_processes" Type="System.Decimal" Scope="User">
+      <Value Profile="(Default)">4</Value>
+    </Setting>
+    <Setting Name="usePath_blender" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="usePath_ffmpeg" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="segment_len" Type="System.Decimal" Scope="User">
+      <Value Profile="(Default)">1500</Value>
+    </Setting>
+    <Setting Name="def_segment" Type="System.Decimal" Scope="Application">
+      <Value Profile="(Default)">2000</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

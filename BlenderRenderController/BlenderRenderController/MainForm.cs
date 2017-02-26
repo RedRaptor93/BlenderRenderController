@@ -10,8 +10,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
 using System.Web.Script.Serialization;
+using BlenderRenderController.Properties;
 
 namespace BlenderRenderController
 {
@@ -23,15 +23,13 @@ namespace BlenderRenderController
 		string   blendProjectName = "concat_output.mp4";
 		DateTime startTime        = DateTime.MaxValue;
 
-		string ScriptsPath;
+        string ScriptsPath;
 
         Timer renderAllTimer;
         int runningRenderProcessCount;
 
         int ErrorCode;
         string AltDir;
-        // Lenth of segments, TEST
-        int SeqFrame = 1000;
 
         public class BlenderData {
 			public int    StartFrame;
@@ -46,9 +44,11 @@ namespace BlenderRenderController
             //public int SegFrame = 1000;
         }
 
-
+        // settings
         string[] args = Environment.GetCommandLineArgs();
+        Settings set = Settings.Default;
 
+        //string[] execStatus = { "ALL_VALID", "BLENDER_INVALID", "FFMPEG_INVALID", "ALL_INVALID" };
 
         public MainForm()
         {
@@ -62,10 +62,11 @@ namespace BlenderRenderController
 
         }
 
-        // Deletes json on form close
+        // Deletes json and saves sets on form close
         private void MainForm_Close(object sender, FormClosedEventArgs e)
         {
             jsonDel();
+            set.Save();
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -73,19 +74,39 @@ namespace BlenderRenderController
             // Arguments
             if (args.Length > 1)
             {
-                //test arguments
-                //for (int i = 0; i < args.Length; i++)
-                //{
-                //    string teste = string.Format("Arg[{0}] = [{1}] \r\n", i, args[i]);
-                //    MessageBox.Show(teste);
-                //}
-
                 // arg 1 = .blend path
                 blendFilePath = args[1];
                 blendFilePathTextBox.Text = blendFilePath;
                 DoReadBlenderData();
             }
 
+            // for testing!
+            //set.blender_path = "C:\\Program Files\\Blender Foundation\\Blender\\blender.exe";
+            //set.ffmpeg_path = "ffmpeg.exe";
+            //set.segment_len = 1500;
+
+            //settings check
+            var chk = checkEXE();
+            if (chk == "FFMPEG_NOT_FOUND")
+            {
+                errorMsgs(-24);
+                return;
+            }
+            else if ((chk == "BLENDER_NOT_FOUND") || (chk == "BOTH_NOT_FOUND"))
+            {
+                errorMsgs(-99);
+                return;
+            }
+            else
+            {
+                // both execs found
+                errorMsgs(0);
+            }
+
+            set.N_processes = processCountNumericUpDown.Value;
+            set.segment_len = endFrameNumericUpDown.Value;
+
+            // rest
             blendFilePath = "";
             outFolderPath = "";
 
@@ -136,8 +157,9 @@ namespace BlenderRenderController
             Process p = new Process();
 
             p.StartInfo.WorkingDirectory = outFolderPath;
-            p.StartInfo.FileName = "blender";
-			p.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
+            //p.StartInfo.FileName = "blender";
+            p.StartInfo.FileName = set.blender_path;
+            p.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
 
             //p.StartInfo.Arguments = String.Format("-b \"{0}\" -E {1} -s {2} -e {3} {4} -a ",
             p.StartInfo.Arguments = String.Format("-b \"{0}\" -E {1} -s {2} -e {3} -a ",
@@ -306,10 +328,10 @@ namespace BlenderRenderController
             Process p = new Process();
             
             p.StartInfo.WorkingDirectory = ffmpeg_dir;
-            //p.StartInfo.WorkingDirectory = AltDir;
-            p.StartInfo.FileName = "ffmpeg";
+            //p.StartInfo.FileName = "ffmpeg";
+            p.StartInfo.FileName = set.ffmpeg_path;
             p.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
-
+            p.StartInfo.UseShellExecute = false;
             p.StartInfo.Arguments = String.Format("-f concat -i partList.txt {0} -c:v copy {1} concat_output.{2}",
                                                    audioFile,
                                                    audioSettings,
@@ -345,18 +367,34 @@ namespace BlenderRenderController
                 return;
             }
 
+            var chk = checkEXE();
+            if (chk == "FFMPEG_NOT_FOUND")
+            {
+                errorMsgs(-24);
+                return;
+            }
+            else if ((chk == "BLENDER_NOT_FOUND") || (chk == "BOTH_NOT_FOUND"))
+            {
+                errorMsgs(-99);
+                return;
+            }
+            else
+            {
+                errorMsgs(0);
+            }
+
             Process p = new Process();
-            //p.StartInfo.WorkingDirectory     = outFolderPath;
             p.StartInfo.WorkingDirectory       = ScriptsPath;
-            p.StartInfo.FileName               = "blender";
-			p.StartInfo.RedirectStandardOutput = true;
+            //p.StartInfo.FileName               = "blender";
+            p.StartInfo.FileName               = set.blender_path;
+            p.StartInfo.RedirectStandardOutput = true;
 			p.StartInfo.CreateNoWindow         = true;
 			p.StartInfo.UseShellExecute        = false;
 
             p.StartInfo.Arguments = String.Format("-b \"{0}\" -P \"{1}\"",
                                                   blendFilePathTextBox.Text,
                                                   Path.Combine(ScriptsPath, "get_project_info.py")
-                                    );
+                                                 );
 
 			try {
 				p.Start();
@@ -407,8 +445,7 @@ namespace BlenderRenderController
 
                 startFrameNumericUpDown.Value      = blendData.StartFrame;
 				totalFrameCountNumericUpDown.Value = blendData.EndFrame;
-
-                //endFrameNumericUpDown.Value = startFrameNumericUpDown.Value + endFrameNumericUpDown.Value;
+                endFrameNumericUpDown.Value = (blendData.StartFrame + set.segment_len) - 1;
 
                 // Remove last bit from file path, if checked
                 if (ajustOutDir.Checked == true)
@@ -447,17 +484,17 @@ namespace BlenderRenderController
         /// Error central, displays message and does actions
         /// according to given code, then returns
         /// </summary>
-        /// <param name="er"></param>
-        /// <returns>same as er</returns>
+        /// <param name="er">error codes</param>
+        /// <returns>message and does actions</returns>
         void errorMsgs(int er)
         {
             int input = er;
             // Actions
 
-            // disable buttons if invalid
-            var invalid_list = new List<int> { -1, -2, -3, -104 };
+            // disable ALL buttons
+            var invalid_list = new List<int> { -1, -2, -3, -104, -99 };
             var isbad = invalid_list.Contains(input);
-            if (isbad == true)
+            if (isbad)
             {
                 renderAllButton.Enabled = false;
                 renderSegmentButton.Enabled = false;
@@ -471,6 +508,20 @@ namespace BlenderRenderController
                 concatenatePartsButton.Enabled = true;
                 MixdownAudio.Enabled = true;
             }
+
+            // disable ffmpeg buttons only
+            var ffmpeg_er = -24;
+            if (input == ffmpeg_er)
+            {
+                concatenatePartsButton.Enabled = false;
+                MixdownAudio.Enabled = false;
+            }
+            else if (!isbad)
+            {
+                concatenatePartsButton.Enabled = true;
+                MixdownAudio.Enabled = true;
+            }
+
 
             // Messages
             string message;
@@ -513,6 +564,19 @@ namespace BlenderRenderController
                 MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
+            else if (input == -24)
+            {
+                message = "ffmpeg.exe not found";
+                MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            else if (input == -99)
+            {
+                //message = "blender.exe not found";
+                message = "Could not find necessary programs, go to Options -> Settings and make sure paths are valid";
+                MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
             else
             {
                 // no problems, don't show error message
@@ -545,7 +609,8 @@ namespace BlenderRenderController
 
             Process p = new Process();
 
-            p.StartInfo.FileName = "blender";
+            //p.StartInfo.FileName = "blender";
+            p.StartInfo.FileName = set.blender_path;
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.UseShellExecute = false;
             //Using minimized instead so we get feedback
@@ -566,13 +631,60 @@ namespace BlenderRenderController
 
         }
 
-        /* About this app
-        private void creditsToolStripMenuItem_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Runs FindExePath for EXEC, if they are not in Env. PATH, checks if they exist in the system
+        /// </summary>
+        /// <param name="item">Exec path string</param>
+        /// <returns>False if EXE is INVALID; True if EXE is in Env. PATH or User defined path is valid</returns>
+        private bool reCheck(string item)
         {
-            About about = new About();
-            about.Show();
+            try
+            {
+                ConfigBRC.FindExePath(item);
+            }
+            catch (FileNotFoundException)
+            {
+                // Execs NOT in PATH, check if user defined is valid
+                if (!File.Exists(item))
+                {
+                    // Exec INVALID
+                    return false;
+                }
+                // else: User defined is valid
+                return true;
+            }
+            // path is valid
+            return true;
         }
-        */
+        
+        /// <summary>
+        /// Runs reCheck for both EXEs
+        /// </summary>
+        /// <returns>String w/ error, depending on the combination of reCheck's results</returns>
+        private string checkEXE()
+        {
+            // settings check
+            var chk1 = reCheck(set.blender_path);
+            var chk2 = reCheck(set.ffmpeg_path);
+            if ((!chk1) || (!chk2))
+            {
+                if ((chk1) && (!chk2))
+                {
+                    //MessageBox.Show("chk1 && !chk2");
+                    return "FFMPEG_NOT_FOUND";
+                }
+                if ((!chk1) && (chk2))
+                {
+                    //MessageBox.Show("!chk1 && chk2");
+                    return "BLENDER_NOT_FOUND";
+                }
+                //MessageBox.Show("!chk1 && !chk2");
+                return "BOTH_NOT_FOUND";
+            }
+            //errorMsgs(0);
+            return "EXECS_OK";
+
+        }
 
         private void tipsToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -641,6 +753,19 @@ namespace BlenderRenderController
         private void deleteJsonToolStripMenuItem_Click(object sender, EventArgs e)
         {
             jsonDel();
+        }
+
+
+        private void changeSettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            config op = new config();
+            op.Show();
+        }
+
+        private void processCountNumericUpDown_ValueChanged(object sender, EventArgs e)
+        {
+            //set.N_processes = processCountNumericUpDown.Value;
+            //processCountNumericUpDown.Value = set.N_processes;
         }
     }
 }
