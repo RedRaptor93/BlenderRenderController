@@ -59,8 +59,8 @@ namespace BlenderRenderController
             this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.miEmptyPH = new System.Windows.Forms.ToolStripMenuItem();
-            this.openRecentsTSButton = new System.Windows.Forms.ToolStripDropDownButton();
             this.miOpenRecent = new System.Windows.Forms.ToolStripMenuItem();
+            this.openRecentsTSButton = new System.Windows.Forms.ToolStripDropDownButton();
             this.blendFileLabel = new System.Windows.Forms.Label();
             this.outputFolderLabel = new System.Windows.Forms.Label();
             this.optionsLabel = new System.Windows.Forms.Label();
@@ -459,7 +459,7 @@ namespace BlenderRenderController
             this.toolStripSeparator3,
             this.miEmptyPH});
             this.recentBlendsMenu.Name = "recentBlendsMenu";
-            this.recentBlendsMenu.OwnerItem = this.miOpenRecent;
+            this.recentBlendsMenu.OwnerItem = this.openRecentsTSButton;
             this.recentBlendsMenu.Size = new System.Drawing.Size(109, 54);
             // 
             // clearToolStripMenuItem
@@ -484,6 +484,15 @@ namespace BlenderRenderController
             this.miEmptyPH.Size = new System.Drawing.Size(108, 22);
             this.miEmptyPH.Text = "Empty";
             // 
+            // miOpenRecent
+            // 
+            this.miOpenRecent.DropDown = this.recentBlendsMenu;
+            this.miOpenRecent.Image = global::BlenderRenderController.Properties.Resources.Time_16x;
+            this.miOpenRecent.Name = "miOpenRecent";
+            this.miOpenRecent.Size = new System.Drawing.Size(151, 22);
+            this.miOpenRecent.Text = "Open Re&cent";
+            this.miOpenRecent.ToolTipText = "Open Recent";
+            // 
             // openRecentsTSButton
             // 
             this.openRecentsTSButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -494,15 +503,6 @@ namespace BlenderRenderController
             this.openRecentsTSButton.Name = "openRecentsTSButton";
             this.openRecentsTSButton.Size = new System.Drawing.Size(29, 20);
             this.openRecentsTSButton.Text = "Open Recent";
-            // 
-            // miOpenRecent
-            // 
-            this.miOpenRecent.DropDown = this.recentBlendsMenu;
-            this.miOpenRecent.Image = global::BlenderRenderController.Properties.Resources.Time_16x;
-            this.miOpenRecent.Name = "miOpenRecent";
-            this.miOpenRecent.Size = new System.Drawing.Size(151, 22);
-            this.miOpenRecent.Text = "Open Re&cent";
-            this.miOpenRecent.ToolTipText = "Open Recent";
             // 
             // blendFileLabel
             // 
@@ -852,7 +852,7 @@ namespace BlenderRenderController
             // 
             this.miGithub.Image = global::BlenderRenderController.Properties.Resources.github_logo;
             this.miGithub.Name = "miGithub";
-            this.miGithub.Size = new System.Drawing.Size(152, 22);
+            this.miGithub.Size = new System.Drawing.Size(142, 22);
             this.miGithub.Text = "&Github";
             this.miGithub.Click += new System.EventHandler(this.miGithub_Click);
             // 
@@ -862,7 +862,7 @@ namespace BlenderRenderController
             this.miReportBug.ForeColor = System.Drawing.Color.CornflowerBlue;
             this.miReportBug.Image = global::BlenderRenderController.Properties.Resources.bug_icon;
             this.miReportBug.Name = "miReportBug";
-            this.miReportBug.Size = new System.Drawing.Size(152, 22);
+            this.miReportBug.Size = new System.Drawing.Size(142, 22);
             this.miReportBug.Text = "Report a &Bug";
             this.miReportBug.Click += new System.EventHandler(this.toolStripMenuItemBug_Click);
             // 
@@ -870,7 +870,7 @@ namespace BlenderRenderController
             // 
             this.miDonate.Image = ((System.Drawing.Image)(resources.GetObject("miDonate.Image")));
             this.miDonate.Name = "miDonate";
-            this.miDonate.Size = new System.Drawing.Size(152, 22);
+            this.miDonate.Size = new System.Drawing.Size(142, 22);
             this.miDonate.Text = "&Donate";
             this.miDonate.ToolTipText = "Feeling specially awesome? Donate!";
             this.miDonate.Click += new System.EventHandler(this.donateButton_Click);
@@ -878,13 +878,13 @@ namespace BlenderRenderController
             // toolStripSeparator7
             // 
             this.toolStripSeparator7.Name = "toolStripSeparator7";
-            this.toolStripSeparator7.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator7.Size = new System.Drawing.Size(139, 6);
             // 
             // miAbout
             // 
             this.miAbout.Image = global::BlenderRenderController.Properties.Resources.UIAboutBox_16x;
             this.miAbout.Name = "miAbout";
-            this.miAbout.Size = new System.Drawing.Size(152, 22);
+            this.miAbout.Size = new System.Drawing.Size(142, 22);
             this.miAbout.Text = "&About...";
             this.miAbout.Click += new System.EventHandler(this.AboutBRC_Click);
             // 

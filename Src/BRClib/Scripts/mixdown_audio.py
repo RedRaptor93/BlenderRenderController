@@ -1,5 +1,5 @@
 # Part of Blender Render Controller
-# https://github.com/jendabek/BlenderRenderController
+# https://github.com/RedRaptor93/BlenderRenderController
 # Copyright 2017-present Pedro Oliva Rodrigues
 
 import os

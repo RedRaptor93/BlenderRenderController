@@ -951,7 +951,7 @@ namespace BlenderRenderController
 
         private void toolStripMenuItemBug_Click(object sender, EventArgs e)
         {
-            string url = "https://github.com/jendabek/BlenderRenderController/wiki/Reporting-an-issue";
+            string url = "https://github.com/RedRaptor93/BlenderRenderController/wiki/Reporting-an-issue";
 
             Process.Start(url);
         }
@@ -984,7 +984,7 @@ namespace BlenderRenderController
 
         private void miGithub_Click(object sender, EventArgs e)
         {
-            Process.Start("https://github.com/jendabek/BlenderRenderController");
+            Process.Start("https://github.com/RedRaptor93/BlenderRenderController");
         }
 
         private void ForceBindingSourceUpdate()
