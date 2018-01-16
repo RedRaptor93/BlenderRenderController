@@ -6,9 +6,10 @@ Latest release [HERE](https://github.com/RedRaptor93/BlenderRenderController/rel
 BRC is a tool to speed up the rendering process of videos in Blender's Video Sequence editor by rendering multiple diferent chunks of the video at the same time and joining them toguether after.
 
 ### Documentation
-...
-
-Any questions, bug reports or suggestions? [Let us know](https://github.com/RedRaptor93/BlenderRenderController/issues)!
+- [About BRC](https://github.com/RedRaptor93/BlenderRenderController/blob/master/docs/about_brc.md) and why you might want to use it
+- [Installing and using](https://github.com/RedRaptor93/BlenderRenderController/blob/master/docs/installing_using.md)
+- [Tips and tricks](https://github.com/RedRaptor93/BlenderRenderController/blob/master/docs/tips_tricks.md) to improve rendering performance
+- [Reporting an issue](https://github.com/RedRaptor93/BlenderRenderController/blob/master/docs/reporting_an_issue.md). read this before opening a new issue!
 
 
 ### Known Issues
@@ -17,7 +18,7 @@ Any questions, bug reports or suggestions? [Let us know](https://github.com/RedR
 	- Blender crashes when BRC requests project info.
 	- Work-around: Launch _BlenderRenderController.exe_ from the command line, you can get a convenient _.bat_ file [here](https://github.com/RedRaptor93/BlenderRenderController/blob/master/extras/utilities/runWin7.bat).
 
-- Older versions of FFmpeg may fail to join chunks if AAC audio is used ([link](https://trac.ffmpeg.org/wiki/Encode/AAC#NativeFFmpegAACencoder))
+- Older versions of FFmpeg may fail to join chunks if AAC audio is used
 
 - Ui may not update progress properly on Linux
 
