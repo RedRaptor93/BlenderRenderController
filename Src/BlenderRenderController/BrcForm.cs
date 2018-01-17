@@ -30,8 +30,8 @@ using System.Windows.Forms;
 
 namespace BlenderRenderController
 {
-    using ScriptShelf = BRClib.Scripts.Shelf;
     using Settings = Services.Settings;
+    using Scripts = Services.Scripts;
 
     /// <summary>
     /// Main Window
@@ -245,7 +245,7 @@ namespace BlenderRenderController
             UpdateProgressBars(-1);
 
             // exec process asynchronously
-            var giScript = ScriptShelf.GetProjectInfo;
+            var giScript = Scripts.GetProjectInfo;
 
             var giProc = new Process
             {
@@ -728,7 +728,7 @@ namespace BlenderRenderController
                                     _vm.Project.BlendFilePath,
                                     _vm.Project.Start,
                                     _vm.Project.End,
-                                    ScriptShelf.MixdownAudio,
+                                    Scripts.MixdownAudio,
                                     _vm.Project.OutputPath);
 
             var result = await mix.RunAsync(_afterRenderCancelSrc.Token);

@@ -18,26 +18,27 @@ namespace BlenderRenderController
         {
 
             // parse args
-            if (args.Contains("--gen"))
-            {
-                Console.WriteLine("Writing scripts to AppData folder...");
-                string[] paths = 
-                {
-                    Shelf.EmbeddedScriptToDisk(Shelf.PyScript.GetProjectInfo),
-                    Shelf.EmbeddedScriptToDisk(Shelf.PyScript.MixdownAudio),
-                };
+            //if (args.Contains("--gen"))
+            //{
+            //    Console.WriteLine("Writing scripts to AppData folder...");
+            //    string[] paths = 
+            //    {
+            //        Shelf.EmbeddedScriptToDisk(Shelf.PyScript.GetProjectInfo),
+            //        Shelf.EmbeddedScriptToDisk(Shelf.PyScript.MixdownAudio),
+            //    };
 
-                Console.WriteLine(string.Join("\n", paths));
+            //    Console.WriteLine(string.Join("\n", paths));
 
-                return;
-            }
-            else if (args.Contains("--clear"))
+            //    return;
+            //}
+            /*else if (args.Contains("--clear"))
             {
                 Console.WriteLine("Clearing existing scripts...");
                 Directory.Delete(Dirs.Scripts, true);
-            }
+            }*/
 
             Services.Settings.InitSettings();
+            Services.Scripts.Init(Services.Settings.BaseDir);
 
             NlogSetup();
 
@@ -82,6 +83,7 @@ namespace BlenderRenderController
             LogManager.ReconfigExistingLoggers();
 
         }
+
 
     }
 }

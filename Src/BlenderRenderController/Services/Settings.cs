@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using BlenderRenderController.Infra;
 using BRClib;
+using BRClib.Scripts;
 using Newtonsoft.Json;
 
 namespace BlenderRenderController.Services
@@ -15,8 +16,10 @@ namespace BlenderRenderController.Services
     {
         static string _baseDir;
         const string SETTINGS_FILE = "brc_settings.json";
+        const string BRC_VER = "BRC_VER";
 
         static BrcSettings _setts;
+        static IScriptPath _scriptPaths;
 
         internal static BrcSettings Current
         {
@@ -41,13 +44,25 @@ namespace BlenderRenderController.Services
             }
         }
 
+        internal static string BaseDir => _baseDir;
+
+        //public static IScriptPath ScriptPaths
+        //{
+        //    get
+        //    {
+        //        return _scriptPaths;
+        //    }
+        //}
+
         internal static void InitSettings()
         {
             _baseDir = Portable ? Env.CurrentDirectory : Dirs.AppData;
 
-            Env.SetEnvironmentVariable("BRC_VER", Assembly.GetExecutingAssembly().GetName().Version.ToString());
+            Env.SetEnvironmentVariable(BRC_VER, Assembly.GetExecutingAssembly().GetName().Version.ToString());
 
             _setts = LoadInternal(Path.Combine(_baseDir, SETTINGS_FILE));
+
+            //_scriptPaths = new ScriptLocator(_baseDir);
         }
 
         public static bool CheckCorrectConfig()
@@ -73,6 +88,30 @@ namespace BlenderRenderController.Services
             return blenderFound && ffmpegFound;
         }
 
+        public static bool CheckVerFile(bool overwrite)
+        {
+            var brc_ver = Env.GetEnvironmentVariable(BRC_VER);
+
+            var verFile = Path.Combine(_baseDir, "ver");
+
+            if (!File.Exists(verFile) && overwrite)
+            {
+                File.WriteAllText(verFile, brc_ver);
+                return false;
+            }
+
+            var savedVer = File.ReadAllText(verFile);
+
+            if (savedVer == brc_ver)
+            {
+                return true;
+            }
+
+            if (overwrite)
+                File.WriteAllText(verFile, brc_ver);
+
+            return false;
+        }
 
         static string SearchPathForProgram(string program)
         {

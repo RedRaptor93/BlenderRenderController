@@ -22,16 +22,5 @@ namespace BlenderRenderController
 
         public static readonly string Scripts = Path.Combine(AppData, "scripts");
     }
-
-    enum AppState
-    {
-        RENDERING_ALL, READY_FOR_RENDER, AFTER_START, NOT_CONFIGURED
-    }
-
-    enum AppErrorCode
-    {
-        BLENDER_PATH_NOT_SET, FFMPEG_PATH_NOT_SET, BLEND_FILE_NOT_EXISTS,
-        RENDER_FORMAT_IS_IMAGE, BLEND_OUTPUT_INVALID, UNKNOWN_OS
-    }
-
+    
 }

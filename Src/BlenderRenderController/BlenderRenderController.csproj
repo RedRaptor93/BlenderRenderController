@@ -144,6 +144,8 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="RenderManager.cs" />
+    <Compile Include="Services\ScriptLocator.cs" />
+    <Compile Include="Services\Scripts.cs" />
     <Compile Include="Services\Settings.cs" />
     <Compile Include="SettingsForm.cs">
       <SubType>Form</SubType>

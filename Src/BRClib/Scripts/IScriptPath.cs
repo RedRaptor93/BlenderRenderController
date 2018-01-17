@@ -2,7 +2,8 @@
 {
     public interface IScriptPath
     {
-        string GetProjectInfo { get; set; }
-        string MixdownAudio { get; set; }
+        string GetProjectInfo { get; }
+        string MixdownAudio { get; }
     }
+
 }

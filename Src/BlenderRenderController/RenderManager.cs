@@ -1,4 +1,6 @@
-﻿using BRClib.Commands;
+﻿using BRClib;
+using BRClib.Commands;
+using BRClib.Extentions;
 using NLog;
 using System;
 using System.Collections.Concurrent;
@@ -8,12 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Reflection;
-
 using Timer = System.Timers.Timer;
-using ScriptShelf = BRClib.Scripts.Shelf;
-using BRClib.Extentions;
-using BRClib;
 
 namespace BlenderRenderController.Render
 {
@@ -484,7 +481,7 @@ namespace BlenderRenderController.Render
             var projFinalPath = Path.Combine(_proj.OutputPath, _proj.ProjectName + videoExt);
             var chunksTxt = Path.Combine(ChunksFolderPath, CHUNK_TXT);
             var mixdownPath = Path.Combine(_proj.OutputPath, MixdownFile);
-            var mixdownTmpScript = ScriptShelf.MixdownAudio;
+            var mixdownTmpScript = Services.Scripts.MixdownAudio;
 
 
             MixdownCmd mixdown = new MixdownCmd(_setts.BlenderProgram)
