@@ -17,7 +17,7 @@ namespace BlenderRenderController.Infra
             {
                 if (value <= 0)
                 {
-                    throw new Exception("Must a positive, non-zero value");
+                    throw new Exception("Must be a positive, non-zero value");
                 }
                 _capacity = value;
             }

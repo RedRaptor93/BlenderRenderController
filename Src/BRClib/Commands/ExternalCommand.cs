@@ -55,10 +55,23 @@ namespace BRClib.Commands
             }
         }
 
-        public virtual string StdOutput => _stdOut;
-        public virtual string StdError => _stdErr;
-        public virtual int ExitCode => _eCode;
+        public string StdOutput
+        {
+            get => _stdOut;
+            protected set => _stdOut = value;
+        }
 
+        public string StdError
+        {
+            get => _stdErr;
+            protected set => _stdErr = value;
+        }
+
+        public int ExitCode
+        {
+            get => _eCode;
+            protected set => _eCode = value;
+        }
 
         public ExternalCommand(string programPath)
         {
@@ -93,7 +106,7 @@ namespace BRClib.Commands
             };
             proc.Exited += (ps, pe) =>
             {
-                Log.Info("{0} exit code: {1}", _procName, (ps as Process).ExitCode);
+                Log.Debug("{0} exit code: {1}", _procName, (ps as Process).ExitCode);
             };
 
             Log.Debug("cmd:> {0} {1}", _procName, proc.StartInfo.Arguments);
@@ -103,12 +116,12 @@ namespace BRClib.Commands
 
         protected abstract string GetArgs();
 
-        public Task<int> RunAsync(CancellationToken token = default)
+        public virtual Task<int> RunAsync(CancellationToken token = default)
         {
             return RunProcAsync(GetProcess(), token);
         }
 
-        protected virtual Task<int> RunProcAsync(Process proc, CancellationToken token = default)
+        protected Task<int> RunProcAsync(Process proc, CancellationToken token = default)
         {
             var tcs = new TaskCompletionSource<int>();
 
