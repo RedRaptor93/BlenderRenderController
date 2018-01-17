@@ -3,6 +3,7 @@
 #error You must define a platform (WIN or UNIX)
 #elif UNIX
 #undef WIN
+#warning Mono support is deprecated, UNIX scafolding will be removed in the future
 #endif
 
 using BlenderRenderController.Properties;
