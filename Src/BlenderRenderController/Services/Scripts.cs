@@ -27,16 +27,18 @@ namespace BlenderRenderController.Services
                 Directory.CreateDirectory(_scriptF);
             }
 
-            bool overwrite = Settings.CheckVerFile(true);
-
-            if (overwrite)
-            {
-                WriteScriptToDisk(PyMixdownAudio, _scriptF);
-                WriteScriptToDisk(PyGetProjInfo, _scriptF);
-            }
-
+            var overwrite = Settings.CheckVerFile(true);
             _gpinfo = Path.Combine(_scriptF, PyGetProjInfo);
             _mix = Path.Combine(_scriptF, PyMixdownAudio);
+
+            if (!File.Exists(_gpinfo) || overwrite)
+            {
+                WriteScriptToDisk(PyGetProjInfo, _scriptF);
+            }
+            if (!File.Exists(_mix) || overwrite)
+            {
+                WriteScriptToDisk(PyMixdownAudio, _scriptF);
+            }
         }
 
 

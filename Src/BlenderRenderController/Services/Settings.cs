@@ -33,6 +33,11 @@ namespace BlenderRenderController.Services
         {
             get
             {
+                if (Env.GetCommandLineArgs().Contains("--portable"))
+                {
+                    return true;
+                }
+
                 var portableStr = ConfigurationManager.AppSettings["portable"];
 
                 if (bool.TryParse(portableStr, out bool result))
@@ -54,7 +59,7 @@ namespace BlenderRenderController.Services
         //    }
         //}
 
-        internal static void InitSettings()
+        internal static void Init()
         {
             _baseDir = Portable ? Env.CurrentDirectory : Dirs.AppData;
 
@@ -88,13 +93,13 @@ namespace BlenderRenderController.Services
             return blenderFound && ffmpegFound;
         }
 
-        public static bool CheckVerFile(bool overwrite)
+        public static bool CheckVerFile(bool createFile)
         {
             var brc_ver = Env.GetEnvironmentVariable(BRC_VER);
 
             var verFile = Path.Combine(_baseDir, "ver");
 
-            if (!File.Exists(verFile) && overwrite)
+            if (!File.Exists(verFile) && createFile)
             {
                 File.WriteAllText(verFile, brc_ver);
                 return false;
@@ -107,7 +112,7 @@ namespace BlenderRenderController.Services
                 return true;
             }
 
-            if (overwrite)
+            if (createFile)
                 File.WriteAllText(verFile, brc_ver);
 
             return false;

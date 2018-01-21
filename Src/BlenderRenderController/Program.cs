@@ -16,28 +16,8 @@ namespace BlenderRenderController
         [STAThread]
         static void Main(string[] args)
         {
-
-            // parse args
-            //if (args.Contains("--gen"))
-            //{
-            //    Console.WriteLine("Writing scripts to AppData folder...");
-            //    string[] paths = 
-            //    {
-            //        Shelf.EmbeddedScriptToDisk(Shelf.PyScript.GetProjectInfo),
-            //        Shelf.EmbeddedScriptToDisk(Shelf.PyScript.MixdownAudio),
-            //    };
-
-            //    Console.WriteLine(string.Join("\n", paths));
-
-            //    return;
-            //}
-            /*else if (args.Contains("--clear"))
-            {
-                Console.WriteLine("Clearing existing scripts...");
-                Directory.Delete(Dirs.Scripts, true);
-            }*/
-
-            Services.Settings.InitSettings();
+            
+            Services.Settings.Init();
             Services.Scripts.Init(Services.Settings.BaseDir);
 
             NlogSetup();
@@ -75,15 +55,17 @@ namespace BlenderRenderController
                 default: return;
             }
 
-            foreach (var rule in LogManager.Configuration.LoggingRules)
+            string fileTgt = "brclogfile";
+            if (Services.Settings.Portable)
             {
-                rule.EnableLoggingForLevel(lLvl);
+                fileTgt += "_p";
             }
 
+            var target = LogManager.Configuration.FindTargetByName(fileTgt);
+            LogManager.Configuration.AddRule(lLvl, LogLevel.Fatal, fileTgt, "*");
+
             LogManager.ReconfigExistingLoggers();
-
         }
-
 
     }
 }

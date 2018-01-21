@@ -265,12 +265,7 @@ namespace BlenderRenderController
 
             var pResult = await giProc.StartAsync();
 
-            // errors
-            if (pResult.StdOutput.Length > 0)
-            {
-                logger.Debug("Blender output errors detected");
-            }
-
+            // detect errors
             if (pResult.StdOutput.Length == 0)
             {
                 var detailsContent = $"Blender's exit code {pResult.ExitCode}\nOutput:\n\n" + pResult.StdError;
