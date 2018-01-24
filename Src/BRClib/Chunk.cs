@@ -32,13 +32,11 @@ namespace BRClib
         /// <summary>
         /// Create a new chunk
         /// </summary>
-        /// <param name="start">Chunk's start frame</param>
-        /// <param name="end">Chunk's end frame</param>
+        /// <param name="start">The start frame</param>
+        /// <param name="end">The end frame</param>
         public Chunk(int start, int end)
         {
-            if (end <= start)
-                throw new ArgumentException("Start frame cannot be equal or greater them the end frame",
-                                            nameof(start));
+            EnsureValidFrameRange(start, end);
 
             Start = start;
             End = end;
@@ -105,9 +103,7 @@ namespace BRClib
         /// <param name="chunkNum">Number of chunks desired</param>
         public static IEnumerable<Chunk> CalcChunks(int start, int end, int chunkNum)
         {
-            if (end <= start)
-                throw new ArgumentException("Start frame cannot be equal or greater them the end frame",
-                                            nameof(start));
+            EnsureValidFrameRange(start, end);
 
             if (chunkNum <= 0)
                 throw new ArgumentException("Invalid N# of Chunks", nameof(chunkNum));
@@ -115,7 +111,7 @@ namespace BRClib
             if (chunkNum == 1)
             {
                 // return a single chunk
-                return Enumerable.Repeat(new Chunk(start, end), 1);
+                return new[] { new Chunk(start, end) };
             }
 
             var lenght = Math.Ceiling((end - start + 1) / (double)chunkNum);
@@ -134,9 +130,7 @@ namespace BRClib
             if (chunkLenght <= 1)
                 throw new ArgumentException("Invalid chunk lenght", nameof(chunkLenght));
 
-            if (end <= start)
-                throw new ArgumentException("Start frame cannot be equal or greater them the end frame",
-                                            nameof(start));
+            EnsureValidFrameRange(start, end);
 
             return GenChunks(start, end, chunkLenght);
         }
@@ -163,6 +157,13 @@ namespace BRClib
                     break;
                 }
             }
+        }
+
+        private static void EnsureValidFrameRange(int start, int end)
+        {
+            if (end <= start)
+                throw new ArgumentException("Start frame cannot be equal or greater them the end frame",
+                                            nameof(start));
         }
 
     }

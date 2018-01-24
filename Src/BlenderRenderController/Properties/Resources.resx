@@ -198,4 +198,10 @@ You can render an image sequence with this tool but you will need to make a vide
   <data name="UIAboutBox_16x" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\UIAboutBox_16x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="cgb_minus" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\minus.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="cgb_plus" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\plus.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

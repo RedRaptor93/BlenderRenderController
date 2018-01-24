@@ -265,16 +265,19 @@ namespace BlenderRenderController
 
             var pResult = await giProc.StartAsync();
 
+            var detailsReport = $"blender exited w/ code {pResult.ExitCode}\n\n" +
+                                pResult.StdOutput +
+                                $"\n# {new string('-', 35)} # \n" +
+                                pResult.StdError;
+
             // detect errors
             if (pResult.StdOutput.Length == 0)
             {
-                var detailsContent = $"Blender's exit code {pResult.ExitCode}\nOutput:\n\n" + pResult.StdError;
-
-                var err = Ui.Dialogs.ShowErrorBox("Could not open project, no information was received.",
-                                                  "Failed to read project",
-                                                  "Error",
-                                                  detailsContent);
-                //err.Show();
+                var dialog = new Ui.DetailedMessageBox(
+                    "Failed to read project info, no information was received.",
+                    "Error",
+                    detailsReport);
+                dialog.ShowDialog();
                 ReadFail();
                 return;
             }
@@ -320,10 +323,10 @@ namespace BlenderRenderController
             }
             else
             {
-                //var detailContents = string.Format("# STD output:\n\n{0}\n\n# STD errors:\n\n{1}", fullOutput, fullErrors);
-                var errorBox = Ui.Dialogs.ShowErrorBox("Failed to read blend file info.",
-                    "Read error", "Error output:\n\n" + pResult.StdError);
-
+                //Ui.Dialogs.ShowErrorBox("Failed to read blend file info.",
+                //    "Read error", "Error output:\n\n" + pResult.StdError);
+                var dialog = new Ui.DetailedMessageBox("Failed to read blend file info", "Error", detailsReport);
+                dialog.ShowDialog();
                 ReadFail();
                 return;
             }

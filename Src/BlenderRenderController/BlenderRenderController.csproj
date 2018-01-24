@@ -152,12 +152,15 @@
     <Compile Include="SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Ui\CollapsibleGroupBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Ui\Dialogs.cs" />
-    <Compile Include="Ui\ErrorBox.cs">
+    <Compile Include="Ui\DetailedMessageBox.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Ui\ErrorBox.Designer.cs">
-      <DependentUpon>ErrorBox.cs</DependentUpon>
+    <Compile Include="Ui\DetailedMessageBox.Designer.cs">
+      <DependentUpon>DetailedMessageBox.cs</DependentUpon>
     </Compile>
     <Compile Include="Ui\InfoBoxItem.cs">
       <SubType>UserControl</SubType>
@@ -182,8 +185,8 @@
     <EmbeddedResource Include="SettingsForm.resx">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Ui\ErrorBox.resx">
-      <DependentUpon>ErrorBox.cs</DependentUpon>
+    <EmbeddedResource Include="Ui\DetailedMessageBox.resx">
+      <DependentUpon>DetailedMessageBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Ui\InfoBoxItem.resx">
       <DependentUpon>InfoBoxItem.cs</DependentUpon>
@@ -192,20 +195,13 @@
     <None Include="Properties\DataSources\BRClib.Project.datasource" />
     <None Include="Properties\DataSources\BrcSettings.datasource" />
     <None Include="Resources\brc_icon.ico" />
-    <None Include="Resources\volume-small.png" />
     <None Include="Resources\stop-icon.png" />
     <None Include="Resources\settings-icon.png" />
-    <None Include="Resources\reload-icon.png" />
     <None Include="Resources\info-icon.png" />
     <None Include="Resources\github-logo.png" />
-    <None Include="Resources\folder-icon-smaller.png" />
-    <None Include="Resources\folder-icon.png" />
     <None Include="Resources\donate-icon.png" />
-    <None Include="Resources\donate-2.png" />
     <None Include="Resources\connect-icon-small.png" />
     <None Include="Resources\bug-icon.png" />
-    <None Include="Resources\Broom-50.png" />
-    <None Include="Resources\239009-200.png" />
     <EmbeddedResource Include="BrcForm.resx">
       <DependentUpon>BrcForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -246,6 +242,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\plus.bmp" />
+    <None Include="Resources\minus.bmp" />
     <Content Include="Resources\UIAboutBox_16x.png" />
     <None Include="Resources\Refresh_grey_16x.png" />
     <None Include="Resources\Time_16x.png" />

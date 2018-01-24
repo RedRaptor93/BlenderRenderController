@@ -38,12 +38,9 @@ namespace BlenderRenderController.Ui
 
         public static DialogResult ShowErrorBox(string textBody, string mainText, string details)
         {
-#if WIN
-            return ShowErrorBox(textBody, mainText, null, details);
-#else
-            var eb = new ErrorBox(textBody, mainText, details);
+            //return ShowErrorBox(textBody, mainText, null, details);
+            var eb = new DetailedMessageBox(textBody, mainText, details);
             return eb.ShowDialog();
-#endif
         }
 
 

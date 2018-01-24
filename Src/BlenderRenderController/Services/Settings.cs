@@ -19,7 +19,7 @@ namespace BlenderRenderController.Services
         const string BRC_VER = "BRC_VER";
 
         static BrcSettings _setts;
-        static IScriptPath _scriptPaths;
+        //static IScriptPath _scriptPaths;
 
         internal static BrcSettings Current
         {
