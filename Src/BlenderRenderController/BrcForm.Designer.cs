@@ -42,7 +42,6 @@ namespace BlenderRenderController
             this.processCountNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.processCountLabel = new System.Windows.Forms.Label();
             this.toolTipWarn = new System.Windows.Forms.ToolTip(this.components);
-            this.infoActiveScene = new BlenderRenderController.Ui.InfoBoxItem();
             this.toolTipInfo = new System.Windows.Forms.ToolTip(this.components);
             this.chunkLengthLabel = new System.Windows.Forms.Label();
             this.chunkLengthNumericUpDown = new System.Windows.Forms.NumericUpDown();
@@ -52,15 +51,12 @@ namespace BlenderRenderController
             this.cbAfterRenderAction = new System.Windows.Forms.ComboBox();
             this.startEndBlendRadio = new System.Windows.Forms.RadioButton();
             this.startEndCustomRadio = new System.Windows.Forms.RadioButton();
-            this.infoDuration = new BlenderRenderController.Ui.InfoBoxItem();
-            this.infoFPS = new BlenderRenderController.Ui.InfoBoxItem();
-            this.infoResolution = new BlenderRenderController.Ui.InfoBoxItem();
             this.recentBlendsMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.miEmptyPH = new System.Windows.Forms.ToolStripMenuItem();
-            this.miOpenRecent = new System.Windows.Forms.ToolStripMenuItem();
             this.openRecentsTSButton = new System.Windows.Forms.ToolStripDropDownButton();
+            this.miOpenRecent = new System.Windows.Forms.ToolStripMenuItem();
             this.blendFileLabel = new System.Windows.Forms.Label();
             this.outputFolderLabel = new System.Windows.Forms.Label();
             this.optionsLabel = new System.Windows.Forms.Label();
@@ -110,6 +106,10 @@ namespace BlenderRenderController
             this.label1 = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
             this.label3 = new System.Windows.Forms.Label();
+            this.infoActiveScene = new BlenderRenderController.Ui.InfoBoxItem();
+            this.infoDuration = new BlenderRenderController.Ui.InfoBoxItem();
+            this.infoFPS = new BlenderRenderController.Ui.InfoBoxItem();
+            this.infoResolution = new BlenderRenderController.Ui.InfoBoxItem();
             ((System.ComponentModel.ISupportInitialize)(this.totalStartNumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.projectBindingSrc)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.totalEndNumericUpDown)).BeginInit();
@@ -282,20 +282,6 @@ namespace BlenderRenderController
             this.toolTipWarn.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Warning;
             this.toolTipWarn.ToolTipTitle = "Caution";
             // 
-            // infoActiveScene
-            // 
-            this.infoActiveScene.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.projectBindingSrc, "ActiveScene", true, System.Windows.Forms.DataSourceUpdateMode.OnValidation, "..."));
-            this.infoActiveScene.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.infoActiveScene.Location = new System.Drawing.Point(11, 11);
-            this.infoActiveScene.Margin = new System.Windows.Forms.Padding(5);
-            this.infoActiveScene.MinimumSize = new System.Drawing.Size(38, 45);
-            this.infoActiveScene.Name = "infoActiveScene";
-            this.infoActiveScene.Size = new System.Drawing.Size(131, 56);
-            this.infoActiveScene.TabIndex = 0;
-            this.infoActiveScene.Title = "Active Scene";
-            this.toolTipWarn.SetToolTip(this.infoActiveScene, "Make sure that the Active Screne is the one you want to render!");
-            this.infoActiveScene.Value = "...";
-            // 
             // toolTipInfo
             // 
             this.toolTipInfo.AutoPopDelay = 32767;
@@ -383,7 +369,7 @@ namespace BlenderRenderController
             this.cbRenderer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbRenderer.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbRenderer.FormattingEnabled = true;
-            this.cbRenderer.Location = new System.Drawing.Point(0, 22);
+            this.cbRenderer.Location = new System.Drawing.Point(0, 25);
             this.cbRenderer.Margin = new System.Windows.Forms.Padding(4);
             this.cbRenderer.Name = "cbRenderer";
             this.cbRenderer.Size = new System.Drawing.Size(229, 25);
@@ -433,45 +419,6 @@ namespace BlenderRenderController
             this.toolTipInfo.SetToolTip(this.startEndCustomRadio, "Set your own frame range");
             this.startEndCustomRadio.UseVisualStyleBackColor = true;
             // 
-            // infoDuration
-            // 
-            this.infoDuration.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.projectBindingSrc, "Duration", true, System.Windows.Forms.DataSourceUpdateMode.OnValidation, "..."));
-            this.infoDuration.Location = new System.Drawing.Point(152, 11);
-            this.infoDuration.Margin = new System.Windows.Forms.Padding(5);
-            this.infoDuration.MinimumSize = new System.Drawing.Size(35, 42);
-            this.infoDuration.Name = "infoDuration";
-            this.infoDuration.Size = new System.Drawing.Size(164, 52);
-            this.infoDuration.TabIndex = 2;
-            this.infoDuration.Title = "Duration";
-            this.toolTipInfo.SetToolTip(this.infoDuration, "Total time");
-            this.infoDuration.Value = "...";
-            // 
-            // infoFPS
-            // 
-            this.infoFPS.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.projectBindingSrc, "Fps", true, System.Windows.Forms.DataSourceUpdateMode.OnValidation, "...", "N2"));
-            this.infoFPS.Location = new System.Drawing.Point(326, 11);
-            this.infoFPS.Margin = new System.Windows.Forms.Padding(5);
-            this.infoFPS.MinimumSize = new System.Drawing.Size(35, 42);
-            this.infoFPS.Name = "infoFPS";
-            this.infoFPS.Size = new System.Drawing.Size(98, 52);
-            this.infoFPS.TabIndex = 4;
-            this.infoFPS.Title = "FPS";
-            this.toolTipInfo.SetToolTip(this.infoFPS, "Framerate");
-            this.infoFPS.Value = "...";
-            // 
-            // infoResolution
-            // 
-            this.infoResolution.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.projectBindingSrc, "Resolution", true, System.Windows.Forms.DataSourceUpdateMode.OnValidation, "..."));
-            this.infoResolution.Location = new System.Drawing.Point(434, 11);
-            this.infoResolution.Margin = new System.Windows.Forms.Padding(5);
-            this.infoResolution.MinimumSize = new System.Drawing.Size(35, 42);
-            this.infoResolution.Name = "infoResolution";
-            this.infoResolution.Size = new System.Drawing.Size(114, 52);
-            this.infoResolution.TabIndex = 3;
-            this.infoResolution.Title = "Resolution";
-            this.toolTipInfo.SetToolTip(this.infoResolution, "Video resolution");
-            this.infoResolution.Value = "...";
-            // 
             // recentBlendsMenu
             // 
             this.recentBlendsMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
@@ -505,15 +452,6 @@ namespace BlenderRenderController
             this.miEmptyPH.Size = new System.Drawing.Size(124, 26);
             this.miEmptyPH.Text = "Empty";
             // 
-            // miOpenRecent
-            // 
-            this.miOpenRecent.DropDown = this.recentBlendsMenu;
-            this.miOpenRecent.Image = global::BlenderRenderController.Properties.Resources.Time_16x;
-            this.miOpenRecent.Name = "miOpenRecent";
-            this.miOpenRecent.Size = new System.Drawing.Size(182, 26);
-            this.miOpenRecent.Text = "Open Re&cent";
-            this.miOpenRecent.ToolTipText = "Open Recent";
-            // 
             // openRecentsTSButton
             // 
             this.openRecentsTSButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -524,6 +462,15 @@ namespace BlenderRenderController
             this.openRecentsTSButton.Name = "openRecentsTSButton";
             this.openRecentsTSButton.Size = new System.Drawing.Size(34, 24);
             this.openRecentsTSButton.Text = "Open Recent";
+            // 
+            // miOpenRecent
+            // 
+            this.miOpenRecent.DropDown = this.recentBlendsMenu;
+            this.miOpenRecent.Image = global::BlenderRenderController.Properties.Resources.Time_16x;
+            this.miOpenRecent.Name = "miOpenRecent";
+            this.miOpenRecent.Size = new System.Drawing.Size(182, 26);
+            this.miOpenRecent.Text = "Open Re&cent";
+            this.miOpenRecent.ToolTipText = "Open Recent";
             // 
             // blendFileLabel
             // 
@@ -989,6 +936,8 @@ namespace BlenderRenderController
             // 
             // frOptions
             // 
+            this.frOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.frOptions.ColumnCount = 2;
             this.frOptions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 51.48742F));
             this.frOptions.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 48.51258F));
@@ -1049,6 +998,58 @@ namespace BlenderRenderController
             this.label3.Size = new System.Drawing.Size(99, 18);
             this.label3.TabIndex = 50;
             this.label3.Text = "Joining action";
+            // 
+            // infoActiveScene
+            // 
+            this.infoActiveScene.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.projectBindingSrc, "ActiveScene", true, System.Windows.Forms.DataSourceUpdateMode.OnValidation, "..."));
+            this.infoActiveScene.Location = new System.Drawing.Point(11, 11);
+            this.infoActiveScene.Margin = new System.Windows.Forms.Padding(5);
+            this.infoActiveScene.MinimumSize = new System.Drawing.Size(93, 42);
+            this.infoActiveScene.Name = "infoActiveScene";
+            this.infoActiveScene.Size = new System.Drawing.Size(131, 52);
+            this.infoActiveScene.TabIndex = 0;
+            this.infoActiveScene.Title = "Active Scene";
+            this.toolTipWarn.SetToolTip(this.infoActiveScene, "Make sure that the Active Screne is the one you want to render!");
+            this.infoActiveScene.Value = "...";
+            // 
+            // infoDuration
+            // 
+            this.infoDuration.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.projectBindingSrc, "Duration", true, System.Windows.Forms.DataSourceUpdateMode.OnValidation, "..."));
+            this.infoDuration.Location = new System.Drawing.Point(152, 11);
+            this.infoDuration.Margin = new System.Windows.Forms.Padding(5);
+            this.infoDuration.MinimumSize = new System.Drawing.Size(35, 42);
+            this.infoDuration.Name = "infoDuration";
+            this.infoDuration.Size = new System.Drawing.Size(164, 52);
+            this.infoDuration.TabIndex = 2;
+            this.infoDuration.Title = "Duration";
+            this.toolTipInfo.SetToolTip(this.infoDuration, "Total time");
+            this.infoDuration.Value = "...";
+            // 
+            // infoFPS
+            // 
+            this.infoFPS.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.projectBindingSrc, "Fps", true, System.Windows.Forms.DataSourceUpdateMode.OnValidation, "...", "N2"));
+            this.infoFPS.Location = new System.Drawing.Point(326, 11);
+            this.infoFPS.Margin = new System.Windows.Forms.Padding(5);
+            this.infoFPS.MinimumSize = new System.Drawing.Size(35, 42);
+            this.infoFPS.Name = "infoFPS";
+            this.infoFPS.Size = new System.Drawing.Size(98, 52);
+            this.infoFPS.TabIndex = 4;
+            this.infoFPS.Title = "FPS";
+            this.toolTipInfo.SetToolTip(this.infoFPS, "Framerate");
+            this.infoFPS.Value = "...";
+            // 
+            // infoResolution
+            // 
+            this.infoResolution.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.projectBindingSrc, "Resolution", true, System.Windows.Forms.DataSourceUpdateMode.OnValidation, "..."));
+            this.infoResolution.Location = new System.Drawing.Point(434, 11);
+            this.infoResolution.Margin = new System.Windows.Forms.Padding(5);
+            this.infoResolution.MinimumSize = new System.Drawing.Size(35, 42);
+            this.infoResolution.Name = "infoResolution";
+            this.infoResolution.Size = new System.Drawing.Size(114, 52);
+            this.infoResolution.TabIndex = 3;
+            this.infoResolution.Title = "Resolution";
+            this.toolTipInfo.SetToolTip(this.infoResolution, "Video resolution");
+            this.infoResolution.Value = "...";
             // 
             // BrcForm
             // 

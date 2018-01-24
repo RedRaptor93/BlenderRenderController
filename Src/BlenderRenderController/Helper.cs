@@ -52,6 +52,25 @@ namespace BlenderRenderController
             }
         }
         
+        static public void ScaleForm(Form form)
+        {
+            using (System.Drawing.Graphics g = form.CreateGraphics())
+            {
+                float scaleFactor = 1f;
+                //float fontFactor = 1f;
+
+                if (g.DpiX > 96f)
+                {
+                    scaleFactor = g.DpiX / 96f;
+                    //fontFactor = 96f / g.DpiY;
+                }
+
+                if (form.AutoScaleDimensions == form.CurrentAutoScaleDimensions)
+                {
+                    form.Scale(new System.Drawing.SizeF(scaleFactor, scaleFactor));
+                }
+            }
+        }
 
         static public IEnumerable<Control> FindControlsByTag(Control.ControlCollection controls, string key)
         {

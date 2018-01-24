@@ -25,7 +25,7 @@ namespace BlenderRenderController
             var cmdFile = args.Where(a => Path.GetExtension(a) == ".blend")
                               .FirstOrDefault();
 
-
+            
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             BrcForm form;

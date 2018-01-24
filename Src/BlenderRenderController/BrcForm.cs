@@ -193,6 +193,7 @@ namespace BlenderRenderController
 #endif
             }
 
+            //Helper.ScaleForm(this);
         }
 
         private void BrcForm_FormClosing(object sender, FormClosingEventArgs e)
