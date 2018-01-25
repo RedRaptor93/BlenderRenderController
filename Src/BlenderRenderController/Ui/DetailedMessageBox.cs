@@ -15,7 +15,7 @@ namespace BlenderRenderController.Ui
 
     public partial class DetailedMessageBox : Form
     {
-        Sound _windowSound;
+        Sound _mbSound;
         Icon _mbIcon;
 
         protected DetailedMessageBox()
@@ -30,15 +30,14 @@ namespace BlenderRenderController.Ui
                         MessageBoxIcon icon = MessageBoxIcon.Error)
             : this()
         {
-            //msgBoxPic.Image = GetIconBitmap(icon);
             _mbIcon = GetMBIcon(icon);
-            msgBoxPic.Image = _mbIcon.ToBitmap();
-            _windowSound = GetWindowSound(icon);
+            _mbSound = GetMBSound(icon);
 
+            msgBoxPic.Image = _mbIcon.ToBitmap();
             msgBoxLabel.Text = label;
             this.Text = title;
             detailsTextBox.Lines = contents.ToArray();
-            DefineButtons(bnts);
+            SetupButtons(bnts);
 
         }
 
@@ -52,7 +51,7 @@ namespace BlenderRenderController.Ui
 
         private void Bnt_Click(object sender, EventArgs e)
         {
-            var b = (sender as Button);
+            var b = sender as Button;
             this.DialogResult = (DialogResult)b.Tag;
             this.Close();
         }
@@ -60,9 +59,9 @@ namespace BlenderRenderController.Ui
         private void MsgBox_Shown(object sender, EventArgs e)
         {
             // play sound
-            if (_windowSound != null)
+            if (_mbSound != null)
             {
-                _windowSound.Play();
+                _mbSound.Play();
             }
         }
 
@@ -82,63 +81,58 @@ namespace BlenderRenderController.Ui
         }
 
 
-        private void DefineButtons(MessageBoxButtons bnts)
+        private void SetupButtons(MessageBoxButtons bnts)
         {
             // TODO: Localize text
             switch (bnts)
             {
                 case MessageBoxButtons.OK:
-                    BtnLeft.Visible =
-                    BtnRight.Visible = false;
-                    BtnMiddle.Text = "OK";
-
-                    BtnMiddle.Tag = DialogResult.OK;
+                    SetupButtons(null, null, DialogResult.OK);
                     break;
                 case MessageBoxButtons.AbortRetryIgnore:
-                    BtnLeft.Text = "Retry";
-                    BtnMiddle.Text = "Abort";
-                    BtnRight.Text = "Ignore";
-
-                    BtnLeft.Tag = DialogResult.Retry;
-                    BtnMiddle.Tag = DialogResult.Abort;
-                    BtnRight.Tag = DialogResult.Ignore;
+                    SetupButtons(DialogResult.Abort, DialogResult.Retry, DialogResult.Ignore);
                     break;
                 case MessageBoxButtons.YesNo:
-                    BtnLeft.Text = "Yes";
-                    BtnRight.Text = "No";
-
-                    BtnLeft.Tag = DialogResult.Yes;
-                    BtnRight.Tag = DialogResult.No;
+                    SetupButtons(null, DialogResult.Yes, DialogResult.No);
                     break;
                 case MessageBoxButtons.OKCancel:
-                    BtnMiddle.Visible = false;
-
-                    BtnLeft.Text = "OK";
-                    BtnRight.Text = "Cancel";
-
-                    BtnLeft.Tag = DialogResult.OK;
-                    BtnRight.Tag = DialogResult.Cancel;
+                    SetupButtons(null, DialogResult.OK, DialogResult.Cancel);
                     break;
                 case MessageBoxButtons.YesNoCancel:
-                    BtnLeft.Text = "Yes";
-                    BtnMiddle.Text = "No";
-                    BtnRight.Text = "Cancel";
-
-                    BtnLeft.Tag = DialogResult.Yes;
-                    BtnMiddle.Tag = DialogResult.No;
-                    BtnRight.Tag = DialogResult.Cancel;
+                    SetupButtons(DialogResult.Yes, DialogResult.No, DialogResult.Cancel);
                     break;
                 case MessageBoxButtons.RetryCancel:
-                    BtnMiddle.Visible = false;
-
-                    BtnLeft.Text = "Retry";
-                    BtnRight.Text = "Cancel";
-
-                    BtnLeft.Tag = DialogResult.Retry;
-                    BtnRight.Tag = DialogResult.Cancel;
+                    SetupButtons(null, DialogResult.Retry, DialogResult.Cancel);
                     break;
                 default:
                     throw new Exception("Unknown buttons");
+            }
+        }
+
+        private void SetupButtons(DialogResult? left, DialogResult? middle, DialogResult? right)
+        {
+            BtnLeft.Visible = left.HasValue;
+            BtnLeft.Tag = left;
+
+            BtnMiddle.Visible = middle.HasValue;
+            BtnMiddle.Tag = middle;
+
+            BtnRight.Visible = right.HasValue;
+            BtnRight.Tag = right;
+
+            if (left.HasValue)
+            {
+                BtnLeft.Text = left.Value.ToString();
+            }
+
+            if (middle.HasValue)
+            {
+                BtnMiddle.Text = middle.Value.ToString();
+            }
+
+            if (right.HasValue)
+            {
+                BtnRight.Text = right.Value.ToString();
             }
         }
 
@@ -169,7 +163,7 @@ namespace BlenderRenderController.Ui
             return result;
         }
 
-        private Sound GetWindowSound(MessageBoxIcon icon)
+        private Sound GetMBSound(MessageBoxIcon icon)
         {
             Sound result;
 

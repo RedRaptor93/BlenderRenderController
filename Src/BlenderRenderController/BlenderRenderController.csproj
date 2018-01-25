@@ -138,6 +138,15 @@
       <DependentUpon>ConcatForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Config\BrcSettings.cs" />
+    <Compile Include="Infra\Cmd\CmdArguments.cs" />
+    <Compile Include="Infra\Cmd\Parser\Command.cs" />
+    <Compile Include="Infra\Cmd\Parser\CommandLineDictionary.cs" />
+    <Compile Include="Infra\Cmd\Parser\CommandLineParser.cs" />
+    <Compile Include="Infra\Cmd\Parser\DirectoryInfoConverter.cs" />
+    <Compile Include="Infra\Cmd\Parser\FileInfoConverter.cs" />
+    <Compile Include="Infra\Cmd\Parser\NamespaceDoc.cs" />
+    <Compile Include="Infra\Cmd\Parser\PositionalAttribute.cs" />
+    <Compile Include="Infra\Cmd\Parser\RequiredAttribute.cs" />
     <Compile Include="Infra\ETACalculator.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Program.cs" />

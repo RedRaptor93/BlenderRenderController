@@ -44,24 +44,24 @@
             // BtnLeft
             // 
             this.BtnLeft.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.BtnLeft.Location = new System.Drawing.Point(341, 9);
+            this.BtnLeft.Location = new System.Drawing.Point(251, 12);
             this.BtnLeft.Margin = new System.Windows.Forms.Padding(4);
             this.BtnLeft.Name = "BtnLeft";
             this.BtnLeft.Size = new System.Drawing.Size(100, 37);
             this.BtnLeft.TabIndex = 0;
-            this.BtnLeft.Text = "btn right";
+            this.BtnLeft.Text = "btn left";
             this.BtnLeft.UseVisualStyleBackColor = true;
             this.BtnLeft.Click += new System.EventHandler(this.Bnt_Click);
             // 
             // BtnRight
             // 
             this.BtnRight.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.BtnRight.Location = new System.Drawing.Point(125, 9);
+            this.BtnRight.Location = new System.Drawing.Point(467, 12);
             this.BtnRight.Margin = new System.Windows.Forms.Padding(4);
             this.BtnRight.Name = "BtnRight";
             this.BtnRight.Size = new System.Drawing.Size(100, 37);
             this.BtnRight.TabIndex = 1;
-            this.BtnRight.Text = "btn left";
+            this.BtnRight.Text = "btn right";
             this.BtnRight.UseVisualStyleBackColor = true;
             this.BtnRight.Click += new System.EventHandler(this.Bnt_Click);
             // 
@@ -70,20 +70,19 @@
             this.msgBoxLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.msgBoxLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.msgBoxLabel.Location = new System.Drawing.Point(91, 15);
+            this.msgBoxLabel.Location = new System.Drawing.Point(78, 13);
             this.msgBoxLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.msgBoxLabel.MaximumSize = new System.Drawing.Size(533, 246);
             this.msgBoxLabel.MinimumSize = new System.Drawing.Size(427, 49);
             this.msgBoxLabel.Name = "msgBoxLabel";
-            this.msgBoxLabel.Size = new System.Drawing.Size(465, 57);
+            this.msgBoxLabel.Size = new System.Drawing.Size(475, 57);
             this.msgBoxLabel.TabIndex = 3;
             this.msgBoxLabel.Text = "MsgBox Label text";
-            this.msgBoxLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // BtnMiddle
             // 
             this.BtnMiddle.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.BtnMiddle.Location = new System.Drawing.Point(233, 9);
+            this.BtnMiddle.Location = new System.Drawing.Point(359, 12);
             this.BtnMiddle.Margin = new System.Windows.Forms.Padding(4);
             this.BtnMiddle.Name = "BtnMiddle";
             this.BtnMiddle.Size = new System.Drawing.Size(100, 37);
@@ -95,11 +94,11 @@
             // msgBoxPic
             // 
             this.msgBoxPic.BackColor = System.Drawing.Color.White;
-            this.msgBoxPic.Location = new System.Drawing.Point(16, 15);
+            this.msgBoxPic.Location = new System.Drawing.Point(13, 13);
             this.msgBoxPic.Margin = new System.Windows.Forms.Padding(4);
             this.msgBoxPic.MaximumSize = new System.Drawing.Size(67, 62);
             this.msgBoxPic.Name = "msgBoxPic";
-            this.msgBoxPic.Size = new System.Drawing.Size(67, 57);
+            this.msgBoxPic.Size = new System.Drawing.Size(57, 57);
             this.msgBoxPic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.msgBoxPic.TabIndex = 5;
             this.msgBoxPic.TabStop = false;
@@ -111,10 +110,10 @@
             this.panel1.Controls.Add(this.BtnLeft);
             this.panel1.Controls.Add(this.BtnMiddle);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 110);
+            this.panel1.Location = new System.Drawing.Point(0, 111);
             this.panel1.Margin = new System.Windows.Forms.Padding(4);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(583, 55);
+            this.panel1.Size = new System.Drawing.Size(583, 62);
             this.panel1.TabIndex = 7;
             // 
             // detailsCGB
@@ -124,11 +123,11 @@
             this.detailsCGB.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.detailsCGB.FullHeight = 220;
             this.detailsCGB.IsCollapsed = true;
-            this.detailsCGB.Location = new System.Drawing.Point(16, 80);
+            this.detailsCGB.Location = new System.Drawing.Point(13, 83);
             this.detailsCGB.Margin = new System.Windows.Forms.Padding(4);
             this.detailsCGB.Name = "detailsCGB";
             this.detailsCGB.Padding = new System.Windows.Forms.Padding(9);
-            this.detailsCGB.Size = new System.Drawing.Size(551, 20);
+            this.detailsCGB.Size = new System.Drawing.Size(554, 20);
             this.detailsCGB.TabIndex = 8;
             this.detailsCGB.TabStop = false;
             this.detailsCGB.Text = "Details";
@@ -154,7 +153,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(583, 165);
+            this.ClientSize = new System.Drawing.Size(583, 173);
             this.Controls.Add(this.detailsCGB);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.msgBoxPic);
@@ -168,7 +167,7 @@
             this.ShowInTaskbar = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "MessageBox";
+            this.Text = "Title";
             this.TopMost = true;
             this.Shown += new System.EventHandler(this.MsgBox_Shown);
             ((System.ComponentModel.ISupportInitialize)(this.msgBoxPic)).EndInit();

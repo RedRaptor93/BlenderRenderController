@@ -39,17 +39,17 @@ class ProjectInfo:
 
         # convert output path to absolute
         output = bpy.path.abspath(scene.render.filepath)
-        outputPath = ""
+        outputPath = os.path.abspath(output);
 
+        """
         # see if path needs fixing (one of the elements is '\..\')
         updir = os.sep + '..' + os.sep
         
         if output.find(updir) != -1:
-            print("Path has relative folders '/../'")
-            print("Before: " + output)
             outputPath = self.fix_path(output)
-            print("After: " + outputPath, end='\n\n')
 
+        """
+        
         print("Building data...")
 
         return {

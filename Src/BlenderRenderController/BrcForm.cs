@@ -268,18 +268,13 @@ namespace BlenderRenderController
 
             var detailsReport = $"blender exited w/ code {pResult.ExitCode}\n\n" +
                                 pResult.StdOutput +
-                                $"\n# {new string('-', 35)} # \n" +
+                                $"\n# {new string('-', 50)} # \n" +
                                 pResult.StdError;
 
             // detect errors
             if (pResult.StdOutput.Length == 0)
             {
-                var dialog = new Ui.DetailedMessageBox(
-                    "Failed to read project info, no information was received.",
-                    "Error",
-                    detailsReport);
-                dialog.ShowDialog();
-                ReadFail();
+                ShowErrorDialog(Resources.Error, "Failed to read project info, no information was received.");
                 return;
             }
 
@@ -324,11 +319,7 @@ namespace BlenderRenderController
             }
             else
             {
-                //Ui.Dialogs.ShowErrorBox("Failed to read blend file info.",
-                //    "Read error", "Error output:\n\n" + pResult.StdError);
-                var dialog = new Ui.DetailedMessageBox("Failed to read blend file info", "Error", detailsReport);
-                dialog.ShowDialog();
-                ReadFail();
+                ShowErrorDialog("Read Error", "Failed to read blend file info. Unexpected output.");
                 return;
             }
 
@@ -348,6 +339,17 @@ namespace BlenderRenderController
                 Status("Error loading blend file");
                 UpdateProgressBars();
             };
+
+            void ShowErrorDialog(string title, string message)
+            {
+                var dialog = new Ui.DetailedMessageBox(message, title, detailsReport, MessageBoxButtons.RetryCancel);
+                var result = dialog.ShowDialog();
+
+                if (result == DialogResult.Retry)
+                    GetBlendInfo(blendFile);
+                else
+                    ReadFail();
+            }
         }
 
         private void OpenBlend_Click(object sender, EventArgs e)
