@@ -66,5 +66,6 @@ namespace BlenderRenderController.Ui
 
             this.MinimumSize = minSize;
         }
+
     }
 }

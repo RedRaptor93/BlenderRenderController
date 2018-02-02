@@ -52,23 +52,32 @@ namespace BlenderRenderController
             }
         }
         
-        static public void ScaleForm(Form form)
+        public static void SetToolTip(this ToolTip toolTip, Control control, string caption, bool recursive)
         {
-            using (System.Drawing.Graphics g = form.CreateGraphics())
+            if (string.IsNullOrEmpty(caption))
+                return;
+
+            toolTip.SetToolTip(control, caption);
+
+            if (recursive)
             {
-                float scaleFactor = 1f;
-                //float fontFactor = 1f;
-
-                if (g.DpiX > 96f)
+                foreach (Control subItem in control.Controls)
                 {
-                    scaleFactor = g.DpiX / 96f;
-                    //fontFactor = 96f / g.DpiY;
+                    toolTip.SetToolTip(subItem, caption);
                 }
+            }
+        }
 
-                if (form.AutoScaleDimensions == form.CurrentAutoScaleDimensions)
-                {
-                    form.Scale(new System.Drawing.SizeF(scaleFactor, scaleFactor));
-                }
+        public static void SetChildsToolTip(this ToolTip toolTip, Control control)
+        {
+            var caption = toolTip.GetToolTip(control);
+
+            if (string.IsNullOrEmpty(caption))
+                return;
+
+            foreach (Control subItem in control.Controls)
+            {
+                toolTip.SetToolTip(subItem, caption);
             }
         }
 

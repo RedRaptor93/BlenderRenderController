@@ -140,9 +140,15 @@ namespace BlenderRenderController
             chunkOptionsAutoRadio.CheckedChanged += fbsu;
             totalStartNumericUpDown.Validated += fbsu;
             totalEndNumericUpDown.Validated += fbsu;
-
-
 #endif
+
+            // set tooltip text to infoItems childs
+            foreach (Control info in infoBox.Controls)
+            {
+                toolTipInfo.SetChildsToolTip(info);
+                toolTipWarn.SetChildsToolTip(info);
+            }
+
         }
 
 
