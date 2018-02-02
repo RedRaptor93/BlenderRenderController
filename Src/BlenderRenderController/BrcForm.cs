@@ -192,8 +192,6 @@ namespace BlenderRenderController
                 }
 #endif
             }
-
-            //Helper.ScaleForm(this);
         }
 
         private void BrcForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -327,7 +325,7 @@ namespace BlenderRenderController
             projectBindingSrc.DataSource = _vm.Project;
 
             var chunks = Chunk.CalcChunks(blendData.Start, blendData.End, proj.MaxConcurrency);
-            UpdateCurrentChunks(chunks.ToArray());
+            UpdateCurrentChunks(chunks);
             _appSettings.RecentProjects.Add(blendFile);
             UpdateProgressBars();
             // ---
@@ -411,7 +409,7 @@ namespace BlenderRenderController
                                    _vm.Project.End,
                                    _vm.Project.MaxConcurrency);
 
-            UpdateCurrentChunks(chunks.ToArray());
+            UpdateCurrentChunks(chunks);
 
             logger.Info("Chunks: " + string.Join(", ", chunks));
 
@@ -625,7 +623,7 @@ namespace BlenderRenderController
         /// Updates the list of chunks that will be rendered
         /// </summary>
         /// <param name="newChunks"></param>
-        private void UpdateCurrentChunks(params Chunk[] newChunks)
+        private void UpdateCurrentChunks(IEnumerable<Chunk> newChunks)
         {
             bool ignore = (newChunks.TotalLength() > _vm.Project.TotalFrames)
                         || newChunks.SequenceEqual(_vm.Project.ChunkList);
@@ -650,8 +648,11 @@ namespace BlenderRenderController
 
         private void UpdateRecentBlendsMenu()
         {
+            // a common name, so the menu items can be found later
+            const string tsName = "recent";
+
             // clear local
-            var localItems = recentBlendsMenu.Items.Find("recent", false);
+            var localItems = recentBlendsMenu.Items.Find(tsName, false);
             foreach (var item in localItems)
             {
                 recentBlendsMenu.Items.Remove(item);
@@ -677,7 +678,7 @@ namespace BlenderRenderController
                     ToolTipText = item,
                     Text = Path.GetFileNameWithoutExtension(item),
                     Image = Resources.blender_icon,
-                    Name = "recent"
+                    Name = tsName
                 };
                 menuItem.Click += RecentBlendsItem_Click;
                 recentBlendsMenu.Items.Add(menuItem);
@@ -1023,7 +1024,7 @@ namespace BlenderRenderController
 
             unloadToolStripMenuItem.Enabled = vm.CanEditCurrentProject;
 
-            miRenderMixdown.Enabled = vm.CanRender;
+            miRenderMixdown.Enabled = vm.CanRender && !vm.IsBusy;
             miJoinChunks.Enabled = !vm.IsBusy;
 
             miSettings.Enabled = !vm.IsBusy;

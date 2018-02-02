@@ -281,22 +281,24 @@ namespace BlenderRenderController.Render
 
         Process CreateRenderProcess(Chunk chunk)
         {
-            var renderCom = new Process();
-            var info = new ProcessStartInfo
+            var renderCom = new Process
             {
-                FileName = _setts.BlenderProgram,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                Arguments = string.Format("-b \"{0}\" -o \"{1}\" -E {2} -s {3} -e {4} -a",
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = _setts.BlenderProgram,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    Arguments = string.Format("-b \"{0}\" -o \"{1}\" -E {2} -s {3} -e {4} -a",
                                             _proj.BlendFilePath,
                                             Path.Combine(ChunksFolderPath, _proj.ProjectName + "-#"),
                                             _renderer,
                                             chunk.Start,
                                             chunk.End),
+                },
+                EnableRaisingEvents = true
             };
-            renderCom.StartInfo = info;
-            renderCom.EnableRaisingEvents = true;
+
             renderCom.OutputDataReceived += RenderCom_OutputDataReceived;
             renderCom.Exited += RenderCom_Exited;
 
@@ -341,8 +343,8 @@ namespace BlenderRenderController.Render
             }
         }
 
-        // decrement counts when a process exits, stops the timer when the count 
-        // reaches 0
+        // decrement counts when a process exits, stops the timer when the 
+        // 'ToDo' count reaches 0
         private void RenderCom_Exited(object sender, EventArgs e)
         {
             --_chunksInProgress;

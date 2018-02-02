@@ -19,6 +19,7 @@ namespace BlenderRenderController.Services
         const string BRC_VER = "BRC_VER";
 
         static BrcSettings _setts;
+        static bool _portable;
         //static IScriptPath _scriptPaths;
 
         internal static BrcSettings Current
@@ -33,41 +34,23 @@ namespace BlenderRenderController.Services
         {
             get
             {
-                if (Env.GetCommandLineArgs().Contains("--portable"))
-                {
-                    return true;
-                }
-
-                var portableStr = ConfigurationManager.AppSettings["portable"];
-
-                if (bool.TryParse(portableStr, out bool result))
-                {
-                    return result;
-                }
-
-                return false;
+                return _portable;
             }
         }
 
         internal static string BaseDir => _baseDir;
 
-        //public static IScriptPath ScriptPaths
-        //{
-        //    get
-        //    {
-        //        return _scriptPaths;
-        //    }
-        //}
 
-        internal static void Init()
+
+        internal static void Init(bool portableMode = false)
         {
+            _portable = portableMode;
+
             _baseDir = Portable ? Env.CurrentDirectory : Dirs.AppData;
 
             Env.SetEnvironmentVariable(BRC_VER, Assembly.GetExecutingAssembly().GetName().Version.ToString());
 
             _setts = LoadInternal(Path.Combine(_baseDir, SETTINGS_FILE));
-
-            //_scriptPaths = new ScriptLocator(_baseDir);
         }
 
         public static bool CheckCorrectConfig()
@@ -178,6 +161,17 @@ namespace BlenderRenderController.Services
         public static void Save()
         {
             SaveInternal(_setts, Path.Combine(_baseDir, SETTINGS_FILE));
+        }
+
+        public static void Load()
+        {
+            _setts = LoadInternal(Path.Combine(_baseDir, SETTINGS_FILE));
+        }
+
+        public static void ResetDefaults()
+        {
+            _setts = GetDefaults();
+            Save();
         }
 
         private static BrcSettings LoadInternal(string settingsPath)

@@ -25,7 +25,7 @@ namespace BlenderRenderController.Ui
         }
 
 
-        public DetailedMessageBox(string label, string title, IEnumerable<string> contents, 
+        public DetailedMessageBox(string message, string title, IEnumerable<string> contents, 
                         MessageBoxButtons bnts = MessageBoxButtons.OK, 
                         MessageBoxIcon icon = MessageBoxIcon.Error)
             : this()
@@ -34,7 +34,7 @@ namespace BlenderRenderController.Ui
             _mbSound = GetMBSound(icon);
 
             msgBoxPic.Image = _mbIcon.ToBitmap();
-            msgBoxLabel.Text = label;
+            msgBoxLabel.Text = message;
             this.Text = title;
             detailsTextBox.Lines = contents.ToArray();
             SetupButtons(bnts);
@@ -45,7 +45,7 @@ namespace BlenderRenderController.Ui
         public DetailedMessageBox(string message, string title, string contents, 
                         MessageBoxButtons bnts = MessageBoxButtons.OK, 
                         MessageBoxIcon icon = MessageBoxIcon.Error)
-            :this(message, title, contents.Split('\n'), bnts)
+            :this(message, title, contents.Split('\n'), bnts, icon)
         {
         }
 
@@ -113,23 +113,20 @@ namespace BlenderRenderController.Ui
         {
             BtnLeft.Visible = left.HasValue;
             BtnLeft.Tag = left;
-
-            BtnMiddle.Visible = middle.HasValue;
-            BtnMiddle.Tag = middle;
-
-            BtnRight.Visible = right.HasValue;
-            BtnRight.Tag = right;
-
             if (left.HasValue)
             {
                 BtnLeft.Text = left.Value.ToString();
             }
 
+            BtnMiddle.Visible = middle.HasValue;
+            BtnMiddle.Tag = middle;
             if (middle.HasValue)
             {
                 BtnMiddle.Text = middle.Value.ToString();
             }
 
+            BtnRight.Visible = right.HasValue;
+            BtnRight.Tag = right;
             if (right.HasValue)
             {
                 BtnRight.Text = right.Value.ToString();

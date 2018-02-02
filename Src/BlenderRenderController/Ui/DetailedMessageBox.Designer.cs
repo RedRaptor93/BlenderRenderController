@@ -77,7 +77,7 @@
             this.msgBoxLabel.Name = "msgBoxLabel";
             this.msgBoxLabel.Size = new System.Drawing.Size(475, 57);
             this.msgBoxLabel.TabIndex = 3;
-            this.msgBoxLabel.Text = "MsgBox Label text";
+            this.msgBoxLabel.Text = "Main message...";
             // 
             // BtnMiddle
             // 
@@ -142,10 +142,10 @@
             this.detailsTextBox.Name = "detailsTextBox";
             this.detailsTextBox.ReadOnly = true;
             this.detailsTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.detailsTextBox.Size = new System.Drawing.Size(533, 186);
+            this.detailsTextBox.Size = new System.Drawing.Size(536, 186);
             this.detailsTextBox.TabIndex = 2;
             this.detailsTextBox.TabStop = false;
-            this.detailsTextBox.Text = "large bodies of text contents here!";
+            this.detailsTextBox.Text = "large bodies of text goes here!";
             // 
             // DetailedMessageBox
             // 

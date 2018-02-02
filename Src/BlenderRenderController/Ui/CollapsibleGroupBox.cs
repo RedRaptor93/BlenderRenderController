@@ -22,6 +22,8 @@ namespace BlenderRenderController.Ui
         private Boolean m_bResizingFromCollapse = false;
 
         private const int m_collapsedHeight = 20;
+        private static readonly Color m_defaultForeColor = Color.FromArgb(0, 70, 213);
+
         private int m_expandedHeight;
         private Size m_FullSize = Size.Empty;
 
@@ -41,6 +43,7 @@ namespace BlenderRenderController.Ui
         public CollapsibleGroupBox()
         {
             //InitializeComponent();
+            ForeColor = m_defaultForeColor;
         }
 
         #endregion
@@ -101,11 +104,19 @@ namespace BlenderRenderController.Ui
             get { return m_collapsedHeight; }
         }
 
-        protected override Size DefaultMinimumSize => new Size(0, m_collapsedHeight);
 
         #endregion
 
         #region Overrides
+
+        protected override Size DefaultMinimumSize => new Size(0, m_collapsedHeight);
+
+        [DefaultValue(typeof(Color), "#0046D5")]
+        public override Color ForeColor
+        {
+            get => base.ForeColor;
+            set => base.ForeColor = value;
+        }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
@@ -161,14 +172,15 @@ namespace BlenderRenderController.Ui
             StringFormat sf = new StringFormat();
             int i_textPos = (bounds.X + 8) + m_toggleRect.Width + 2;
             int i_textSize = (int)g.MeasureString(Text, this.Font).Width;
-            i_textSize = i_textSize < 1 ? 1 : i_textSize;
+            if (i_textSize < 1) i_textSize = 1;
             int i_endPos = i_textPos + i_textSize + 1;
 
             // Draw a line to cover the GroupBox border where the text will sit
-            g.DrawLine(SystemPens.Control, i_textPos, bounds.Y, i_endPos, bounds.Y);
+            using (Pen p_bgPen = new Pen(BackColor, 1f))
+                g.DrawLine(p_bgPen, i_textPos, bounds.Y, i_endPos, bounds.Y);
 
             // Draw the GroupBox text
-            using (SolidBrush drawBrush = new SolidBrush(Color.FromArgb(0, 70, 213)))
+            using (SolidBrush drawBrush = new SolidBrush(ForeColor))
                 g.DrawString(Text, this.Font, drawBrush, i_textPos, 0);
         }
 

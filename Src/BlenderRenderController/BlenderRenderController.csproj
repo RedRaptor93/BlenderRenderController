@@ -91,6 +91,9 @@
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CommandLine, Version=2.2.1.0, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\CommandLineParser.2.2.1\lib\net45\CommandLine.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\WindowsAPICodePack-Core.1.1.2\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
     </Reference>
@@ -139,14 +142,6 @@
     </Compile>
     <Compile Include="Config\BrcSettings.cs" />
     <Compile Include="Infra\Cmd\CmdArguments.cs" />
-    <Compile Include="Infra\Cmd\Parser\Command.cs" />
-    <Compile Include="Infra\Cmd\Parser\CommandLineDictionary.cs" />
-    <Compile Include="Infra\Cmd\Parser\CommandLineParser.cs" />
-    <Compile Include="Infra\Cmd\Parser\DirectoryInfoConverter.cs" />
-    <Compile Include="Infra\Cmd\Parser\FileInfoConverter.cs" />
-    <Compile Include="Infra\Cmd\Parser\NamespaceDoc.cs" />
-    <Compile Include="Infra\Cmd\Parser\PositionalAttribute.cs" />
-    <Compile Include="Infra\Cmd\Parser\RequiredAttribute.cs" />
     <Compile Include="Infra\ETACalculator.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Program.cs" />

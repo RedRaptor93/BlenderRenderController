@@ -41,6 +41,8 @@ namespace BlenderRenderController.Services
             }
         }
 
+        public static void Init() => Init(Settings.BaseDir);
+
 
         private static void WriteScriptToDisk(string resourceName, string scriptsDir)
         {

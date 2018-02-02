@@ -5,9 +5,13 @@ using NLog;
 using BRClib.Scripts;
 using System.Windows.Forms;
 using System.IO;
+using CommandLine;
+using BlenderRenderController.Infra.Cmd;
+using BlenderRenderController.Services;
 
 namespace BlenderRenderController
 {
+
     static class Program
     {
         /// <summary>
@@ -16,16 +20,40 @@ namespace BlenderRenderController
         [STAThread]
         static void Main(string[] args)
         {
-            
-            Services.Settings.Init();
-            Services.Scripts.Init(Services.Settings.BaseDir);
+            // parse cmd args
+            var cmdResult = Parser.Default.ParseArguments<Arguments>(args);
+            var arguments = (cmdResult as Parsed<Arguments>)?.Value;
+
+            string cmdFile = arguments.BlendFile ?? null;
+            string portableStr = arguments.Portable ?? System.Configuration.ConfigurationManager.AppSettings["portable"];
+            bool portable = bool.TryParse(arguments.Portable, out bool ptb) ? ptb : false;
+
+            Settings.Init(portable);
+            var scriptsDir = Path.Combine(Settings.BaseDir, "scripts");
+
+            switch (arguments?.ClearAction)
+            {
+                case "scripts":
+                    if (Directory.Exists(scriptsDir)) Directory.Delete(scriptsDir, true);
+                    break;
+                case "settings":
+                    Settings.ResetDefaults();
+                    break;
+                case "all":
+                    var versionFile = Path.Combine(Settings.BaseDir, "ver");
+                    if (File.Exists(versionFile)) File.Delete(versionFile);
+                    if (Directory.Exists(scriptsDir)) Directory.Delete(scriptsDir, true);
+                    Settings.ResetDefaults();
+                    break;
+                case null:
+                default:
+                    break;
+            }
+
+            Scripts.Init();
 
             NlogSetup();
 
-            var cmdFile = args.Where(a => Path.GetExtension(a) == ".blend")
-                              .FirstOrDefault();
-
-            
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             BrcForm form;
