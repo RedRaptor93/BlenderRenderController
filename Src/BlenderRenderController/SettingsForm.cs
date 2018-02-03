@@ -1,6 +1,4 @@
-﻿// For Mono compatible Unix builds compile with /d:UNIX
-
-using NLog;
+﻿using NLog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -45,12 +43,6 @@ namespace BlenderRenderController
             {
                 ffmpegPathTextBox.Text = string.Empty;
             }
-
-#if UNIX
-            cbLoggingLvl.BackColor =
-            ffmpegPathTextBox.BackColor =
-            blenderPathTextBox.BackColor = System.Drawing.Color.White;
-#endif
         }
 
         private void CbLoggingLvl_SelectedIndexChanged(object sender, EventArgs e)

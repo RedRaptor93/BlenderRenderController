@@ -183,10 +183,10 @@
         public System.Windows.Forms.Button BtnLeft;
         public System.Windows.Forms.Button BtnRight;
         public System.Windows.Forms.TextBox detailsTextBox;
-        public System.Windows.Forms.Label msgBoxLabel;
         public System.Windows.Forms.Button BtnMiddle;
         private System.Windows.Forms.PictureBox msgBoxPic;
         private System.Windows.Forms.Panel panel1;
         private CollapsibleGroupBox detailsCGB;
+        private System.Windows.Forms.Label msgBoxLabel;
     }
 }

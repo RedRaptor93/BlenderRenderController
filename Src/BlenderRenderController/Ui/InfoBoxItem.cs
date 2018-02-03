@@ -35,11 +35,6 @@ namespace BlenderRenderController.Ui
         }
 
 
-        private void OnTitleSizeChanged()
-        {
-            valueLabel.MinimumSize = titleLabel.PreferredSize;
-        }
-
         protected override void OnFontChanged(EventArgs e)
         {
             base.OnFontChanged(e);

@@ -68,16 +68,7 @@ namespace BlenderRenderController.Ui
         private void DetailsCGB_Resize(object sender, EventArgs e)
         {
             var cgb = sender as CollapsibleGroupBox;
-            var heightRequest = cgb.FullHeight - cgb.CollapsedHeight;
-
-            if (cgb.IsCollapsed)
-            {
-                Height -= heightRequest;
-            }
-            else
-            {
-                Height += heightRequest;
-            }
+            Height += cgb.HeightRequest;
         }
 
 

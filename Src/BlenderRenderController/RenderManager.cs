@@ -599,12 +599,12 @@ namespace BlenderRenderController.Render
                 proc.Start();
                 _arProcesses.Add(proc);
 
-                var readOutput = proc.StandardOutput.ReadToEndAsync();
-                var readError = proc.StandardError.ReadToEndAsync();
+                var stdOut = proc.StandardOutput.ReadToEnd();
+                var stdErr = proc.StandardError.ReadToEnd();
 
                 proc.WaitForExit();
 
-                arReports.Add(key, new ProcessResult(proc.ExitCode, readOutput.Result, readError.Result));
+                arReports.Add(key, new ProcessResult(proc.ExitCode, stdOut, stdOut));
             }
         }
 

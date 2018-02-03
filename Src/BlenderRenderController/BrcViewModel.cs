@@ -86,11 +86,5 @@ namespace BlenderRenderController
             }
         }
 
-
-        public bool WorkToggle()
-        {
-            IsBusy = !IsBusy;
-            return IsBusy;
-        }
     }
 }

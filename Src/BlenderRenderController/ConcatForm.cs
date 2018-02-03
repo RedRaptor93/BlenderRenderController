@@ -187,10 +187,8 @@ namespace BlenderRenderController
             var filter = "All files (*.*)|*.*|";
 
             // build filter entries from extentions
-            var fExts = extentions.Select(s => s.Where(c => char.IsLetterOrDigit(c)))
-                                  .Select(iec => new string(iec.ToArray()))
-                                  .Select(a => new { desc = a.ToUpper(), ext = a })
-                                  .Select(a => $"{a.desc} files (*.{a.ext})|*.{a.ext}");
+            var fExts = extentions.Select(e => new { desc = e.Substring(1).ToUpper(), ext = e })
+                                  .Select(a => $"{a.desc} files (*{a.ext})|*{a.ext}");
 
             filter += string.Join("|", fExts);
 

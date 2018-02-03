@@ -104,6 +104,15 @@ namespace BlenderRenderController.Ui
             get { return m_collapsedHeight; }
         }
 
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public int HeightRequest
+        {
+            get
+            {
+                var hRqst = m_FullSize.Height - m_collapsedHeight;
+                return m_collapsed ? -hRqst : hRqst;
+            }
+        }
 
         #endregion
 

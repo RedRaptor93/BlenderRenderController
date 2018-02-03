@@ -4,9 +4,8 @@ using System;
 using System.Text;
 using System.Windows.Forms;
 
-#if WIN
 using Microsoft.WindowsAPICodePack.Dialogs;
-#endif
+
 
 namespace BlenderRenderController.Ui
 {
@@ -14,7 +13,6 @@ namespace BlenderRenderController.Ui
     {
         public static DialogResult ShowErrorBox(string textBody, string mainText, string caption, string details)
         {
-#if WIN
             var td = new TaskDialog();
             td.Text = textBody;
             td.InstructionText = mainText;
@@ -29,11 +27,6 @@ namespace BlenderRenderController.Ui
             td.StandardButtons = TaskDialogStandardButtons.Ok;
 
             return td.Show().ToDR();
-#else
-            string msg = mainText + "\n\n" + textBody;
-            ErrorBox eb = new ErrorBox(msg, caption, details);
-            return eb.ShowDialog();
-#endif
         }
 
         public static DialogResult ShowErrorBox(string textBody, string mainText, string details)
@@ -46,7 +39,6 @@ namespace BlenderRenderController.Ui
 
         public static string OutputFolderSelection(string title, string initialDir)
         {
-#if WIN
             var dialog = new CommonOpenFileDialog
             {
                 InitialDirectory = initialDir,
@@ -63,32 +55,8 @@ namespace BlenderRenderController.Ui
             }
 
             return path;
-#else
-            var dialog = new FolderBrowserDialog
-            {
-                RootFolder = Environment.SpecialFolder.MyComputer,
-                SelectedPath = initialDir,
-                ShowNewFolderButton = true,
-                Description = title,
-            };
-
-            var res = dialog.ShowDialog();
-            string path = null;
-
-            if (res == DialogResult.OK)
-            {
-                path = dialog.SelectedPath;
-            }
-
-            return path;
-#endif
         }
 
-
-
-
-
-#if WIN
         static DialogResult ToDR(this TaskDialogResult tdr)
         {
             switch (tdr)
@@ -112,6 +80,6 @@ namespace BlenderRenderController.Ui
                     throw new NotSupportedException("Task result not supported");
             }
         } 
-#endif
+
     }
 }

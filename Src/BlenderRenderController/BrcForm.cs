@@ -1,20 +1,10 @@
-// For Mono compatible Unix builds compile with /d:UNIX
-#if !WIN && !UNIX
-#error You must define a platform (WIN or UNIX)
-#elif UNIX
-#undef WIN
-#warning Mono support is deprecated, UNIX scafolding will be removed in the future
-#endif
-
 using BlenderRenderController.Properties;
 using BlenderRenderController.Render;
 using BRClib;
 using BRClib.Commands;
 using BRClib.Extentions;
-#if WIN
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Microsoft.WindowsAPICodePack.Taskbar;
-#endif
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -44,6 +34,8 @@ namespace BlenderRenderController
                      ETR_Prefix = "ETR: ",
                      TimeFmt = @"hh\:mm\:ss";
 
+        const string progId = nameof(BlenderRenderController);
+
         int _autoStartF, _autoEndF;
 
         BrcSettings _appSettings;
@@ -53,6 +45,8 @@ namespace BlenderRenderController
         CancellationTokenSource _afterRenderCancelSrc;
 
         BrcViewModel _vm;
+
+        JumpList _jumpList;
 
 
         public BrcForm()
@@ -65,10 +59,11 @@ namespace BlenderRenderController
 
             // invoke manually to set starting state
             ViewModel_PropertyChanged(_vm, new PropertyChangedEventArgs("Created"));
-#if WIN
             // set the form icon outside designer
             this.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
-#endif
+
+            TaskbarManager.Instance.ApplicationId = progId;
+
             // RenderManager
             _renderMngr = new RenderManager();
             _renderMngr.Finished += RenderManager_Finished;
@@ -131,22 +126,10 @@ namespace BlenderRenderController
 
             exitToolStripMenuItem.Click += delegate { Close(); };
 
-#if UNIX
-            EventHandler fbsu = delegate { ForceBindingSourceUpdate(); };
-
-            forceUIUpdateToolStripMenuItem.Visible = true;
-            forceUIUpdateToolStripMenuItem.Click += fbsu;
-            startEndBlendRadio.CheckedChanged += fbsu;
-            chunkOptionsAutoRadio.CheckedChanged += fbsu;
-            totalStartNumericUpDown.Validated += fbsu;
-            totalEndNumericUpDown.Validated += fbsu;
-#endif
-
             // set tooltip text to infoItems childs
             foreach (Control info in infoBox.Controls)
             {
                 toolTipInfo.SetChildsToolTip(info);
-                toolTipWarn.SetChildsToolTip(info);
             }
 
         }
@@ -155,6 +138,10 @@ namespace BlenderRenderController
         private void BrcForm_Shown(object sender, EventArgs e)
         {
             logger.Info("Program Started");
+
+            _jumpList = JumpList.CreateJumpList();
+            _jumpList.KnownCategoryToDisplay = JumpListKnownCategoryType.Recent;
+            _jumpList.Refresh();
 
             if (!_vm.ConfigOk)
             {
@@ -166,7 +153,7 @@ namespace BlenderRenderController
                     "(Path invalid OR first time run), set the paths in the Settings window";
                 string cap = "Setup required";
                 string info = "Paths missing";
-#if WIN
+
                 var td = new TaskDialog
                 {
                     Caption = cap,
@@ -186,17 +173,7 @@ namespace BlenderRenderController
 
                 td.Controls.Add(tdCmdLink);
                 td.Show();
-#else
-                errMsg += "\n\n" + "Click 'Retry' to open Settings";
-                var res = MessageBox.Show(errMsg, cap + " - " + info, MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning);
 
-                if (res == DialogResult.Retry)
-                {
-                    // fix width and show
-                    settingsForm.MaximumSize = settingsForm.Size;
-                    settingsForm.Show();
-                }
-#endif
             }
         }
 
@@ -467,8 +444,8 @@ namespace BlenderRenderController
             }
             else if (!_renderMngr.WasAborted) // Erros detected
             {
-                //var dialog = MessageBox.Show(Resources.AR_error_msg, Resources.Error,
-                //                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(Resources.RM_unexpected_error, Resources.Error,
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
                 Status("Errors detected");
             }
@@ -599,9 +576,7 @@ namespace BlenderRenderController
             if (progressPercent < 0)
             {
                 renderProgressBar.Style = ProgressBarStyle.Marquee;
-#if WIN
                 TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Indeterminate);
-#endif
             }
             else
             {
@@ -611,15 +586,10 @@ namespace BlenderRenderController
                 if (progressPercent != 0)
                 {
                     titleProg = $"{progressPercent}% complete - {Constants.APP_TITLE}";
-#if WIN
                     TaskbarManager.Instance.SetProgressValue(progressPercent, 100);
                 }
                 else
                     TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
-#else
-                }
-#endif
-
             }
 
             SafeChangeText(titleProg, this);
@@ -645,11 +615,6 @@ namespace BlenderRenderController
             }
 
             _vm.Project.ChunkLenght = _vm.Project.ChunkList.First().Length;
-
-#if UNIX
-            ForceBindingSourceUpdate();
-#endif
-
         }
 
         private void UpdateRecentBlendsMenu()
@@ -688,6 +653,8 @@ namespace BlenderRenderController
                 };
                 menuItem.Click += RecentBlendsItem_Click;
                 recentBlendsMenu.Items.Add(menuItem);
+
+                JumpList.AddToRecent(item);
             }
 
         }
@@ -761,10 +728,9 @@ namespace BlenderRenderController
 
         private async void concatenatePartsButton_Click(object sender, EventArgs e)
         {
-            _vm.WorkToggle();
+            _vm.IsBusy = true;
             ResetCTS();
             UpdateProgressBars(-1);
-
 
             var manConcat = new ConcatForm();
             var dResult = manConcat.ShowDialog();
@@ -795,7 +761,7 @@ namespace BlenderRenderController
             }
 
             UpdateProgressBars();
-            _vm.WorkToggle();
+            _vm.IsBusy = false;
         }
 
 
@@ -875,11 +841,18 @@ namespace BlenderRenderController
         {
             string dialogTxt = "Select output location";
 
-            var nPath = Ui.Dialogs.OutputFolderSelection(dialogTxt, _vm.Project.OutputPath);
-
-            if (nPath != null)
+            var openFolder = new CommonOpenFileDialog
             {
-                _vm.Project.OutputPath = nPath;
+                IsFolderPicker = true,
+                InitialDirectory = _vm.Project.OutputPath,
+                Title = dialogTxt,
+            };
+
+            var res = openFolder.ShowDialog();
+
+            if (res == CommonFileDialogResult.Ok)
+            {
+                _vm.Project.OutputPath = openFolder.FileName;
             }
         }
 
@@ -994,13 +967,6 @@ namespace BlenderRenderController
         private void miGithub_Click(object sender, EventArgs e)
         {
             Process.Start("https://github.com/RedRaptor93/BlenderRenderController");
-        }
-
-        private void ForceBindingSourceUpdate()
-        {
-            // WinForm databinding in Mono doesn't update the UI elements 
-            // properly, so do it manually
-            projectBindingSrc.ResetBindings(false);
         }
 
 
