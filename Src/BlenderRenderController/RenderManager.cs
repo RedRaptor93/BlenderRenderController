@@ -596,15 +596,31 @@ namespace BlenderRenderController.Render
 
             void RunProc(ref Process proc, string key)
             {
-                proc.Start();
-                _arProcesses.Add(proc);
+                string stdOut = string.Empty;
+                string stdErr = string.Empty;
 
-                var stdOut = proc.StandardOutput.ReadToEnd();
-                var stdErr = proc.StandardError.ReadToEnd();
+                // its important to read the streams asynchronously, to avoid deadlocks
+                proc.OutputDataReceived += (s, e) => ReadStreamToString(e.Data, ref stdOut);
+                proc.ErrorDataReceived += (s, e) => ReadStreamToString(e.Data, ref stdErr);
+
+                proc.Start();
+                proc.BeginOutputReadLine();
+                proc.BeginErrorReadLine();
+
+                _arProcesses.Add(proc);
 
                 proc.WaitForExit();
 
-                arReports.Add(key, new ProcessResult(proc.ExitCode, stdOut, stdOut));
+                arReports.Add(key, new ProcessResult(proc.ExitCode, stdOut, stdErr));
+
+                // ----
+                void ReadStreamToString(string data, ref string target)
+                {
+                    if (data != null)
+                    {
+                        target += data + Environment.NewLine;
+                    }
+                }
             }
         }
 

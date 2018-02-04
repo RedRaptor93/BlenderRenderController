@@ -57,10 +57,6 @@ namespace BlenderRenderController
             _vm = new BrcViewModel();
             _vm.PropertyChanged += ViewModel_PropertyChanged;
 
-            // invoke manually to set starting state
-            ViewModel_PropertyChanged(_vm, new PropertyChangedEventArgs("Created"));
-            // set the form icon outside designer
-            this.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
 
             TaskbarManager.Instance.ApplicationId = progId;
 
@@ -90,15 +86,14 @@ namespace BlenderRenderController
         {
             _vm.ConfigOk = Settings.CheckCorrectConfig();
 
+            // invoke manually to set starting state
+            ViewModel_PropertyChanged(_vm, new PropertyChangedEventArgs("Created"));
+
             // setup sources for ComboBoxes
-            cbRenderer.DataSource = Enum.GetValues(typeof(Renderer));
-            cbRenderer.SelectedItem = _appSettings.Renderer;
+            SetComboBoxData(cbRenderer, CustomRes.RendererResources, _appSettings.Renderer);
             cbRenderer.SelectedIndexChanged += Renderer_Changed;
 
-            cbAfterRenderAction.DisplayMember = "Value";
-            cbAfterRenderAction.ValueMember = "Key";
-            cbAfterRenderAction.DataSource = Helper.AfterRenderResources.ToList();
-            cbAfterRenderAction.SelectedValue = _appSettings.AfterRender;
+            SetComboBoxData(cbAfterRenderAction, CustomRes.AfterRenderResources, _appSettings.AfterRender);
             cbAfterRenderAction.SelectedIndexChanged += AfterRenderAction_Changed;
 
             // load recent blends from file
@@ -208,6 +203,14 @@ namespace BlenderRenderController
             // when closing the Settings window, check if valid
             // and update UI if needed
             _vm.ConfigOk = Settings.CheckCorrectConfig();
+        }
+
+        private void SetComboBoxData<T>(ComboBox cb, IDictionary<T, string> data, T selected)
+        {
+            cb.DisplayMember = "Value";
+            cb.ValueMember = "Key";
+            cb.DataSource = data.ToList();
+            cb.SelectedValue = selected;
         }
 
 
@@ -622,7 +625,7 @@ namespace BlenderRenderController
             // a common name, so the menu items can be found later
             const string tsName = "recent";
 
-            // clear local
+            // clear local tsMenu items
             var localItems = recentBlendsMenu.Items.Find(tsName, false);
             foreach (var item in localItems)
             {
@@ -659,9 +662,6 @@ namespace BlenderRenderController
 
         }
 
-
-        delegate void ChangeTextDelegate(string msg, Control control);
-
         /// <summary>
         /// Thread safe method to change UI text
         /// </summary>
@@ -671,7 +671,7 @@ namespace BlenderRenderController
         {
             if (ctrl.InvokeRequired)
             {
-                ctrl.Invoke(new ChangeTextDelegate(SafeChangeText), msg, ctrl);
+                ctrl.Invoke(new Action<string, Control>(SafeChangeText), msg, ctrl);
             }
             else
             {
@@ -682,9 +682,6 @@ namespace BlenderRenderController
         private void Status(string msg, ToolStripItem tsItem = null)
         {
             if (tsItem == null) tsItem = statusMessage;
-
-            // Needs Invoke?
-
             tsItem.Text = msg;
         }
 
@@ -831,11 +828,16 @@ namespace BlenderRenderController
             }
         }
 
-
         private void AfterRenderAction_Changed(object sender, EventArgs e)
         {
             _appSettings.AfterRender = (AfterRenderAction)cbAfterRenderAction.SelectedValue;
         }
+
+        private void Renderer_Changed(object sender, EventArgs e)
+        {
+            _appSettings.Renderer = (Renderer)cbRenderer.SelectedValue;
+        }
+
 
         private void outputFolderBrowseButton_Click(object sender, EventArgs e)
         {
@@ -897,12 +899,6 @@ namespace BlenderRenderController
             else
                 errorProvider.Clear();
         }
-
-        private void Renderer_Changed(object sender, EventArgs e)
-        {
-            _appSettings.Renderer = (Renderer)cbRenderer.SelectedValue;
-        }
-
 
 
         private void donateButton_Click(object sender, EventArgs e)

@@ -276,6 +276,24 @@ namespace BlenderRenderController.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Blender Renderer.
+        /// </summary>
+        internal static string Renderer_Blender {
+            get {
+                return ResourceManager.GetString("Renderer_Blender", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cycles Renderer.
+        /// </summary>
+        internal static string Renderer_Cycles {
+            get {
+                return ResourceManager.GetString("Renderer_Cycles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An unexpected error ocurred while rendering, check the output folder for a log file.
         /// </summary>
         internal static string RM_unexpected_error {
