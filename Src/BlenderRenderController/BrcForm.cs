@@ -145,7 +145,6 @@ namespace BlenderRenderController
 
             if (!_vm.ConfigOk)
             {
-
                 var settingsForm = new SettingsForm();
                 settingsForm.FormClosed += SettingsForm_FormClosed;
 
@@ -661,7 +660,7 @@ namespace BlenderRenderController
                 menuItem.Click += RecentBlendsItem_Click;
                 recentBlendsMenu.Items.Add(menuItem);
 
-                JumpList.AddToRecent(item);
+                JumpList.AddToRecent(Path.GetFullPath(item));
             }
 
         }
@@ -1025,9 +1024,6 @@ namespace BlenderRenderController
 
             Status(vm.DefaultStatusMessage);
         }
-
-
-
     }
 
 }
