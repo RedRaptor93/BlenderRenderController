@@ -1,11 +1,13 @@
-﻿using BlenderRenderController.Properties;
-using BRClib;
+﻿// Part of the Blender Render Controller project
+// https://github.com/RedRaptor93/BlenderRenderController
+// Copyright 2017-present Pedro Oliva Rodrigues
+// This code is released under the MIT licence
+
 using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace BlenderRenderController

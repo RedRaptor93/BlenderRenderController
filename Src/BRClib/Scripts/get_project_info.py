@@ -1,6 +1,7 @@
 # Part of Blender Render Controller
 # https://github.com/RedRaptor93/BlenderRenderController
 # Copyright 2017-present Pedro Oliva Rodrigues
+# This code is released under the MIT licence
 
 import os
 import json

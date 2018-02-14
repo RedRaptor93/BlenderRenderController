@@ -1,3 +1,8 @@
+// Part of the Blender Render Controller project
+// https://github.com/RedRaptor93/BlenderRenderController
+// Copyright 2017-present Pedro Oliva Rodrigues
+// This code is released under the MIT licence
+
 using BlenderRenderController.Properties;
 using BlenderRenderController.Render;
 using BRClib;
@@ -286,7 +291,6 @@ namespace BlenderRenderController
                     MessageBox.Show(eMsg, "", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
                 }
 
-                // output path w/o project name
                 if (string.IsNullOrWhiteSpace(proj.OutputPath))
                 {
                     // use .blend folder path if outputPath is unset, display a warning about it

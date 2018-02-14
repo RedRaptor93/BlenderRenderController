@@ -1,4 +1,9 @@
-﻿using System;
+﻿// Part of the Blender Render Controller project
+// https://github.com/RedRaptor93/BlenderRenderController
+// Copyright 2017-present Pedro Oliva Rodrigues
+// This code is released under the MIT licence
+
+using System;
 
 namespace BRClib.Commands
 {

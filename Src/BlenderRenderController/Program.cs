@@ -1,4 +1,9 @@
-﻿using System;
+﻿// Part of the Blender Render Controller project
+// https://github.com/RedRaptor93/BlenderRenderController
+// Copyright 2017-present Pedro Oliva Rodrigues
+// This code is released under the MIT licence
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NLog;
@@ -26,7 +31,7 @@ namespace BlenderRenderController
 
             string cmdFile = arguments.BlendFile ?? null;
             string portableStr = arguments.Portable ?? System.Configuration.ConfigurationManager.AppSettings["portable"];
-            bool portable = bool.TryParse(arguments.Portable, out bool ptb) ? ptb : false;
+            bool portable = bool.TryParse(portableStr, out bool ptb) ? ptb : false;
 
             Settings.Init(portable);
             var scriptsDir = Path.Combine(Settings.BaseDir, "scripts");
