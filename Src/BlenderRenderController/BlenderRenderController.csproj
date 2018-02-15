@@ -177,9 +177,6 @@
     <Compile Include="Ui\InfoBoxItem.Designer.cs">
       <DependentUpon>InfoBoxItem.cs</DependentUpon>
     </Compile>
-    <Compile Include="Ui\SplitButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <EmbeddedResource Include="AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </EmbeddedResource>

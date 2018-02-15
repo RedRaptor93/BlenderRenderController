@@ -88,21 +88,21 @@ namespace BRClib
         /// <summary>
         /// Parses the output of get_project_info
         /// </summary>
-        /// <param name="output">Standard output lines</param>
+        /// <param name="outputLines">Standard output lines</param>
         /// <returns>A <see cref="BlendData"/> object</returns>
         /// <remarks>
         /// When executing get_project_info script, Blender may also print errors
         /// alongside the project info (a commun case if there're custom plugins installed) 
         /// this method will filter out those errors.
         /// </remarks>
-        public static BlendData FromPyOutput(IEnumerable<string> output)
+        public static BlendData FromPyOutput(IEnumerable<string> outputLines)
         {
             StringBuilder jsonInfo = new StringBuilder();
             bool jsonStarted = false;
             int curlyStack = 0;
 
             // Filter out errors and create data
-            foreach (string line in output)
+            foreach (string line in outputLines)
             {
                 if (line.Contains("{"))
                 {
