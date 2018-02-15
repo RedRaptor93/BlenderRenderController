@@ -12,7 +12,7 @@ namespace BRClib
     /// <summary>
     /// Represents a range of frames to be rendered
     /// </summary>
-    public struct Chunk
+    public struct Chunk : IEquatable<Chunk>
     {
         /// <summary>
         /// <see cref="Chunk"/>'s start frame
@@ -69,7 +69,7 @@ namespace BRClib
         public bool Equals(Chunk c)
         {
             return Start == c.Start
-                && End == c.End;
+                && End   == c.End;
         }
 
         public static bool operator ==(Chunk c1, Chunk c2)

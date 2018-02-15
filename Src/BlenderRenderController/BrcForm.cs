@@ -148,16 +148,11 @@ namespace BlenderRenderController
                 var settingsForm = new SettingsForm();
                 settingsForm.FormClosed += SettingsForm_FormClosed;
 
-                string errMsg = "One or more required program(s) were not found " +
-                    "(Path invalid OR first time run), set the paths in the Settings window";
-                string cap = "Setup required";
-                string info = "Paths missing";
-
                 var td = new TaskDialog
                 {
-                    Caption = cap,
-                    InstructionText = info,
-                    Text = errMsg,
+                    Caption = "Setup required",
+                    InstructionText = "Paths missing",
+                    Text = Resources.AppErr_RequiredProgramsNotFound,
                     Icon = TaskDialogStandardIcon.Warning,
                     StandardButtons = TaskDialogStandardButtons.Close,
                     OwnerWindowHandle = this.Handle
@@ -267,7 +262,7 @@ namespace BlenderRenderController
             }
 
             Project proj;
-            var blendData = Utilities.ParsePyOutput(pResult.StdOutput);
+            var blendData = BlendData.FromPyOutput(pResult.StdOutput);
 
             if (blendData != null)
             {

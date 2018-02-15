@@ -80,6 +80,15 @@ namespace BlenderRenderController.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to One or more required program(s) were not found (Path invalid OR first time run), set the paths in the Settings window.
+        /// </summary>
+        internal static string AppErr_RequiredProgramsNotFound {
+            get {
+                return ResourceManager.GetString("AppErr_RequiredProgramsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Join chunks w/ Mixdown audio.
         /// </summary>
         internal static string AR_JoinMixdown {

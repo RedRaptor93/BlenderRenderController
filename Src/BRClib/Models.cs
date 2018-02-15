@@ -5,8 +5,10 @@
 
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Text;
 
 namespace BRClib
 {
@@ -82,7 +84,66 @@ namespace BRClib
         [JsonProperty("ffmpegAudio")]
         public string FFmpegAudioCodec { get; set; }
 
-      
+
+        /// <summary>
+        /// Parses the output of get_project_info
+        /// </summary>
+        /// <param name="output">Standard output lines</param>
+        /// <returns>A <see cref="BlendData"/> object</returns>
+        /// <remarks>
+        /// When executing get_project_info script, Blender may also print errors
+        /// alongside the project info (a commun case if there're custom plugins installed) 
+        /// this method will filter out those errors.
+        /// </remarks>
+        public static BlendData FromPyOutput(IEnumerable<string> output)
+        {
+            StringBuilder jsonInfo = new StringBuilder();
+            bool jsonStarted = false;
+            int curlyStack = 0;
+
+            // Filter out errors and create data
+            foreach (string line in output)
+            {
+                if (line.Contains("{"))
+                {
+                    jsonStarted = true;
+                    curlyStack++;
+                }
+                if (jsonStarted)
+                {
+                    if (!line.ToLower().Contains("blender quit") && curlyStack > 0)
+                    {
+                        jsonInfo.AppendLine(line);
+                    }
+                    if (line.Contains("}"))
+                    {
+                        curlyStack--;
+                        if (curlyStack == 0)
+                        {
+                            jsonStarted = false;
+                        }
+                    }
+                }
+            }
+
+            var json = jsonInfo.ToString();
+            return JsonConvert.DeserializeObject<BlendData>(json);
+        }
+
+        /// <summary>
+        /// Parses the output of get_project_info
+        /// </summary>
+        /// <param name="stdOutput">Standard output</param>
+        /// <returns>A <see cref="BlendData"/> object</returns>
+        /// <remarks>
+        /// When executing get_project_info script, Blender may also print errors
+        /// alongside the Json containig the project info (a commun case if there're
+        /// custom plugins installed) this method will filter out those errors.
+        /// </remarks>
+        public static BlendData FromPyOutput(string stdOutput)
+        {
+            return FromPyOutput(stdOutput.Split('\n'));
+        }
 
         //public string AudioFileFormat
         //{

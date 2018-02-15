@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Timer = System.Timers.Timer;
@@ -58,7 +59,6 @@ namespace BlenderRenderController.Render
 
         // after render
         List<Process> _arProcesses;
-        Task<bool> _arState;
         const string MIX_KEY = "mixdown";
         const string CONCAT_KEY = "concat";
         CancellationTokenSource _arCts;
@@ -68,8 +68,10 @@ namespace BlenderRenderController.Render
                                         "Std Output:\n{2}";
 
         const string CHUNK_TXT = "chunklist.txt",
-                     CHUNK_DIR = "chunks"; 
+                     CHUNK_DIR = "chunks";
 
+        object _syncLock = new object();
+        
         #endregion
 
 
@@ -121,7 +123,6 @@ namespace BlenderRenderController.Render
 
         public Renderer Renderer => _renderer;
 
-        object _syncLock = new object();
 
 
 
@@ -229,6 +230,46 @@ namespace BlenderRenderController.Render
             }
         }
 
+        /// <summary>
+        /// Analizes the files in the specified folder and returns
+        /// a list of valid chunks, ordered by frame-range
+        /// </summary>
+        /// <param name="chunkFolderPath"></param>
+        /// <returns></returns>
+        public static List<string> GetChunkFiles(string chunkFolderPath)
+        {
+            var dirFiles = Directory.EnumerateFiles(chunkFolderPath, "*.*",
+                                            SearchOption.TopDirectoryOnly);
+
+            string[] validExts = RenderFormats.VideoFileExts;
+
+            var orderedChunks = dirFiles
+                .Where(f =>
+                {
+                    var ext = Path.GetExtension(f);
+                    var split = f.Split('-');
+
+                    // format: FILENAME-fStart-fEnd.ext
+                    if (split.Length > 2 && validExts.Contains(ext))
+                    {
+                        // only add files with frame range
+                        var nstr = split[split.Length - 2];
+                        return int.TryParse(nstr, out int x);
+                    }
+
+                    return false;
+                })
+                .OrderBy(f =>
+                {
+                    //sort files in list by starting frame
+                    var split = f.Split('-');
+                    var nstr = split[split.Length - 2];
+                    return int.Parse(nstr);
+                });
+
+            return orderedChunks.ToList();
+        }
+
 
         private void CheckForValidProperties()
         {
@@ -310,29 +351,25 @@ namespace BlenderRenderController.Render
             return renderCom;
         }
 
-        bool CreateChunksTxtFile(string chunksFolder)
+        string CreateConcatFile(List<string> chunkFilePaths, string concatDir)
         {
-            // TODO: Find a way to get the videos file ext
-            // before rendering ends
-            var fileListSorted = Utilities.GetChunkFiles(chunksFolder);
+            var concatFile = Path.Combine(concatDir, CHUNK_TXT);
+            var sb = new StringBuilder();
 
-            if (fileListSorted.Count == 0)
+            foreach (var filePath in chunkFilePaths)
             {
-                return false;
+                sb.AppendFormat("file '{0}'", filePath).AppendLine();
             }
 
-            string chunksTxtFile = Path.Combine(chunksFolder, CHUNK_TXT);
+            File.WriteAllText(concatFile, sb.ToString());
 
-            //write txt for FFmpeg concatenation
-            using (StreamWriter partListWriter = new StreamWriter(chunksTxtFile))
-            {
-                foreach (var filePath in fileListSorted)
-                {
-                    partListWriter.WriteLine("file '{0}'", filePath);
-                }
-            }
+            return concatFile;
+        }
 
-            return true;
+        string CreateConcatFile(List<string> chunkFilePaths)
+        {
+            var bDir = Path.GetDirectoryName(chunkFilePaths[0]);
+            return CreateConcatFile(chunkFilePaths, bDir);
         }
 
         // read blender's output to see what frames are beeing rendered
@@ -391,15 +428,24 @@ namespace BlenderRenderController.Render
 
         private void OnChunksFinished()
         {
+            bool renderOk = _processes.TrueForAll(p => p.ExitCode == 0);
+
+            if (!renderOk)
+            {
+                Finished.Invoke(this, BrcRenderResult.ChunkRenderFailed);
+                DisposeProcesses();
+                logger.Error("One or more render processes did not complete sucessfully");
+                return;
+            }
+
             DisposeProcesses();
             logger.Info("RENDER FINISHED");
 
             // Send a '100%' ProgressReport
             ReportProgress(NumberOfFramesRendered, _initalChunkCount);
 
-            _arState = Task.Factory.StartNew(AfterRenderProc, _action, _arCts.Token);
-
-            _arState.ContinueWith(t =>
+            Task.Factory.StartNew(AfterRenderProc, _action, _arCts.Token)
+            .ContinueWith(t =>
             {
                 BrcRenderResult result;
                 if (!t.Result && WasAborted)
@@ -456,8 +502,6 @@ namespace BlenderRenderController.Render
 
         }
 
-
-
         bool AfterRenderProc(object state)
         {
             var action = (AfterRenderAction)state;
@@ -471,22 +515,27 @@ namespace BlenderRenderController.Render
 
             logger.Info("AfterRender started. Action: {0}", action);
 
+            var chunkFiles = GetChunkFiles(ChunksFolderPath);
+            string concatFile = null;
+
             if (action.HasFlag(AfterRenderAction.JOIN))
             {
-                // create chunklist.txt
-                if (!CreateChunksTxtFile(ChunksFolderPath))
+                if (chunkFiles.Count == 0)
                 {
-                    // did not create txtFile
-                    throw new Exception("Failed to create chunklist.txt");
+                    throw new Exception("Failed to query chunk files");
                 }
+
+                concatFile = CreateConcatFile(chunkFiles);
+
+                Debug.Assert(File.Exists(concatFile), 
+                    "concatFile was not created, but chunkFiles is not empty");
             }
 
             // full range of frames
             var fullc = new Chunk(_chunkList.First().Start, _chunkList.Last().End);
 
-            var videoExt = Path.GetExtension(Utilities.GetChunkFiles(ChunksFolderPath).First());
+            var videoExt = Path.GetExtension(chunkFiles.First());
             var projFinalPath = Path.Combine(_proj.OutputPath, _proj.ProjectName + videoExt);
-            var chunksTxt = Path.Combine(ChunksFolderPath, CHUNK_TXT);
             var mixdownPath = Path.Combine(_proj.OutputPath, MixdownFile);
             var mixdownTmpScript = Services.Scripts.MixdownAudio;
 
@@ -501,7 +550,7 @@ namespace BlenderRenderController.Render
 
             ConcatCmd concat = new ConcatCmd(_setts.FFmpegProgram)
             {
-                ConcatTextFile = chunksTxt,
+                ConcatTextFile = concatFile,
                 OutputFile = projFinalPath,
                 Duration = _proj.Duration,
                 MixdownFile = mixdownPath
