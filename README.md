@@ -3,7 +3,7 @@
 ## Download &#8615;
 Latest release [HERE](https://github.com/RedRaptor93/BlenderRenderController/releases/latest).
 
-BRC is a tool to speed up the rendering process of videos in Blender's Video Sequence editor by rendering multiple diferent chunks of the video at the same time and joining them toguether after.
+BRC is a tool to speed up the rendering process of videos in Blender's Video Sequence editor by rendering multiple different chunks of the video at the same time and joining them together after.
 
 ### Documentation
 - [About BRC](https://github.com/RedRaptor93/BlenderRenderController/blob/master/docs/about_brc.md) and why you might want to use it
@@ -20,7 +20,6 @@ BRC is a tool to speed up the rendering process of videos in Blender's Video Seq
 
 - Older versions of FFmpeg may fail to join chunks if AAC audio is used
 
-- Ui may not update progress properly on Linux
 
 ## CREDITS
 

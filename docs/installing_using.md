@@ -1,19 +1,17 @@
 ## Installing
 
-### Dependencies
+Before starting, you should have the following dependencies installed:
+
 - Blender, obviously.
-- [FFmpeg](https://ffmpeg.org/download.html), required for joining the parts together. You don't need to worry about it if you download the Full version which has FFmpeg already included.
+- [FFmpeg](https://ffmpeg.org/download.html), required for joining the parts together. 
 - On Windows:
    * .NET framework 4.5.2 or higher
-- <s>On Linux:
-  * Mono 4.8 or higher
-  * gnome-themes-standard</s> **!read below!**
 
+There are 2 [installers](https://github.com/RedRaptor93/BlenderRenderController/releases/latest) available, the main difference being the 'portable' won't create shortcuts and has the portable mode enabled by default.
 
-#### Obs: Linux and Mac:
-<s> If your compiling from source, define *UNIX* as a compilation symbol so the it'll work w/ Mono </s>
+**Portable mode** meaning BRC won't create files outside of its executable directory (except when rendering). Can safely be moved around.
 
-Starting w/ *v1.1.0.0* Mono support is deprecated, releases will no longer have a "Unix" version and the `UNIX` conditional code will be removed in the future.
+You don't need to use the portable setup to get portable mode, you can edit the `BlenderRenderController.exe.config` and under 'appsettings', set "portable" to "true".
 
 ## Using
 1. Create your Blender VSE project normally within Blender.
@@ -24,7 +22,7 @@ Starting w/ *v1.1.0.0* Mono support is deprecated, releases will no longer have 
 
    - Normally, the N# of processes should match the N# of logical cores in you system for a optimum render performance.
  
-4. Choose the render method:
+4. Choose a joining method:
 
    - *Join chunks w/ mixdown audio* - renders chunks, makes a separated audio file and joins it all together, recommended if you have audio tracks in your project.
    - *Join chunks* - same as above, minus audio mixdown.
