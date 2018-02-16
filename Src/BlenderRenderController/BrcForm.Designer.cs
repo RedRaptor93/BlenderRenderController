@@ -471,6 +471,7 @@ namespace BlenderRenderController
             this.toolStripSeparator3,
             this.miEmptyPH});
             this.recentBlendsMenu.Name = "recentBlendsMenu";
+            this.recentBlendsMenu.OwnerItem = this.openRecentsTSButton;
             this.recentBlendsMenu.Size = new System.Drawing.Size(125, 62);
             // 
             // clearToolStripMenuItem
@@ -888,7 +889,7 @@ namespace BlenderRenderController
             // 
             this.miDonate.Image = ((System.Drawing.Image)(resources.GetObject("miDonate.Image")));
             this.miDonate.Name = "miDonate";
-            this.miDonate.Size = new System.Drawing.Size(181, 26);
+            this.miDonate.Size = new System.Drawing.Size(171, 26);
             this.miDonate.Text = "&Donate";
             this.miDonate.ToolTipText = "Feeling specially awesome? Donate!";
             this.miDonate.Click += new System.EventHandler(this.donateButton_Click);

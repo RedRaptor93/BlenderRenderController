@@ -51,8 +51,6 @@ namespace BlenderRenderController
 
         BrcViewModel _vm;
 
-        JumpList _jumpList;
-
 
         public BrcForm()
         {
@@ -138,10 +136,6 @@ namespace BlenderRenderController
         private void BrcForm_Shown(object sender, EventArgs e)
         {
             logger.Info("Program Started");
-
-            _jumpList = JumpList.CreateJumpList();
-            _jumpList.KnownCategoryToDisplay = JumpListKnownCategoryType.Recent;
-            _jumpList.Refresh();
 
             if (!_vm.ConfigOk)
             {
@@ -654,8 +648,6 @@ namespace BlenderRenderController
                 };
                 menuItem.Click += RecentBlendsItem_Click;
                 recentBlendsMenu.Items.Add(menuItem);
-
-                JumpList.AddToRecent(Path.GetFullPath(item));
             }
 
         }
