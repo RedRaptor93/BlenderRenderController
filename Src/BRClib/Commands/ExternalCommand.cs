@@ -78,6 +78,7 @@ namespace BRClib.Commands
             protected set => _eCode = value;
         }
 
+
         public ExternalCommand(string programPath)
         {
             ProgramPath = programPath;
@@ -85,20 +86,21 @@ namespace BRClib.Commands
             _procName = Path.GetFileNameWithoutExtension(ProgramPath);
         }
 
+
         public Process GetProcess()
         {
-            return CreateProcess(ProgramPath, GetArgs());
+            return CreateProcess();
         }
 
-        protected virtual Process CreateProcess(string program, string args)
+        protected virtual Process CreateProcess()
         {
 
             var proc = new Process
             {
                 StartInfo = new ProcessStartInfo()
                 {
-                    FileName = program,
-                    Arguments = args,
+                    FileName = ProgramPath,
+                    Arguments = GetArgs(),
 
                     CreateNoWindow = true,
                     RedirectStandardError = true,
