@@ -42,7 +42,7 @@ namespace BRClib.Extentions
         public static void Raise<TArgs>(this MulticastDelegate thisEvent, object sender, TArgs args)
         {
             var localMCD = thisEvent;
-            AsyncCallback callback = ar => ((EventHandler<TArgs>)ar.AsyncState).EndInvoke(ar);
+            void callback(IAsyncResult ar) => ((EventHandler<TArgs>)ar.AsyncState).EndInvoke(ar);
 
             foreach (Delegate d in localMCD.GetInvocationList())
             {
@@ -68,7 +68,7 @@ namespace BRClib.Extentions
         public static void Raise(this MulticastDelegate thisEvent, object sender, EventArgs args)
         {
             var localMCD = thisEvent;
-            AsyncCallback callback = ar => ((EventHandler)ar.AsyncState).EndInvoke(ar);
+            void callback(IAsyncResult ar) => ((EventHandler)ar.AsyncState).EndInvoke(ar);
 
             foreach (Delegate d in localMCD.GetInvocationList())
             {
@@ -183,7 +183,7 @@ namespace BRClib.Extentions
                 }
                 finally
                 {
-                    proc.Close();
+                    proc.Dispose();
                 }
             }
         }

@@ -4,17 +4,11 @@
 // This code is released under the MIT licence
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BRClib.Commands
 {
     public class GetInfoCmd : ExternalCommand
     {
-        // 0=Blend file, 1=get_project_info.py
-        const string GETINFO_FMT = "-b \"{0}\" -P \"{1}\"";
 
         public GetInfoCmd(string programPath) : base(programPath)
         {
@@ -30,6 +24,9 @@ namespace BRClib.Commands
         public string BlendFile { get; set; }
         public string ProjInfoScript { get; set; }
 
+
+        // 0=Blend file, 1=get_project_info.py
+        const string GETINFO_FMT = "-b \"{0}\" -P \"{1}\"";
 
         protected override string GetArgs()
         {

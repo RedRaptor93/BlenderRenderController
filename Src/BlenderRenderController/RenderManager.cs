@@ -16,7 +16,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Timer = System.Timers.Timer;
+using Timer = System.Windows.Forms.Timer;
 
 namespace BlenderRenderController.Render
 {
@@ -70,7 +70,7 @@ namespace BlenderRenderController.Render
         const string CHUNK_TXT = "chunklist.txt",
                      CHUNK_DIR = "chunks";
 
-        object _syncLock = new object();
+        //object _syncLock = new object();
         
         #endregion
 
@@ -141,15 +141,11 @@ namespace BlenderRenderController.Render
             _timer = new Timer
             {
                 Interval = 100,
-                AutoReset = true,
             };
 
-            _timer.Elapsed += delegate 
+            _timer.Tick += delegate 
             {
-                lock (_syncLock)
-                {
-                    TryQueueRenderProcess();
-                }
+                TryQueueRenderProcess();
             };
         }
 
@@ -226,7 +222,7 @@ namespace BlenderRenderController.Render
                 DisposeProcesses();
                 logger.Warn("RENDER ABORTED");
 
-                Finished?.Raise(this, BrcRenderResult.Aborted);
+                Finished?.Invoke(this, BrcRenderResult.Aborted);
             }
         }
 
@@ -432,7 +428,7 @@ namespace BlenderRenderController.Render
 
             if (!renderOk)
             {
-                Finished.Invoke(this, BrcRenderResult.ChunkRenderFailed);
+                Finished?.Raise(this, BrcRenderResult.ChunkRenderFailed);
                 DisposeProcesses();
                 logger.Error("One or more render processes did not complete sucessfully");
                 return;
@@ -444,7 +440,9 @@ namespace BlenderRenderController.Render
             // Send a '100%' ProgressReport
             ReportProgress(NumberOfFramesRendered, _initalChunkCount);
 
-            Task.Factory.StartNew(AfterRenderProc, _action, _arCts.Token)
+            AfterRenderStarted?.Raise(this, Action);
+
+            var arTask = Task.Factory.StartNew(AfterRenderProc, _action, _arCts.Token)
             .ContinueWith(t =>
             {
                 BrcRenderResult result;
@@ -457,9 +455,11 @@ namespace BlenderRenderController.Render
                     result = BrcRenderResult.AllOk;
                 }
 
-                Finished?.Raise(this, result);
-            },
-            TaskContinuationOptions.ExecuteSynchronously);
+                return result;
+            })
+            .ContinueWith(t => Finished?.Raise(this, t.Result));
+
+
         }
 
         void ReportProgress(int framesRendered, int chunksCompleted)
@@ -467,7 +467,7 @@ namespace BlenderRenderController.Render
             // Stagger report sending to save some heap allocation
             if (_reportCount++ % PROG_STACK_SIZE == 0)
             {
-                ProgressChanged?.Raise(this, new RenderProgressInfo(framesRendered, chunksCompleted));
+                ProgressChanged?.Invoke(this, new RenderProgressInfo(framesRendered, chunksCompleted));
             }
         }
 
@@ -506,7 +506,7 @@ namespace BlenderRenderController.Render
         {
             var action = (AfterRenderAction)state;
 
-            AfterRenderStarted?.Raise(this, action);
+            //AfterRenderStarted?.Invoke(this, action);
 
             if (action == AfterRenderAction.NOTHING)
             {
