@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Gtk;
 
 using PathIO = System.IO.Path;
@@ -78,7 +79,7 @@ namespace BlenderRenderController
             if (!result)
             {
                 var msgDialog = new MessageDialog(null, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, 
-                    "%s", errMsg);
+                    errMsg);
 
                 msgDialog.Run();
             }
@@ -88,21 +89,46 @@ namespace BlenderRenderController
 
         void UpdateInfoBoxItems(Project project)
         {
-            activeSceneInfoValue.Text = project.ActiveScene;
-            durationInfoValue.Text = project.Duration.HasValue 
-                ? string.Format("{0:%h}h {0:%m}m {0:%s}s {0:%f}ms", project.Duration.Value)
-                : null;
-            fpsInfoValue.Text = project.Fps.ToString("D2");
-            resolutionInfoValue.Text = project.Resolution;
+            if (project == null)
+            {
+                activeSceneInfoValue.Text = 
+                durationInfoValue.Text = 
+                fpsInfoValue.Text =
+                resolutionInfoValue.Text = "...";
+
+            }
+            else
+            {
+                activeSceneInfoValue.Text = project.ActiveScene;
+                durationInfoValue.Text = project.Duration.HasValue 
+                    ? string.Format("{0:%h}h {0:%m}m {0:%s}s {0:%f}ms", project.Duration.Value)
+                    : null;
+                fpsInfoValue.Text = project.Fps.ToString("F2");
+                resolutionInfoValue.Text = project.Resolution;
+            }
         }
+
+        void UpdateOptions(Project project)
+        {
+            if (project == null) return;
+
+            numStartFrameAdjust.Value = project.Start;
+            numEndFrameAdjust.Value = project.End;
+            numChunkSizeAdjust.Value = project.ChunkList[0].Length;
+            numProcMaxAdjust.Value = project.MaxConcurrency;
+
+            entryOutputPath.Text = project.OutputPath;
+        }
+        
 
         // Events handlers
         private async void On_OpenFile(object sender, EventArgs e)
         {
             string blendFile = null;
-            var result = openBlendDialog.Run();
+            var result = (ResponseType)openBlendDialog.Run();
+            openBlendDialog.Hide();
 
-            if (result == (int)ResponseType.Accept)
+            if (result == ResponseType.Accept)
             {
                 blendFile = openBlendDialog.Filename;
                 lblStatus.Text = "Loading " + PathIO.GetFileName(blendFile) + " ...";
@@ -110,17 +136,45 @@ namespace BlenderRenderController
 
                 await _vm.GetBlendInfo(blendFile);
 
-                workSpinner.Active = false;
+                _autoStartF = _vm.Project.Start;
+                _autoEndF = _vm.Project.End;
 
-                UpdateInfoBoxItems(_vm.Project);
+                workSpinner.Active = false;
             }
 
+        }
 
-            openBlendDialog.Hide();
+        private async void On_OpenRecent(object o, EventArgs args)
+        {
+            IRecentChooser chooser = (IRecentChooser)o;
+
+            Console.WriteLine(chooser);
+            string blendFile = chooser.CurrentUri;
+            Console.WriteLine(blendFile);
+
+            //lblStatus.Text = "Loading " + PathIO.GetFileName(blendFile) + " ...";
+            //workSpinner.Active = true;
+
+            Console.WriteLine("Loading...");
+
+            await _vm.GetBlendInfo(blendFile);
+
+            _autoStartF = _vm.Project.Start;
+            _autoEndF = _vm.Project.End;
+
+            //workSpinner.Active = false;
+        }
+
+        void On_miClearRecents_Click(object o, EventArgs e)
+        {
+
         }
 
         private void On_ReloadFile(object sender, EventArgs e)
         {
+            var bpath = _vm.Project.BlendFilePath;
+            _vm.Project = null;
+           _vm.GetBlendInfo(bpath);
         }
 
         private void On_UnloadFile(object sender, EventArgs e)
@@ -155,7 +209,6 @@ namespace BlenderRenderController
 
         void On_cbJoiningAction_Changed(object s, EventArgs e)
         {
-            //var cb = (ComboBox)s;
 
         }
 
@@ -166,29 +219,52 @@ namespace BlenderRenderController
 
         void On_AutoStartStop_Toggled(object s, EventArgs e)
         {
+            var radioBtn = (RadioButton)s;
+            AutoFrameRange = radioBtn.Active;
 
+            frameRangeBox.Sensitive = !AutoFrameRange;
+
+            if (AutoFrameRange)
+            {
+                _vm.Project.Start = _autoStartF;
+                _vm.Project.End = _autoEndF;
+            }
         }
 
         void On_AutoChunkSize_Toggled(object s, EventArgs e)
         {
+            var radioBtn = (RadioButton)s;
+            AutoChunkDiv = radioBtn.Active;
 
-        }
+            chunkDivBox.Sensitive = !AutoChunkDiv;
 
-        private void NumAdjust_ValueChanged(object sender, EventArgs e)
-        {
-            var adjust = (Adjustment)sender;
+            Console.WriteLine("{0}", AutoChunkDiv);
+
+            if (!AutoChunkDiv)
+                return;
+
+            var currentStart = numStartFrameAdjust.Value;
+            var currentEnd = numEndFrameAdjust.Value;
+            var maxParallel = Environment.ProcessorCount;
+            var expectedCLen = Math.Ceiling((currentEnd - currentStart + 1) / maxParallel);
+
+            _vm.Project.ChunkLenght = (int)expectedCLen;
         }
 
         void On_numFrameRange_ValueChanged(object s, EventArgs e)
         {
             var spinBtn = (SpinButton)s;
 
-            Console.WriteLine("Name = " + spinBtn.Name);
-
             var startFrame = numStartFrameAdjust.Value;
             var endFrame = numEndFrameAdjust.Value;
 
-            Console.WriteLine($"Values = {startFrame}-{endFrame}");
+            if (AutoChunkDiv)
+            {
+                _vm.Project.ChunkLenght = (int)Math.Ceiling((endFrame - startFrame + 1) / _vm.Project.MaxConcurrency);
+            }
+
+            _vm.Project.Start = (int)startFrame;
+            _vm.Project.End = (int)endFrame;
         }
 
         void StartRender_Clicked(object s, EventArgs e)
@@ -211,8 +287,8 @@ namespace BlenderRenderController
 
         void BtnChangeFolder_Clicked(object s, EventArgs e)
         {
-            var result = chooseOutputFolderDialog.Run();
-            if (result == (int)ResponseType.Accept)
+            var result = (ResponseType)chooseOutputFolderDialog.Run();
+            if (result == ResponseType.Accept)
             {
                 entryOutputPath.Text = chooseOutputFolderDialog.Filename;
             }
@@ -222,7 +298,7 @@ namespace BlenderRenderController
 
         void BtnOpenFolder_Clicked(object s, EventArgs e)
         {
-            
+            _vm.OpenOutputFolder();
         }
 
         void On_ShowAbout(object s, EventArgs e)
@@ -236,8 +312,6 @@ namespace BlenderRenderController
             var orderedItems = items.OrderBy(ri => ri.Added).Select(ri => ri.Uri);
 
             _settings.RecentProjects = new Infra.RecentBlendsCollection(orderedItems);
-
-
         }
 
 
@@ -267,6 +341,12 @@ namespace BlenderRenderController
             lblTimeElapsed.Visible = vm.ProjectLoaded;
 
             lblStatus.Text = vm.DefaultStatusMessage;
+
+            if (e.PropertyName == nameof(vm.Project))
+            {
+                UpdateInfoBoxItems(vm.Project);
+                UpdateOptions(vm.Project);
+            }
         }
 
     }

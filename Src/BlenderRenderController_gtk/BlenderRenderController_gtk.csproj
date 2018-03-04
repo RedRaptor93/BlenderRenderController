@@ -121,4 +121,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\gtk-sharp-3.3.22.6.4\build\net40\gtk-sharp-3.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\gtk-sharp-3.3.22.6.4\build\net40\gtk-sharp-3.targets'))" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>xcopy $(ProjectDir)$(OutDir)*.* /S /F /I /Y "F:\PCsVirtuais\_transfer\brc\builds"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

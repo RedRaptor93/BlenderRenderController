@@ -58,8 +58,8 @@ namespace BlenderRenderController
             this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.miEmptyPH = new System.Windows.Forms.ToolStripMenuItem();
-            this.openRecentsTSButton = new System.Windows.Forms.ToolStripDropDownButton();
             this.miOpenRecent = new System.Windows.Forms.ToolStripMenuItem();
+            this.openRecentsTSButton = new System.Windows.Forms.ToolStripDropDownButton();
             this.blendFileLabel = new System.Windows.Forms.Label();
             this.outputFolderLabel = new System.Windows.Forms.Label();
             this.optionsLabel = new System.Windows.Forms.Label();
@@ -471,7 +471,7 @@ namespace BlenderRenderController
             this.toolStripSeparator3,
             this.miEmptyPH});
             this.recentBlendsMenu.Name = "recentBlendsMenu";
-            this.recentBlendsMenu.OwnerItem = this.miOpenRecent;
+            this.recentBlendsMenu.OwnerItem = this.openRecentsTSButton;
             this.recentBlendsMenu.Size = new System.Drawing.Size(125, 62);
             // 
             // clearToolStripMenuItem
@@ -496,6 +496,15 @@ namespace BlenderRenderController
             this.miEmptyPH.Size = new System.Drawing.Size(124, 26);
             this.miEmptyPH.Text = "Empty";
             // 
+            // miOpenRecent
+            // 
+            this.miOpenRecent.DropDown = this.recentBlendsMenu;
+            this.miOpenRecent.Image = global::BlenderRenderController.Properties.Resources.Time_16x;
+            this.miOpenRecent.Name = "miOpenRecent";
+            this.miOpenRecent.Size = new System.Drawing.Size(182, 26);
+            this.miOpenRecent.Text = "Open Re&cent";
+            this.miOpenRecent.ToolTipText = "Open Recent";
+            // 
             // openRecentsTSButton
             // 
             this.openRecentsTSButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -506,15 +515,6 @@ namespace BlenderRenderController
             this.openRecentsTSButton.Name = "openRecentsTSButton";
             this.openRecentsTSButton.Size = new System.Drawing.Size(34, 24);
             this.openRecentsTSButton.Text = "Open Recent";
-            // 
-            // miOpenRecent
-            // 
-            this.miOpenRecent.DropDown = this.recentBlendsMenu;
-            this.miOpenRecent.Image = global::BlenderRenderController.Properties.Resources.Time_16x;
-            this.miOpenRecent.Name = "miOpenRecent";
-            this.miOpenRecent.Size = new System.Drawing.Size(182, 26);
-            this.miOpenRecent.Text = "Open Re&cent";
-            this.miOpenRecent.ToolTipText = "Open Recent";
             // 
             // blendFileLabel
             // 

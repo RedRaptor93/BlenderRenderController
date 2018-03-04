@@ -238,14 +238,6 @@ THE SOFTWARE.
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Open _recent</property>
                         <property name="use_underline">True</property>
-                        <child type="submenu">
-                          <object class="GtkRecentChooserMenu" id="miRecentList">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="limit">10</property>
-                            <property name="sort_type">mru</property>
-                          </object>
-                        </child>
                       </object>
                     </child>
                     <child>
@@ -757,7 +749,7 @@ THE SOFTWARE.
                                     <property name="orientation">vertical</property>
                                     <property name="spacing">10</property>
                                     <child>
-                                      <object class="GtkBox">
+                                      <object class="GtkBox" id="frameRangeBox">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="margin_left">12</property>
@@ -917,7 +909,6 @@ THE SOFTWARE.
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
-                                                <property name="active">True</property>
                                                 <property name="draw_indicator">True</property>
                                                 <property name="group">radioFromBlend</property>
                                               </object>
@@ -945,7 +936,7 @@ THE SOFTWARE.
                                     <property name="orientation">vertical</property>
                                     <property name="spacing">10</property>
                                     <child>
-                                      <object class="GtkBox">
+                                      <object class="GtkBox" id="chunkDivBox">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="spacing">7</property>

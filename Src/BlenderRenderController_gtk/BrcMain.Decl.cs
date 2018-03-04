@@ -12,6 +12,7 @@ namespace BlenderRenderController
 
         // main frames
         [UI] Frame frBlendFile, frRenderOptions, frOutputFolder;
+        [UI] Box frameRangeBox, chunkDivBox;
 
         [UI] Stack startStopStack;
         [UI] Button btnStartRender, btnStopRender;
@@ -33,7 +34,6 @@ namespace BlenderRenderController
         // -File
         [UI] ImageMenuItem miOpenFile, miReloadFile, miPref;
         [UI] MenuItem miUnload, miOpenRecent;
-        [UI] RecentChooserMenu miRecentList;
 
         // -Tools
         [UI] ImageMenuItem miRenderMixdown, miJoinChunks;
@@ -51,6 +51,9 @@ namespace BlenderRenderController
         #endregion
 
         FileChooserDialog openBlendDialog, chooseOutputFolderDialog;
+        RecentChooserMenu recentBlends;
+        RecentChooserWidget chooserWidget;
+        MenuItem recentBlendsMenu;
 
         void Initialize()
         {
@@ -74,12 +77,22 @@ namespace BlenderRenderController
             chooseOutputFolderDialog = new FileChooserDialog("Choose output folder", this, FileChooserAction.SelectFolder,
                 "Cancel", ResponseType.Cancel, "Select", ResponseType.Accept);
 
-            miRecentList.Filter = recentBlendsFilter;
+            //chooserWidget = new RecentChooserWidget();
+            //chooserWidget.Filter = recentBlendsFilter;
 
-            tsOpenRecent.Menu = miRecentList;
+            recentBlends = new RecentChooserMenu();
+            recentBlends.Filter = recentBlendsFilter;
+            //recentBlends.ActivateCurrent += On_OpenRecent;
+            recentBlends.AddSignalHandler("item-activated", new EventHandler(On_OpenRecent));
+
+            miOpenRecent.Submenu = recentBlends;
+            tsOpenRecent.Menu = recentBlends;
 
             numProcMaxAdjust.Value =
             numProcMaxAdjust.Upper = Environment.ProcessorCount;
+
+            frameRangeBox.Sensitive = chunkDivBox.Sensitive = false;
+            AutoFrameRange = AutoChunkDiv = true;
 
             SetupHandlers();
         }
@@ -87,8 +100,14 @@ namespace BlenderRenderController
         private void SetupHandlers()
         {
             RecentManager.Default.Changed += RecentMngr_Changed;
-
+            //miRecentList.AddSignalHandler("item-activated", new EventHandler(On_RecentItem_Activated));
         }
 
+
+
+        // private properties
+        bool AutoFrameRange { get; set; }
+
+        bool AutoChunkDiv { get; set; }
     }
 }

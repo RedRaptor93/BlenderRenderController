@@ -7,12 +7,14 @@ using BlenderRenderController.Services;
 using BRClib;
 using BRClib.Commands;
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace BlenderRenderController
 {
@@ -112,7 +114,21 @@ namespace BlenderRenderController
                     "&currency_code=" + currency +
                     "&bn=PP%2dDonationsBF";
 
-            System.Diagnostics.Process.Start(url);
+            Process.Start(url);
+        }
+
+        public void OpenOutputFolder()
+        {
+            if (Directory.Exists(Project.OutputPath))
+            {
+                Process.Start(Project.OutputPath);
+            }
+            else
+            {
+                MessageBox.Show("Output folder does not exist.", "",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Exclamation);
+            }
         }
 
         public async Task GetBlendInfo(string blendFile)
@@ -120,6 +136,8 @@ namespace BlenderRenderController
             if (!File.Exists(blendFile))
             {
                 // error: file does not exist
+                Trace.TraceError("File does not exist");
+                MessageBox.Show("File does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
 
@@ -130,6 +148,7 @@ namespace BlenderRenderController
             if (cmd.StdOutput.Length == 0)
             {
                 // error: no info received
+                Trace.TraceError("No information recived from Blender");
                 return;
             }
 
@@ -138,31 +157,38 @@ namespace BlenderRenderController
             if (blendData == null)
             {
                 // error: Unexpected output.
+                Trace.TraceError("Unexpected get_project_info output");
+                //ShowMsgBox("Unexpected get_project_info output", MessageType.Error);
+                MessageBox.Show("Unexpected get_project_info output", "Error", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            _proj = new Project(blendData)
+            var proj = new Project(blendData)
             {
                 BlendFilePath = blendFile,
-                MaxConcurrency = Environment.ProcessorCount
             };
 
             if (RenderFormats.IMAGES.Contains(blendData.FileFormat))
             {
                 // warning: Render format is Img
+                Trace.TraceWarning("Render format is Img");
+                MessageBox.Show("Render format is Img", "Warning",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
 
-            if (string.IsNullOrWhiteSpace(_proj.OutputPath))
+            if (string.IsNullOrWhiteSpace(proj.OutputPath))
             {
                 // warning: outputPath is unset, use blend path
+                Trace.TraceWarning("OutputPath is unset, using .blend dir");
 
-                _proj.OutputPath = Path.GetDirectoryName(blendFile);
+                proj.OutputPath = Path.GetDirectoryName(blendFile);
             }
             else
-                _proj.OutputPath = Path.GetDirectoryName(_proj.OutputPath);
+                proj.OutputPath = Path.GetDirectoryName(proj.OutputPath);
 
-            // notify UI of changed
-            OnPropertyChanged(nameof(Project));
+            Project = proj;
         }
+
     }
 }

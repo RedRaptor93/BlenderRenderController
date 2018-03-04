@@ -38,7 +38,11 @@ namespace BRClib
             FFmpegVideoFormat = blend.FFmpegVideoFormat;
             FFmpegAudioCodec = blend.FFmpegAudioCodec;
 
+            MaxConcurrency = Environment.ProcessorCount;
+
             _chunkList = new ObservableCollection<Chunk>(Chunk.CalcChunks(Start, End, MaxConcurrency));
+
+            ChunkLenght = _chunkList[0].Length;
         }
 
         public string BlendFilePath
