@@ -51,7 +51,8 @@ namespace BlenderRenderController.Services
         {
             _portable = portableMode;
 
-            _baseDir = Portable ? Env.CurrentDirectory : Dirs.AppData;
+            _baseDir = Portable ? Env.CurrentDirectory : Path.Combine(Env.GetFolderPath(Env.SpecialFolder.ApplicationData), 
+                                                                      "BlenderRenderController");
 
             Env.SetEnvironmentVariable(BRC_VER, Assembly.GetExecutingAssembly().GetName().Version.ToString());
 

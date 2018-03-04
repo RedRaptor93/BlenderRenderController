@@ -3,16 +3,13 @@
 // Copyright 2017-present Pedro Oliva Rodrigues
 // This code is released under the MIT licence
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using NLog;
-using BRClib.Scripts;
-using System.Windows.Forms;
-using System.IO;
-using CommandLine;
 using BlenderRenderController.Infra.Cmd;
 using BlenderRenderController.Services;
+using CommandLine;
+using NLog;
+using System;
+using System.IO;
+using System.Windows.Forms;
 
 namespace BlenderRenderController
 {
@@ -74,7 +71,6 @@ namespace BlenderRenderController
 
             Application.Run(form);
         }
-
 
         static void NlogSetup()
         {

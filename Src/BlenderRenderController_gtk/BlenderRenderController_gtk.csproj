@@ -55,12 +55,35 @@
     <Reference Include="gtk-sharp, Version=3.0.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f, processorArchitecture=MSIL">
       <HintPath>..\..\packages\gtk-sharp-3.3.22.6.4\lib\net40\gtk-sharp.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="pango-sharp, Version=3.0.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f, processorArchitecture=MSIL">
       <HintPath>..\..\packages\gtk-sharp-3.3.22.6.4\lib\net40\pango-sharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\BlenderRenderController\BrcViewModel.cs">
+      <Link>BrcViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\BlenderRenderController\Config\BrcSettings.cs">
+      <Link>Config\BrcSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\BlenderRenderController\Infra\ETACalculator.cs">
+      <Link>Infra\ETACalculator.cs</Link>
+    </Compile>
+    <Compile Include="..\BlenderRenderController\Infra\RecentBlendsCollection.cs">
+      <Link>Infra\RecentBlendsCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\BlenderRenderController\Services\Scripts.cs">
+      <Link>Services\Scripts.cs</Link>
+    </Compile>
+    <Compile Include="..\BlenderRenderController\Services\Settings.cs">
+      <Link>Services\Settings.cs</Link>
+    </Compile>
+    <Compile Include="BrcMain.Decl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BrcMain.cs" />
     <Compile Include="GtkWindow.cs" />
@@ -76,6 +99,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BRClib\BRClib.csproj">
+      <Project>{f102c740-b7b9-4f46-bb6e-579e23947391}</Project>
+      <Name>BRClib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

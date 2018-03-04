@@ -3,9 +3,13 @@
 // Copyright 2017-present Pedro Oliva Rodrigues
 // This code is released under the MIT licence
 
+using BlenderRenderController.Services;
 using BRClib;
+using BRClib.Commands;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -91,5 +95,74 @@ namespace BlenderRenderController
             }
         }
 
+
+        public void OpenDonationPage()
+        {
+            string business = "9SGQVK6TK2UJG";
+            string description = "Donation%20for%20Blender%20Render%20Controller";
+            string country = "BR";
+            string currency = "USD";
+
+            string url = "https://www.paypal.com/cgi-bin/webscr" +
+                    "?cmd=_donations" +
+                    "&business=" + business +
+                    "&lc=" + country +
+                    "&item_name=" + description +
+                    "&item_number=BRC" +
+                    "&currency_code=" + currency +
+                    "&bn=PP%2dDonationsBF";
+
+            System.Diagnostics.Process.Start(url);
+        }
+
+        public async Task GetBlendInfo(string blendFile)
+        {
+            if (!File.Exists(blendFile))
+            {
+                // error: file does not exist
+                return;
+            }
+
+            var giScript = Scripts.GetProjectInfo;
+            var cmd = new GetInfoCmd(Settings.Current.BlenderProgram, blendFile, giScript);
+            await cmd.RunAsync();
+
+            if (cmd.StdOutput.Length == 0)
+            {
+                // error: no info received
+                return;
+            }
+
+            BlendData blendData = BlendData.FromPyOutput(cmd.StdOutput);
+
+            if (blendData == null)
+            {
+                // error: Unexpected output.
+                return;
+            }
+
+            _proj = new Project(blendData)
+            {
+                BlendFilePath = blendFile,
+                MaxConcurrency = Environment.ProcessorCount
+            };
+
+            if (RenderFormats.IMAGES.Contains(blendData.FileFormat))
+            {
+                // warning: Render format is Img
+            }
+
+            if (string.IsNullOrWhiteSpace(_proj.OutputPath))
+            {
+                // warning: outputPath is unset, use blend path
+
+                _proj.OutputPath = Path.GetDirectoryName(blendFile);
+            }
+            else
+                _proj.OutputPath = Path.GetDirectoryName(_proj.OutputPath);
+
+            // notify UI of changed
+            OnPropertyChanged(nameof(Project));
+        }
     }
 }

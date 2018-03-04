@@ -32,7 +32,6 @@ THE SOFTWARE.
   <!-- interface-name Blender Render Controller -->
   <!-- interface-description A tool for significant speedup of rendering with Blender VSE. -->
   <!-- interface-copyright Pedro Oliva Rodrigues -->
-  <object class="GtkTextBuffer"/>
   <object class="GtkImage" id="imgDonate">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -97,6 +96,28 @@ THE SOFTWARE.
       </packing>
     </child>
   </object>
+  <object class="GtkListStore" id="joining_action_store">
+    <columns>
+      <!-- column-name text -->
+      <column type="gchararray"/>
+      <!-- column-name value -->
+      <column type="gint"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes" context="AfterRenderAction.MIX_JOIN">Join chunks w/ Mixdown audio</col>
+        <col id="1">3</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes" context="AfterRenderAction.JOIN">Join chunks</col>
+        <col id="1">2</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes" context="AfterRenderAction.NOTHING">No extra action</col>
+        <col id="1">0</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkBox" id="labeledNumUpDown">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -157,6 +178,24 @@ THE SOFTWARE.
     <property name="value">1</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
+  </object>
+  <object class="GtkListStore" id="renderer_store">
+    <columns>
+      <!-- column-name text -->
+      <column type="gchararray"/>
+      <!-- column-name value -->
+      <column type="gint"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes" context="Renderer.BLENDER_RENDER">Blender</col>
+        <col id="1">0</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes" context="Renderer.CYCLES">Cycles</col>
+        <col id="1">1</col>
+      </row>
+    </data>
   </object>
   <object class="GtkApplicationWindow" id="BrcMain">
     <property name="can_focus">False</property>
@@ -319,6 +358,7 @@ THE SOFTWARE.
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Report a _bug</property>
                         <property name="use_underline">True</property>
+                        <signal name="activate" handler="On_miReportABug_Clicked" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -329,6 +369,7 @@ THE SOFTWARE.
                         <property name="use_underline">True</property>
                         <property name="image">imgDonate</property>
                         <property name="use_stock">False</property>
+                        <signal name="activate" handler="On_miDonate_Clicked" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -358,7 +399,7 @@ THE SOFTWARE.
             <property name="can_focus">False</property>
             <property name="margin_bottom">5</property>
             <child>
-              <object class="GtkToolButton" id="tsOpenBlend">
+              <object class="GtkToolButton" id="tsOpenFile">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Open</property>
@@ -384,7 +425,7 @@ THE SOFTWARE.
               </packing>
             </child>
             <child>
-              <object class="GtkToolButton">
+              <object class="GtkToolButton" id="tsReloadFile">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Reload</property>
@@ -408,7 +449,7 @@ THE SOFTWARE.
               </packing>
             </child>
             <child>
-              <object class="GtkToolButton">
+              <object class="GtkToolButton" id="tsAbout">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">About</property>
@@ -745,6 +786,7 @@ THE SOFTWARE.
                                             </child>
                                             <child>
                                               <object class="GtkSpinButton" id="numStartFrame">
+                                                <property name="name">numStartFrame</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="width_chars">6</property>
@@ -757,7 +799,6 @@ THE SOFTWARE.
                                                 <property name="snap_to_ticks">True</property>
                                                 <property name="numeric">True</property>
                                                 <property name="update_policy">if-valid</property>
-                                                <signal name="change-value" handler="On_numFrameRange_ChangingValue" swapped="no"/>
                                                 <signal name="value-changed" handler="On_numFrameRange_ValueChanged" swapped="no"/>
                                                 <style>
                                                   <class name="smaller-font"/>
@@ -800,6 +841,7 @@ THE SOFTWARE.
                                             </child>
                                             <child>
                                               <object class="GtkSpinButton" id="numEndFrame">
+                                                <property name="name">numEndFrame</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="width_chars">6</property>
@@ -815,7 +857,6 @@ THE SOFTWARE.
                                                 <property name="numeric">True</property>
                                                 <property name="update_policy">if-valid</property>
                                                 <property name="value">123456</property>
-                                                <signal name="change-value" handler="On_numFrameRange_ChangingValue" swapped="no"/>
                                                 <signal name="value-changed" handler="On_numFrameRange_ValueChanged" swapped="no"/>
                                                 <style>
                                                   <class name="smaller-font"/>
@@ -1085,7 +1126,16 @@ THE SOFTWARE.
                                           <object class="GtkComboBox" id="cbJoiningAction">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <signal name="changed" handler="on_cbJoiningAction_changed" swapped="no"/>
+                                            <property name="model">joining_action_store</property>
+                                            <property name="active">0</property>
+                                            <property name="id_column">0</property>
+                                            <signal name="changed" handler="On_cbJoiningAction_Changed" swapped="no"/>
+                                            <child>
+                                              <object class="GtkCellRendererText" id="cellRendererText"/>
+                                              <attributes>
+                                                <attribute name="text">0</attribute>
+                                              </attributes>
+                                            </child>
                                           </object>
                                         </child>
                                       </object>
@@ -1118,7 +1168,16 @@ THE SOFTWARE.
                                           <object class="GtkComboBox" id="cbRenderer">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <signal name="changed" handler="on_cbRenderer_changed" swapped="no"/>
+                                            <property name="model">renderer_store</property>
+                                            <property name="active">0</property>
+                                            <property name="id_column">0</property>
+                                            <signal name="changed" handler="On_cbRenderer_Changed" swapped="no"/>
+                                            <child>
+                                              <object class="GtkCellRendererText" id="cellRenderer"/>
+                                              <attributes>
+                                                <attribute name="text">0</attribute>
+                                              </attributes>
+                                            </child>
                                           </object>
                                         </child>
                                       </object>
@@ -1273,7 +1332,8 @@ THE SOFTWARE.
                         <property name="valign">end</property>
                         <property name="vexpand">True</property>
                         <property name="hhomogeneous">False</property>
-                        <property name="transition_duration">100</property>
+                        <property name="transition_duration">50</property>
+                        <property name="transition_type">under-down</property>
                         <child>
                           <object class="GtkButton" id="btnStartRender">
                             <property name="label" translatable="yes">Start Render</property>
@@ -1332,15 +1392,39 @@ THE SOFTWARE.
             <property name="margin_bottom">6</property>
             <property name="orientation">vertical</property>
             <child>
-              <object class="GtkProgressBar" id="workProgress">
+              <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkProgressBar" id="workProgress">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinner" id="workSpinner">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="margin_left">5</property>
+                    <property name="margin_right">5</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="padding">5</property>
-                <property name="position">0</property>
+                <property name="position">1</property>
               </packing>
             </child>
             <child>
@@ -1405,7 +1489,7 @@ THE SOFTWARE.
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </object>

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using Gtk;
 
 
@@ -10,7 +9,9 @@ namespace BlenderRenderController
         [STAThread]
         static void Main()
         {
-            Report();
+            Services.Settings.Init(true);
+            Services.Scripts.Init();
+
 
             Application.Init();
 
@@ -25,21 +26,5 @@ namespace BlenderRenderController
             Application.Run();
         }
 
-        private static void Report()
-        {
-            System.Console.WriteLine("Report start");
-            
-            var assembly = Assembly.GetExecutingAssembly();
-            var resNames = assembly.GetManifestResourceNames();
-
-            System.Console.WriteLine("Resources:");
-            
-            foreach (var item in resNames)
-            {
-                System.Console.WriteLine("\t" + item);
-            }
-
-            System.Console.WriteLine("Report end");
-        }
     }
 }
