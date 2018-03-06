@@ -30,6 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             this.blenderPathTextBox = new System.Windows.Forms.TextBox();
+            this.settingsBindingSrc = new System.Windows.Forms.BindingSource(this.components);
             this.ffmpegPathTextBox = new System.Windows.Forms.TextBox();
             this.okButton = new System.Windows.Forms.Button();
             this.blenderLabel = new System.Windows.Forms.Label();
@@ -45,11 +46,10 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.findBlenderDialog = new System.Windows.Forms.OpenFileDialog();
             this.findFFmpegDialog = new System.Windows.Forms.OpenFileDialog();
-            this.settingsBindingSrc = new System.Windows.Forms.BindingSource(this.components);
+            ((System.ComponentModel.ISupportInitialize)(this.settingsBindingSrc)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.settingsBindingSrc)).BeginInit();
             this.SuspendLayout();
             // 
             // blenderPathTextBox
@@ -60,9 +60,13 @@
             this.blenderPathTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.blenderPathTextBox.Location = new System.Drawing.Point(10, 47);
             this.blenderPathTextBox.Name = "blenderPathTextBox";
-            this.blenderPathTextBox.Size = new System.Drawing.Size(519, 22);
+            this.blenderPathTextBox.Size = new System.Drawing.Size(609, 26);
             this.blenderPathTextBox.TabIndex = 0;
             this.blenderPathTextBox.WordWrap = false;
+            // 
+            // settingsBindingSrc
+            // 
+            this.settingsBindingSrc.DataSource = typeof(BlenderRenderController.BrcSettings);
             // 
             // ffmpegPathTextBox
             // 
@@ -72,7 +76,7 @@
             this.ffmpegPathTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ffmpegPathTextBox.Location = new System.Drawing.Point(10, 122);
             this.ffmpegPathTextBox.Name = "ffmpegPathTextBox";
-            this.ffmpegPathTextBox.Size = new System.Drawing.Size(519, 22);
+            this.ffmpegPathTextBox.Size = new System.Drawing.Size(609, 26);
             this.ffmpegPathTextBox.TabIndex = 2;
             this.ffmpegPathTextBox.WordWrap = false;
             // 
@@ -80,7 +84,7 @@
             // 
             this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.okButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.okButton.Location = new System.Drawing.Point(434, 270);
+            this.okButton.Location = new System.Drawing.Point(524, 260);
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(117, 36);
             this.okButton.TabIndex = 4;
@@ -94,7 +98,7 @@
             this.blenderLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.blenderLabel.Location = new System.Drawing.Point(6, 26);
             this.blenderLabel.Name = "blenderLabel";
-            this.blenderLabel.Size = new System.Drawing.Size(50, 15);
+            this.blenderLabel.Size = new System.Drawing.Size(58, 18);
             this.blenderLabel.TabIndex = 29;
             this.blenderLabel.Text = "Blender";
             // 
@@ -104,7 +108,7 @@
             this.ffmpegLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ffmpegLabel.Location = new System.Drawing.Point(6, 101);
             this.ffmpegLabel.Name = "ffmpegLabel";
-            this.ffmpegLabel.Size = new System.Drawing.Size(53, 15);
+            this.ffmpegLabel.Size = new System.Drawing.Size(63, 18);
             this.ffmpegLabel.TabIndex = 29;
             this.ffmpegLabel.Text = "FFmpeg";
             // 
@@ -114,7 +118,7 @@
             this.ffmpegChangePathButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ffmpegChangePathButton.Image = global::BlenderRenderController.Properties.Resources.FolderOpen_16x;
             this.ffmpegChangePathButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.ffmpegChangePathButton.Location = new System.Drawing.Point(418, 150);
+            this.ffmpegChangePathButton.Location = new System.Drawing.Point(508, 150);
             this.ffmpegChangePathButton.Name = "ffmpegChangePathButton";
             this.ffmpegChangePathButton.Size = new System.Drawing.Size(111, 29);
             this.ffmpegChangePathButton.TabIndex = 3;
@@ -128,7 +132,7 @@
             this.blenderChangePathButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.blenderChangePathButton.Image = global::BlenderRenderController.Properties.Resources.FolderOpen_16x;
             this.blenderChangePathButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.blenderChangePathButton.Location = new System.Drawing.Point(418, 75);
+            this.blenderChangePathButton.Location = new System.Drawing.Point(508, 75);
             this.blenderChangePathButton.Name = "blenderChangePathButton";
             this.blenderChangePathButton.Size = new System.Drawing.Size(111, 29);
             this.blenderChangePathButton.TabIndex = 1;
@@ -143,7 +147,7 @@
             this.chkBoxDelChunks.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkBoxDelChunks.Location = new System.Drawing.Point(7, 54);
             this.chkBoxDelChunks.Name = "chkBoxDelChunks";
-            this.chkBoxDelChunks.Size = new System.Drawing.Size(168, 19);
+            this.chkBoxDelChunks.Size = new System.Drawing.Size(200, 22);
             this.chkBoxDelChunks.TabIndex = 31;
             this.chkBoxDelChunks.Text = "Delete chunks when done";
             this.settingsToolTip.SetToolTip(this.chkBoxDelChunks, "Individual Chunks will be deleted after the joining process is completed.\r\n\r\nObs:" +
@@ -157,7 +161,7 @@
             this.chkBoxShowTooltips.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkBoxShowTooltips.Location = new System.Drawing.Point(6, 29);
             this.chkBoxShowTooltips.Name = "chkBoxShowTooltips";
-            this.chkBoxShowTooltips.Size = new System.Drawing.Size(103, 19);
+            this.chkBoxShowTooltips.Size = new System.Drawing.Size(125, 22);
             this.chkBoxShowTooltips.TabIndex = 32;
             this.chkBoxShowTooltips.Text = "Show Tooltips";
             this.chkBoxShowTooltips.UseVisualStyleBackColor = true;
@@ -175,43 +179,45 @@
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(539, 193);
+            this.groupBox1.Size = new System.Drawing.Size(629, 193);
             this.groupBox1.TabIndex = 33;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Paths";
             // 
             // groupBox2
             // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox2.Controls.Add(this.chkBoxShowTooltips);
             this.groupBox2.Controls.Add(this.chkBoxDelChunks);
             this.groupBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox2.Location = new System.Drawing.Point(12, 211);
+            this.groupBox2.Location = new System.Drawing.Point(12, 208);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(190, 83);
+            this.groupBox2.Size = new System.Drawing.Size(213, 88);
             this.groupBox2.TabIndex = 34;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Other";
             // 
             // cbLoggingLvl
             // 
+            this.cbLoggingLvl.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.cbLoggingLvl.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbLoggingLvl.FormattingEnabled = true;
             this.cbLoggingLvl.Items.AddRange(new object[] {
             "Warnigs and Errors (default)",
             "Detailed",
             "Developer"});
-            this.cbLoggingLvl.Location = new System.Drawing.Point(6, 27);
+            this.cbLoggingLvl.Location = new System.Drawing.Point(3, 27);
             this.cbLoggingLvl.Name = "cbLoggingLvl";
-            this.cbLoggingLvl.Size = new System.Drawing.Size(176, 23);
+            this.cbLoggingLvl.Size = new System.Drawing.Size(216, 26);
             this.cbLoggingLvl.TabIndex = 33;
             // 
             // groupBox3
             // 
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox3.Controls.Add(this.cbLoggingLvl);
-            this.groupBox3.Location = new System.Drawing.Point(217, 240);
+            this.groupBox3.Location = new System.Drawing.Point(259, 240);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(188, 56);
+            this.groupBox3.Size = new System.Drawing.Size(222, 56);
             this.groupBox3.TabIndex = 35;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Logging level";
@@ -224,16 +230,12 @@
             // 
             this.findFFmpegDialog.Title = "Find ";
             // 
-            // settingsBindingSrc
-            // 
-            this.settingsBindingSrc.DataSource = typeof(BlenderRenderController.BrcSettings);
-            // 
             // SettingsForm
             // 
             this.AcceptButton = this.okButton;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(563, 317);
+            this.ClientSize = new System.Drawing.Size(653, 307);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -252,12 +254,12 @@
             this.Text = "Settings";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.SettingsForm_FormClosed);
             this.Load += new System.EventHandler(this.onFormLoad);
+            ((System.ComponentModel.ISupportInitialize)(this.settingsBindingSrc)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.settingsBindingSrc)).EndInit();
             this.ResumeLayout(false);
 
         }

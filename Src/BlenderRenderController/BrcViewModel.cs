@@ -136,19 +136,21 @@ namespace BlenderRenderController
             if (!File.Exists(blendFile))
             {
                 // error: file does not exist
-                Trace.TraceError("File does not exist");
+                //Trace.TraceError("File does not exist");
+                Console.WriteLine("File does not exist");
                 MessageBox.Show("File does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
 
             var giScript = Scripts.GetProjectInfo;
             var cmd = new GetInfoCmd(Settings.Current.BlenderProgram, blendFile, giScript);
+
             await cmd.RunAsync();
 
             if (cmd.StdOutput.Length == 0)
             {
                 // error: no info received
-                Trace.TraceError("No information recived from Blender");
+                Console.WriteLine("No information recived from Blender");
                 return;
             }
 
@@ -157,7 +159,7 @@ namespace BlenderRenderController
             if (blendData == null)
             {
                 // error: Unexpected output.
-                Trace.TraceError("Unexpected get_project_info output");
+                Console.WriteLine("Unexpected get_project_info output");
                 //ShowMsgBox("Unexpected get_project_info output", MessageType.Error);
                 MessageBox.Show("Unexpected get_project_info output", "Error", 
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -172,7 +174,7 @@ namespace BlenderRenderController
             if (RenderFormats.IMAGES.Contains(blendData.FileFormat))
             {
                 // warning: Render format is Img
-                Trace.TraceWarning("Render format is Img");
+                Console.WriteLine("Render format is Img");
                 MessageBox.Show("Render format is Img", "Warning",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
@@ -180,15 +182,29 @@ namespace BlenderRenderController
             if (string.IsNullOrWhiteSpace(proj.OutputPath))
             {
                 // warning: outputPath is unset, use blend path
-                Trace.TraceWarning("OutputPath is unset, using .blend dir");
+                Console.WriteLine("OutputPath is unset, using .blend dir");
 
                 proj.OutputPath = Path.GetDirectoryName(blendFile);
             }
             else
                 proj.OutputPath = Path.GetDirectoryName(proj.OutputPath);
 
-            Project = proj;
+            Console.WriteLine("Loaded Project");
+            _proj = proj;
+            OnPropertyChanged(nameof(Project));
         }
 
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder(GetType().Name + ": \n");
+            string elemFmt = "\t{0} = {1}\n";
+
+            sb.AppendFormat(elemFmt, nameof(ProjectLoaded), ProjectLoaded);
+            sb.AppendFormat(elemFmt, nameof(IsBusy), IsBusy);
+            sb.AppendFormat(elemFmt, nameof(ConfigOk), ConfigOk);
+
+            return sb.ToString();
+        }
     }
 }

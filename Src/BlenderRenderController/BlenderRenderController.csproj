@@ -61,7 +61,8 @@
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Resources\brc_icon.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>
@@ -203,14 +204,6 @@
     <None Include="Properties\DataSources\BRClib.BlendData.datasource" />
     <None Include="Properties\DataSources\BRClib.Project.datasource" />
     <None Include="Properties\DataSources\BrcSettings.datasource" />
-    <None Include="Resources\brc_icon.ico" />
-    <None Include="Resources\stop-icon.png" />
-    <None Include="Resources\settings-icon.png" />
-    <None Include="Resources\info-icon.png" />
-    <None Include="Resources\github-logo.png" />
-    <None Include="Resources\donate-icon.png" />
-    <None Include="Resources\connect-icon-small.png" />
-    <None Include="Resources\bug-icon.png" />
     <EmbeddedResource Include="BrcForm.resx">
       <DependentUpon>BrcForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -251,21 +244,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\plus.bmp" />
-    <None Include="Resources\minus.bmp" />
-    <Content Include="Resources\UIAboutBox_16x.png" />
-    <None Include="Resources\Refresh_grey_16x.png" />
-    <None Include="Resources\Time_16x.png" />
-    <None Include="Resources\blend_icon.png" />
-    <None Include="Resources\brc_icon.png" />
-    <None Include="Resources\FindinFiles_16x.png" />
-    <None Include="Resources\CleanData_16x.png" />
-    <None Include="Resources\blender_icon.png" />
-    <Content Include="Resources\FolderOpen_grey_16x.png" />
-    <None Include="Resources\History_16x.png" />
-    <None Include="Resources\render-icon.png" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

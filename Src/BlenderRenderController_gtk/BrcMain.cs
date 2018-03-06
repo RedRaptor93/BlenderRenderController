@@ -13,7 +13,7 @@ using PathIO = System.IO.Path;
 
 namespace BlenderRenderController
 {
-    public partial class BrcMain : GtkWindow
+    public partial class BrcMain : WindowBase
     {
         BrcSettings _settings;
         BrcViewModel _vm;
@@ -25,11 +25,8 @@ namespace BlenderRenderController
 
             _settings = Services.Settings.Current;
             _vm = new BrcViewModel();
-            _vm.ConfigOk = true;
             _vm.PropertyChanged += ViewModel_PropertyChanged;
-            ViewModel_PropertyChanged(_vm, new System.ComponentModel.PropertyChangedEventArgs("Created"));
-
-
+            _vm.ConfigOk = true;
         }
 
 
@@ -95,7 +92,7 @@ namespace BlenderRenderController
                 durationInfoValue.Text = 
                 fpsInfoValue.Text =
                 resolutionInfoValue.Text = "...";
-
+                lblProjectName.Text = _ProjBase;
             }
             else
             {
@@ -105,6 +102,8 @@ namespace BlenderRenderController
                     : null;
                 fpsInfoValue.Text = project.Fps.ToString("F2");
                 resolutionInfoValue.Text = project.Resolution;
+
+                lblProjectName.Text = _ProjBase + " - " + project.ProjectName;
             }
         }
 
@@ -120,61 +119,56 @@ namespace BlenderRenderController
             entryOutputPath.Text = project.OutputPath;
         }
         
-
-        // Events handlers
-        private async void On_OpenFile(object sender, EventArgs e)
+        async void OpenBlendFile(string blendFile)
         {
-            string blendFile = null;
-            var result = (ResponseType)openBlendDialog.Run();
-            openBlendDialog.Hide();
-
-            if (result == ResponseType.Accept)
-            {
-                blendFile = openBlendDialog.Filename;
-                lblStatus.Text = "Loading " + PathIO.GetFileName(blendFile) + " ...";
-                workSpinner.Active = true;
-
-                await _vm.GetBlendInfo(blendFile);
-
-                _autoStartF = _vm.Project.Start;
-                _autoEndF = _vm.Project.End;
-
-                workSpinner.Active = false;
-            }
-
-        }
-
-        private async void On_OpenRecent(object o, EventArgs args)
-        {
-            IRecentChooser chooser = (IRecentChooser)o;
-
-            Console.WriteLine(chooser);
-            string blendFile = chooser.CurrentUri;
-            Console.WriteLine(blendFile);
-
-            //lblStatus.Text = "Loading " + PathIO.GetFileName(blendFile) + " ...";
-            //workSpinner.Active = true;
-
-            Console.WriteLine("Loading...");
+            lblStatus.Text = "Loading " + PathIO.GetFileName(blendFile) + " ...";
+            workSpinner.Active = true;
 
             await _vm.GetBlendInfo(blendFile);
 
             _autoStartF = _vm.Project.Start;
             _autoEndF = _vm.Project.End;
 
-            //workSpinner.Active = false;
+            workSpinner.Active = false;
         }
 
-        void On_miClearRecents_Click(object o, EventArgs e)
-        {
+        // Events handlers
 
+        private void On_OpenFile(object sender, EventArgs e)
+        {
+            var result = (ResponseType)openBlendDialog.Run();
+            openBlendDialog.Hide();
+
+            if (result == ResponseType.Accept)
+            {
+                var blendFile = openBlendDialog.Filename;
+
+                OpenBlendFile(blendFile);
+            }
+
+        }
+
+        private void On_OpenRecent(object o, RecentInfo info)
+        {
+            var blendFile = info.UriDisplay;
+            OpenBlendFile(blendFile);
+        }
+
+        void On_ClearRecents_Click(object o, CancelArgs e)
+        {
+            var dialog = new MessageDialog(this, DialogFlags.Modal, MessageType.Question, ButtonsType.YesNo,
+                "This will clear all files in the recent blends list, are you sure?");
+
+            var result = (ResponseType)dialog.Run(); dialog.Destroy();
+
+            e.RetVal = result == ResponseType.No;
         }
 
         private void On_ReloadFile(object sender, EventArgs e)
         {
             var bpath = _vm.Project.BlendFilePath;
             _vm.Project = null;
-           _vm.GetBlendInfo(bpath);
+            OpenBlendFile(bpath);
         }
 
         private void On_UnloadFile(object sender, EventArgs e)
@@ -238,8 +232,6 @@ namespace BlenderRenderController
 
             chunkDivBox.Sensitive = !AutoChunkDiv;
 
-            Console.WriteLine("{0}", AutoChunkDiv);
-
             if (!AutoChunkDiv)
                 return;
 
@@ -290,6 +282,7 @@ namespace BlenderRenderController
             var result = (ResponseType)chooseOutputFolderDialog.Run();
             if (result == ResponseType.Accept)
             {
+                _vm.Project.OutputPath =
                 entryOutputPath.Text = chooseOutputFolderDialog.Filename;
             }
 
@@ -303,7 +296,9 @@ namespace BlenderRenderController
 
         void On_ShowAbout(object s, EventArgs e)
         {
-
+            //var about = new AboutWin(Builder);
+            aboutWin.Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            aboutWin.Run();
         }
 
         private void RecentMngr_Changed(object sender, EventArgs e)
@@ -312,12 +307,17 @@ namespace BlenderRenderController
             var orderedItems = items.OrderBy(ri => ri.Added).Select(ri => ri.Uri);
 
             _settings.RecentProjects = new Infra.RecentBlendsCollection(orderedItems);
+
+            Console.WriteLine("Recent items" + string.Join(", ", orderedItems));
         }
 
 
         private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             var vm = (BrcViewModel)sender;
+
+            Console.WriteLine("Propchanged invoked, Name = {0}", e.PropertyName);
+            Console.WriteLine(vm);
 
             startStopStack.Sensitive = vm.CanRender;
             miUnload.Sensitive = vm.CanEditCurrentProject;
@@ -342,11 +342,8 @@ namespace BlenderRenderController
 
             lblStatus.Text = vm.DefaultStatusMessage;
 
-            if (e.PropertyName == nameof(vm.Project))
-            {
-                UpdateInfoBoxItems(vm.Project);
-                UpdateOptions(vm.Project);
-            }
+            UpdateInfoBoxItems(vm.Project);
+            UpdateOptions(vm.Project);
         }
 
     }

@@ -14,6 +14,8 @@ namespace BlenderRenderController
         [UI] Frame frBlendFile, frRenderOptions, frOutputFolder;
         [UI] Box frameRangeBox, chunkDivBox;
 
+        [UI] Label lblProjectName;
+
         [UI] Stack startStopStack;
         [UI] Button btnStartRender, btnStopRender;
 
@@ -51,9 +53,13 @@ namespace BlenderRenderController
         #endregion
 
         FileChooserDialog openBlendDialog, chooseOutputFolderDialog;
-        RecentChooserMenu recentBlends;
-        RecentChooserWidget chooserWidget;
-        MenuItem recentBlendsMenu;
+        AboutDialog aboutWin;
+
+        RecentItemsMenu recentBlendsMenu;
+
+        string _ProjBase;
+
+        const string RECENT_ITEM_NAME = "recent";
 
         void Initialize()
         {
@@ -68,6 +74,7 @@ namespace BlenderRenderController
             recentBlendsFilter.Name = blendFilter.Name;
             recentBlendsFilter.AddPattern(blend);
 
+            _ProjBase = lblProjectName.Text;
 
             openBlendDialog = new FileChooserDialog("Open blend file", this, FileChooserAction.Open,
                 "Cancel", ResponseType.Cancel, "Open", ResponseType.Accept);
@@ -77,16 +84,14 @@ namespace BlenderRenderController
             chooseOutputFolderDialog = new FileChooserDialog("Choose output folder", this, FileChooserAction.SelectFolder,
                 "Cancel", ResponseType.Cancel, "Select", ResponseType.Accept);
 
-            //chooserWidget = new RecentChooserWidget();
-            //chooserWidget.Filter = recentBlendsFilter;
+            recentBlendsMenu = new RecentItemsMenu(recentBlendsFilter);
+            miOpenRecent.Submenu = recentBlendsMenu;
+            tsOpenRecent.Menu = recentBlendsMenu;
 
-            recentBlends = new RecentChooserMenu();
-            recentBlends.Filter = recentBlendsFilter;
-            //recentBlends.ActivateCurrent += On_OpenRecent;
-            recentBlends.AddSignalHandler("item-activated", new EventHandler(On_OpenRecent));
+            recentBlendsMenu.RecentItem_Clicked += On_OpenRecent;
+            recentBlendsMenu.Clear_Clicked += On_ClearRecents_Click;
 
-            miOpenRecent.Submenu = recentBlends;
-            tsOpenRecent.Menu = recentBlends;
+            recentBlendsMenu.ShowAll();
 
             numProcMaxAdjust.Value =
             numProcMaxAdjust.Upper = Environment.ProcessorCount;
@@ -99,12 +104,16 @@ namespace BlenderRenderController
 
         private void SetupHandlers()
         {
-            RecentManager.Default.Changed += RecentMngr_Changed;
-            //miRecentList.AddSignalHandler("item-activated", new EventHandler(On_RecentItem_Activated));
+            //RecentManager.Default.Changed += RecentMngr_Changed;
         }
 
-
-
+        void InitDialogs()
+        {
+            aboutWin = new AboutDialog(Builder.GetObject("AboutWin").Handle);
+            aboutWin.Close += delegate { aboutWin.Hide();};
+        }
+        
+        
         // private properties
         bool AutoFrameRange { get; set; }
 

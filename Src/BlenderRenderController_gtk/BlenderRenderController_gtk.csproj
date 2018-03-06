@@ -83,11 +83,13 @@
     <Compile Include="..\BlenderRenderController\Services\Settings.cs">
       <Link>Services\Settings.cs</Link>
     </Compile>
+    <Compile Include="AboutWin.cs" />
     <Compile Include="BrcMain.Decl.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BrcMain.cs" />
-    <Compile Include="GtkWindow.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecentItemsMenu.cs" />
+    <Compile Include="WindowBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="BrcGtk.glade">
@@ -105,6 +107,32 @@
       <Project>{f102c740-b7b9-4f46-bb6e-579e23947391}</Project>
       <Name>BRClib</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\BlenderRenderController\Resources\blender_icon.png">
+      <Link>Resources\blender_icon.png</Link>
+    </Content>
+    <Content Include="..\BlenderRenderController\Resources\blend_icon.png">
+      <Link>Resources\blend_icon.png</Link>
+    </Content>
+    <Content Include="..\BlenderRenderController\Resources\brc_icon.png">
+      <Link>Resources\brc_icon.png</Link>
+    </Content>
+    <Content Include="..\BlenderRenderController\Resources\bug-icon.png">
+      <Link>Resources\bug-icon.png</Link>
+    </Content>
+    <Content Include="..\BlenderRenderController\Resources\donate-icon.png">
+      <Link>Resources\donate-icon.png</Link>
+    </Content>
+    <Content Include="..\BlenderRenderController\Resources\github-logo.png">
+      <Link>Resources\github-logo.png</Link>
+    </Content>
+    <Content Include="..\BlenderRenderController\Resources\render-icon.png">
+      <Link>Resources\render-icon.png</Link>
+    </Content>
+    <Content Include="..\BlenderRenderController\Resources\SoundFile_16x.png">
+      <Link>Resources\SoundFile_16x.png</Link>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

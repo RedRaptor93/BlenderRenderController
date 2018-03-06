@@ -3,28 +3,27 @@ using System.IO;
 using System.Reflection;
 using Gtk;
 
-using Debug = System.Diagnostics.Debug;
 
 namespace BlenderRenderController
 {
-    public class GtkWindow : Window
+    public class WindowBase : Window
     {
         private Builder _builder;
         private string _styleFile;
 
-        protected GtkWindow(string gladeFile, string styleFile, string rootElement)
+        protected WindowBase(string gladeFile, string styleFile, string rootElement)
             : this(gladeFile, rootElement)
         {
             StyleFile = styleFile;
         }
         
-        protected GtkWindow(string gladeFile, string rootElement)
+        protected WindowBase(string gladeFile, string rootElement)
             : this(CreateBuilder(gladeFile), rootElement) 
         { }
 
 
 
-        private GtkWindow(Builder builder, string root)
+        private WindowBase(Builder builder, string root)
             : base(builder.GetObject(root).Handle)
         {
             _builder = builder;
@@ -32,6 +31,7 @@ namespace BlenderRenderController
 
             DeleteEvent += GtkWindow_DeleteEvent;
         }
+
 
 
         public string StyleFile
@@ -58,6 +58,8 @@ namespace BlenderRenderController
             }
         }
 
+        protected Builder Builder { get => _builder; }
+
         void GtkWindow_DeleteEvent(object o, DeleteEventArgs args)
         {
             Application.Quit();
@@ -77,7 +79,7 @@ namespace BlenderRenderController
             return builder;
         }
 
-        static Stream GetEmbeddedStream(string name)
+        protected static Stream GetEmbeddedStream(string name)
         {
             var assembly = Assembly.GetExecutingAssembly();
             var assbName = assembly.GetName().Name;
