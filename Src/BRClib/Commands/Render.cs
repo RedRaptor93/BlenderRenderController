@@ -20,26 +20,16 @@ namespace BRClib.Commands
             Range = range;
         }
 
+        //public RenderCmd(string program, Project project, Renderer renderer, Chunk range) 
+        //    : base(program)
+        //{
+
+        //}
+
         public string BlendFile { get; set; }
         public string OutputFile { get; set; }
         public Renderer Renderer { get; set; }
         public Chunk Range { get; set; }
-
-
-        public void StartAndWait()
-        {
-            var proc = GetProcess();
-            proc.Start();
-
-            var readOutput = proc.StandardOutput.ReadToEndAsync();
-            var readError = proc.StandardError.ReadToEndAsync();
-
-            proc.WaitForExit();
-
-            ExitCode = proc.ExitCode;
-            StdOutput = readOutput.Result;
-            StdError = readError.Result;
-        }
 
 
         // 0=Blend file, 1=output, 2=Renderer, 3=Frame start, 4=Frame end

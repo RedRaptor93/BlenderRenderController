@@ -1,5 +1,6 @@
 ﻿using BlenderRenderController.Services;
 using BRClib;
+using BRClib.Render;
 using BRClib.Commands;
 using BRClib.Extentions;
 using System;
@@ -17,6 +18,7 @@ namespace BlenderRenderController
     {
         BrcSettings _settings;
         BrcViewModel _vm;
+        RenderManager _renderMngr;
         int _autoStartF, _autoEndF;
 
         public BrcMain() : base("BrcGtk.glade", "brc_style.css", "BrcMain")
@@ -27,6 +29,8 @@ namespace BlenderRenderController
             _vm = new BrcViewModel();
             _vm.PropertyChanged += ViewModel_PropertyChanged;
             _vm.ConfigOk = true;
+
+            _renderMngr = new RenderManager(_settings);
         }
 
 

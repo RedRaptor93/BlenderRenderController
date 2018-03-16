@@ -63,6 +63,7 @@
     <Compile Include="ConcurrentHashSet.cs" />
     <Compile Include="Extentions\Extentions.cs" />
     <Compile Include="IBrcRenderManager.cs" />
+    <Compile Include="Render\RenderManager.cs" />
     <Compile Include="Scripts\IScriptPath.cs" />
     <Compile Include="Models.cs" />
     <Compile Include="Project.cs" />

@@ -7,11 +7,12 @@ using BlenderRenderController.Infra;
 using BRClib;
 using System;
 using Newtonsoft.Json;
+using BRClib.Scripts;
 
 namespace BlenderRenderController
 {
     [JsonObject(Description = "Brc settings")]
-    public class BrcSettings
+    public class BrcSettings : IRenderContext
     {
         [JsonProperty("RecentBlends")]
         public RecentBlendsCollection RecentProjects { get; set; }
@@ -24,5 +25,13 @@ namespace BlenderRenderController
         public bool DeleteChunksFolder { get; set; }
         public int LoggingLevel { get; set; }
 
+
+        string IRenderContext.Blender => BlenderProgram;
+
+        string IRenderContext.FFmpeg => FFmpegProgram;
+
+        string IScriptPath.GetProjectInfo => Services.Scripts.GetProjectInfo;
+
+        string IScriptPath.MixdownAudio => Services.Scripts.MixdownAudio;
     }
 }

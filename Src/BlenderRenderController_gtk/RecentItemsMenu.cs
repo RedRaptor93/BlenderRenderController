@@ -35,9 +35,7 @@ namespace BlenderRenderController
             Add(new SeparatorMenuItem());
             Add(miEmptyPH);
 
-            _Manager.Changed += RecentManager_ItemsChanged;
         }
-
 
 
         public event EventHandler<RecentInfo> RecentItem_Clicked;
@@ -61,10 +59,6 @@ namespace BlenderRenderController
         private new void Add(Widget widget) => base.Add(widget);
         private new void Remove(Widget widget) => base.Remove(widget);
 
-        private void RecentManager_ItemsChanged(object sender, EventArgs e)
-        {
-            //UpdateRecentItems();
-        }
 
         void UpdateRecentItems()
         {
