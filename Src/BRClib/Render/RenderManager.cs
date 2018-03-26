@@ -1,5 +1,5 @@
 ﻿// WIP: Common RenderMngr Impl
-
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,10 +18,11 @@ namespace BRClib.Render
     {
         IReadOnlyList<Chunk> _ChunkList;
         List<Process> _Processes;
-        List<Process> _arProcesses;
         FrameSet _FramesRendered;
         Project _Proj;
         CancellationTokenSource _arCts;
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
 
         struct RenderState
         {
@@ -41,7 +42,6 @@ namespace BRClib.Render
         Timer _Timer;
         object _syncLock = new object();
 
-        //BrcSettings _setts = Services.Settings.Current;
         IRenderContext _Context;
 
 
@@ -51,7 +51,7 @@ namespace BRClib.Render
 
             _Timer = new Timer
             {
-                Interval = 100
+                Interval = 250
             };
 
             _Timer.Elapsed += delegate
@@ -110,8 +110,7 @@ namespace BRClib.Render
                 WasAborted = true;
                 _arCts.Cancel();
                 DisposeProcesses();
-                //logger.Warn("RENDER ABORTED");
-                Trace.TraceWarning("RENDER ABORTED");
+                logger.Warn("RENDER ABORTED");
 
                 Finished?.Invoke(this, BrcRenderResult.Aborted);
             }
@@ -142,8 +141,7 @@ namespace BRClib.Render
 
             ResetFields();
 
-            //logger.Info("RENDER STARTING");
-            Trace.TraceInformation("RENDER STARTING");
+            logger.Info("RENDER STARTING");
             _Timer.Start();
         }
 
@@ -182,6 +180,24 @@ namespace BRClib.Render
                     throw new Exception("Could not create 'chunks' folder", inner);
                 }
             }
+        }
+
+        void ResetFields()
+        {
+            _ChunkList = _Proj.ChunkList.ToList();
+            _Processes = _ChunkList.Select(CreateRenderProcess).ToList();
+
+            _FramesRendered = new FrameSet();
+
+            _State = new RenderState
+            {
+                ChunksToDo = _ChunkList.Count,
+                MaxConcurrency = _Proj.MaxConcurrency
+            };
+
+            _arCts = new CancellationTokenSource();
+            WasAborted = false;
+            _reportCount = 0;
         }
 
         /// <summary>
@@ -240,7 +256,7 @@ namespace BRClib.Render
                 proc.Start();
                 proc.BeginOutputReadLine();
 
-                Trace.TraceInformation("Started render n. {0}, frames: {1}", _State.Index, _ChunkList[_State.Index]);
+                logger.Trace("Started render n. {0}, frames: {1}", _State.Index, _ChunkList[_State.Index]);
 
                 _State.ChunksInProgress++;
                 _State.Index++;
@@ -277,7 +293,7 @@ namespace BRClib.Render
         {
             _State.ChunksInProgress--;
 
-            Trace.TraceInformation("Render proc exited with code {0}", (sender as Process).ExitCode);
+            logger.Trace("Render proc exited with code {0}", (sender as Process).ExitCode);
 
             if (Interlocked.Decrement(ref _State.ChunksToDo) == 0)
             {
@@ -305,16 +321,16 @@ namespace BRClib.Render
         private void OnChunksRenderFinished()
         {
             bool renderOk = _Processes.TrueForAll(p => p.ExitCode == 0);
-            DisposeProcesses();
+            _Processes.Clear();
 
             if (!renderOk)
             {
                 Finished?.Raise(this, BrcRenderResult.ChunkRenderFailed);
-                Trace.TraceError("One or more render processes did not complete sucessfully");
+                logger.Error("One or more render processes did not complete sucessfully");
                 return;
             }
 
-            Trace.TraceInformation("RENDER FINISHED");
+            logger.Info("RENDER FINISHED");
 
             // Send a '100%' ProgressReport
             ReportProgress(_FramesRendered.Count, _State.TotalChunks);
@@ -340,26 +356,6 @@ namespace BRClib.Render
         }
 
 
-
-        void ResetFields()
-        {
-            _ChunkList = _Proj.ChunkList.ToList();
-            _Processes = _ChunkList.Select(CreateRenderProcess).ToList();
-            _arProcesses = new List<Process>(2);
-
-            _FramesRendered = new FrameSet();
-
-            _State = new RenderState
-            {
-                ChunksToDo = _ChunkList.Count,
-                MaxConcurrency = _Proj.MaxConcurrency
-            };
-
-            _arCts = new CancellationTokenSource();
-            WasAborted = false;
-            _reportCount = 0;
-        }
-
         private bool AfterRenderProc(object state)
         {
             var action = (AfterRenderAction)state;
@@ -369,7 +365,7 @@ namespace BRClib.Render
                 return true;
             }
 
-            Trace.TraceInformation("AfterRender started. Action: {0}", action);
+            logger.Info("AfterRender started. Action: {0}", action);
 
             var chunkFiles = GetChunkFiles(_Proj.ChunksDirPath);
             string concatFile = null;
@@ -453,7 +449,7 @@ namespace BRClib.Render
 
 
             // check for bad exit codes
-            var badProcResults = _arProcesses.Where(p => p != null && p.ExitCode != 0).ToArray();
+            var badProcResults = _Processes.Where(p => p != null && p.ExitCode != 0).ToArray();
 
             if (badProcResults.Length > 0)
             {
@@ -497,31 +493,34 @@ namespace BRClib.Render
 
             void RunProc(ref Process proc, string key)
             {
-                string stdOut = string.Empty;
-                string stdErr = string.Empty;
+                //string stdOut = string.Empty;
+                //string stdErr = string.Empty;
 
                 // its important to read the streams asynchronously, to avoid deadlocks
-                proc.OutputDataReceived += (s, e) => ReadStreamToString(e.Data, ref stdOut);
-                proc.ErrorDataReceived += (s, e) => ReadStreamToString(e.Data, ref stdErr);
+                //proc.OutputDataReceived += (s, e) => ReadStreamToString(e.Data, ref stdOut);
+                //proc.ErrorDataReceived += (s, e) => ReadStreamToString(e.Data, ref stdErr);
 
                 proc.Start();
-                proc.BeginOutputReadLine();
-                proc.BeginErrorReadLine();
+                //proc.BeginOutputReadLine();
+                //proc.BeginErrorReadLine();
+                _Processes.Add(proc);
 
-                _arProcesses.Add(proc);
+                var soTask = proc.StandardOutput.ReadToEndAsync();
+                var seTask = proc.StandardError.ReadToEndAsync();
 
                 proc.WaitForExit();
 
-                arReports[key] = new ProcessResult(proc.ExitCode, stdOut, stdErr);
+                //arReports[key] = new ProcessResult(proc.ExitCode, stdOut, stdErr);
+                arReports[key] = new ProcessResult(proc.ExitCode, soTask.Result, seTask.Result);
 
                 // ----
-                void ReadStreamToString(string data, ref string target)
-                {
-                    if (data != null)
-                    {
-                        target += data + Environment.NewLine;
-                    }
-                }
+                //void ReadStreamToString(string data, ref string target)
+                //{
+                //    if (data != null)
+                //    {
+                //        target += data + Environment.NewLine;
+                //    }
+                //}
             }
 
         }
@@ -530,7 +529,7 @@ namespace BRClib.Render
         private void DisposeProcesses()
         {
             var procList = _Processes.ToList();
-            procList.AddRange(_arProcesses);
+            //procList.AddRange(_arProcesses);
 
             foreach (var p in procList)
             {

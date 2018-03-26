@@ -15,6 +15,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using BRClib.Extentions;
 
 namespace BlenderRenderController
 {
@@ -193,6 +194,28 @@ namespace BlenderRenderController
             _proj = proj;
             OnPropertyChanged(nameof(Project));
         }
+
+        public void UpdateCurrentChunks(IEnumerable<Chunk> chunks)
+        {
+            if (chunks.TotalLength() > Project.TotalFrames 
+             || chunks.SequenceEqual(Project.ChunkList))
+            {
+                return;
+            }
+
+            if (Project.ChunkList.Count > 0)
+            {
+                Project.ChunkList.Clear();
+            }
+
+            foreach (var chnk in chunks)
+            {
+                Project.ChunkList.Add(chnk);
+            }
+
+            Project.ChunkLenght = chunks.First().Length;
+        }
+
 
 
         public override string ToString()

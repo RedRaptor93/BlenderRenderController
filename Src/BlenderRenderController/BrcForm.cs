@@ -4,7 +4,7 @@
 // This code is released under the MIT licence
 
 using BlenderRenderController.Properties;
-using BlenderRenderController.Render;
+using BRClib.Render;
 using BRClib;
 using BRClib.Commands;
 using BRClib.Extentions;
@@ -64,7 +64,7 @@ namespace BlenderRenderController
             TaskbarManager.Instance.ApplicationId = progId;
 
             // RenderManager
-            _renderMngr = new RenderManager();
+            _renderMngr = new RenderManager(_appSettings);
             _renderMngr.Finished += RenderManager_Finished;
             _renderMngr.AfterRenderStarted += RenderManager_AfterRenderStarted;
             _renderMngr.ProgressChanged += (s, prog) => UpdateProgress(prog);
@@ -393,7 +393,7 @@ namespace BlenderRenderController
 
             _vm.IsBusy = true;
 
-            _renderMngr.Setup(_vm.Project);
+            _renderMngr.Setup(_vm.Project, _appSettings.AfterRender, _appSettings.Renderer);
 
             statusTime.Text = TimePassedPrefix + TimeSpan.Zero.ToString(TimeFmt);
 

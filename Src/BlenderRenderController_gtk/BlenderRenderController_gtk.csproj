@@ -86,7 +86,6 @@
     <Compile Include="..\BlenderRenderController\Services\Settings.cs">
       <Link>Services\Settings.cs</Link>
     </Compile>
-    <Compile Include="AboutWin.cs" />
     <Compile Include="BrcMain.Decl.cs" />
     <Compile Include="BrcMain.cs" />
     <Compile Include="Program.cs" />
@@ -136,6 +135,9 @@
     <Content Include="..\BlenderRenderController\Resources\SoundFile_16x.png">
       <Link>Resources\SoundFile_16x.png</Link>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Ui\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

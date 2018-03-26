@@ -224,7 +224,7 @@ THE SOFTWARE.
     <property name="title" translatable="yes">Blender Render Controller</property>
     <property name="window_position">center</property>
     <property name="default_width">660</property>
-    <property name="default_height">630</property>
+    <property name="default_height">635</property>
     <property name="icon">brc_icon.png</property>
     <child>
       <object class="GtkBox">
@@ -331,6 +331,7 @@ THE SOFTWARE.
                         <property name="use_underline">True</property>
                         <property name="image">imgRenderMixdown</property>
                         <property name="use_stock">False</property>
+                        <signal name="activate" handler="On_RenderMixdown_Clicked" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -341,6 +342,7 @@ THE SOFTWARE.
                         <property name="use_underline">True</property>
                         <property name="image">imgJoinChunks</property>
                         <property name="use_stock">False</property>
+                        <signal name="activate" handler="On_JoinChunks_Clicked" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -1143,7 +1145,7 @@ THE SOFTWARE.
                                             <property name="can_focus">False</property>
                                             <property name="model">joining_action_store</property>
                                             <property name="active">0</property>
-                                            <property name="id_column">0</property>
+                                            <property name="id_column">1</property>
                                             <signal name="changed" handler="On_cbJoiningAction_Changed" swapped="no"/>
                                             <child>
                                               <object class="GtkCellRendererText" id="cellRendererText"/>
@@ -1185,7 +1187,7 @@ THE SOFTWARE.
                                             <property name="can_focus">False</property>
                                             <property name="model">renderer_store</property>
                                             <property name="active">0</property>
-                                            <property name="id_column">0</property>
+                                            <property name="id_column">1</property>
                                             <signal name="changed" handler="On_cbRenderer_Changed" swapped="no"/>
                                             <child>
                                               <object class="GtkCellRendererText" id="cellRenderer"/>
@@ -1580,6 +1582,7 @@ THE SOFTWARE.
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <signal name="clicked" handler="On_PrefOk_Clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -1624,7 +1627,8 @@ THE SOFTWARE.
                           <object class="GtkFileChooserButton" id="blenderChooser">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="title" translatable="yes"/>
+                            <property name="title" translatable="yes">Select Blender executable</property>
+                            <signal name="file-set" handler="On_BlenderFileSet" swapped="no"/>
                           </object>
                         </child>
                       </object>
@@ -1659,7 +1663,8 @@ THE SOFTWARE.
                           <object class="GtkFileChooserButton" id="ffmpegChooser">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="title" translatable="yes"/>
+                            <property name="title" translatable="yes">Select FFmpeg executable</property>
+                            <signal name="file-set" handler="On_FFmpegFileSet" swapped="no"/>
                           </object>
                         </child>
                       </object>
@@ -1722,6 +1727,7 @@ THE SOFTWARE.
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
                             <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="On_Showtooltips_Toggle" swapped="no"/>
                           </object>
                         </child>
                       </object>
@@ -1739,6 +1745,7 @@ THE SOFTWARE.
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
                             <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="On_DeleteChunks_Toggle" swapped="no"/>
                           </object>
                         </child>
                       </object>
@@ -1768,7 +1775,9 @@ THE SOFTWARE.
                             <property name="can_focus">False</property>
                             <property name="model">logging_lvl_store</property>
                             <property name="active">0</property>
+                            <property name="id_column">1</property>
                             <property name="active_id">active_log_lvl</property>
+                            <signal name="changed" handler="On_LoggingLvl_Changed" swapped="no"/>
                             <child>
                               <object class="GtkCellRendererText" id="cellrender"/>
                               <attributes>

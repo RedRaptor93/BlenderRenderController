@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using Gtk;
 
 using PathIO = System.IO.Path;
+using System.Threading;
+using System.Collections.Generic;
 
 namespace BlenderRenderController
 {
@@ -19,6 +21,9 @@ namespace BlenderRenderController
         BrcSettings _settings;
         BrcViewModel _vm;
         RenderManager _renderMngr;
+        ETACalculator _etaCalc;
+        CancellationTokenSource _afterRenderCancelSrc;
+
         int _autoStartF, _autoEndF;
 
         public BrcMain() : base("BrcGtk.glade", "brc_style.css", "BrcMain")
@@ -28,9 +33,14 @@ namespace BlenderRenderController
             _settings = Services.Settings.Current;
             _vm = new BrcViewModel();
             _vm.PropertyChanged += ViewModel_PropertyChanged;
-            _vm.ConfigOk = true;
+            //_vm.ConfigOk = true; // TODO: setup settings and scripts infra.
 
             _renderMngr = new RenderManager(_settings);
+            _renderMngr.Finished += RenderMngr_Finished;
+            _renderMngr.AfterRenderStarted += RenderMngr_AfterRenderStarted;
+            _renderMngr.ProgressChanged += RenderMngr_ProgressChanged;
+
+            _etaCalc = new ETACalculator(10, 5);
         }
 
 
@@ -125,18 +135,66 @@ namespace BlenderRenderController
         
         async void OpenBlendFile(string blendFile)
         {
-            lblStatus.Text = "Loading " + PathIO.GetFileName(blendFile) + " ...";
+            Status("Loading " + PathIO.GetFileName(blendFile) + " ...");
             workSpinner.Active = true;
 
             await _vm.GetBlendInfo(blendFile);
 
-            _autoStartF = _vm.Project.Start;
-            _autoEndF = _vm.Project.End;
+            if (_vm.ProjectLoaded)
+            {
+                _autoStartF = _vm.Project.Start;
+                _autoEndF = _vm.Project.End;
+            }
 
             workSpinner.Active = false;
         }
 
+        void Status(string text, Label item = null)
+        {
+            if (item == null) item = lblStatus;
+
+            Application.Invoke(delegate
+            {
+                item.Text = text;
+            });
+        }
+
+        void ResetCTS()
+        {
+            if (_afterRenderCancelSrc != null)
+            {
+                _afterRenderCancelSrc.Dispose();
+                _afterRenderCancelSrc = null;
+            }
+            _afterRenderCancelSrc = new CancellationTokenSource();
+        }
+
+
         // Events handlers
+
+        private void BrcMain_DeleteEvent(object o, DeleteEventArgs args)
+        {
+            if (_vm.IsBusy)
+            {
+                var dlg = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Question, ButtonsType.YesNo,
+                    "Closing now will cancel the rendering process. Close anyway?");
+
+                var confirmation = (ResponseType)dlg.Run();
+
+                if (confirmation == ResponseType.No)
+                {
+                    args.RetVal = false;
+                    return;
+                }
+                else
+                {
+                    args.RetVal = true;
+                    StopWork(false);
+                }
+            }
+
+            Services.Settings.Save();
+        }
 
         private void On_OpenFile(object sender, EventArgs e)
         {
@@ -180,10 +238,6 @@ namespace BlenderRenderController
             _vm.Project = null;
         }
 
-        private void On_Preferences(object sender, EventArgs e)
-        {
-            
-        }
 
         void On_miGithub_Clicked(object s, EventArgs e)
         {
@@ -207,12 +261,17 @@ namespace BlenderRenderController
 
         void On_cbJoiningAction_Changed(object s, EventArgs e)
         {
+            var cb = (ComboBox)s;
+            var active = cb.Active;
 
+            _settings.AfterRender = (AfterRenderAction)active;
         }
 
         void On_cbRenderer_Changed(object s, EventArgs e)
         {
-
+            var cb = (ComboBox)s;
+            var active = cb.Active;
+            _settings.Renderer = (Renderer)active;
         }
 
         void On_AutoStartStop_Toggled(object s, EventArgs e)
@@ -267,6 +326,29 @@ namespace BlenderRenderController
         {
             // start render...
 
+            var outdir = _vm.Project.OutputPath;
+
+            bool destNotEmpty = (Directory.Exists(outdir) && Directory.GetFiles(outdir).Length > 0)
+                || Directory.Exists(_vm.Project.ChunksDirPath);
+
+            if (destNotEmpty)
+            {
+                var dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Question,
+                       ButtonsType.YesNo,
+                       "All existing files and folders in the output folder will be deleted!\n" +
+                       "Do you want to continue?");
+
+                var result = (ResponseType)dlg.Run(); dlg.Destroy();
+
+                if (result == ResponseType.No)
+                    return;
+
+                if (!ClearOutputFolder(outdir))
+                    return;
+            }
+
+            StartRender();
+
             btnStopRender.Show();
             startStopStack.VisibleChild = btnStopRender;
             btnStopRender.GrabFocus();
@@ -276,9 +358,211 @@ namespace BlenderRenderController
         {
             // stop / cancel render...
 
+            if (_vm.IsBusy)
+            {
+                var dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Warning, 
+                                            ButtonsType.YesNo,
+                                            "Are you sure you want to stop?");
+
+                var result = (ResponseType)dlg.Run(); dlg.Destroy();
+
+                if (result == ResponseType.No)
+                    return;
+
+                StopWork(false);
+            }
+
             btnStartRender.Show();
             startStopStack.VisibleChild = btnStartRender;
             btnStartRender.GrabFocus();
+        }
+
+        void StartRender()
+        {
+            IEnumerable<Chunk> chunks;
+            if (AutoChunkDiv)
+            {
+                chunks = Chunk.CalcChunks(_vm.Project.Start, _vm.Project.End,
+                    _vm.Project.MaxConcurrency);
+            }
+            else
+            {
+                chunks = Chunk.CalcChunksByLength(_vm.Project.Start, _vm.Project.End,
+                    _vm.Project.ChunkLenght);
+            }
+
+            _vm.UpdateCurrentChunks(chunks);
+
+            _vm.IsBusy = true;
+
+            _renderMngr.Setup(_vm.Project, _settings.AfterRender, _settings.Renderer);
+
+            Status("Starting render...");
+
+            _renderMngr.StartAsync();
+        }
+
+        void StopWork(bool completed)
+        {
+            if (!completed)
+            {
+                if (_renderMngr.InProgress)
+                {
+                    _renderMngr.Abort();
+                }
+
+                if (_afterRenderCancelSrc != null)
+                    _afterRenderCancelSrc.Cancel();
+            }
+
+            _etaCalc.Reset();
+            _vm.IsBusy = false;
+
+            workProgress.Fraction = 0;
+
+            Status("ETR: " + TimeSpan.Zero.ToString(@"hh\:mm\:ss"), lblETR);
+        }
+
+        private void RenderMngr_ProgressChanged(object sender, RenderProgressInfo e)
+        {
+            Status($"Completed {e.PartsCompleted} / {_vm.Project.ChunkList.Count} chunks, " +
+                $"{e.FramesRendered} frames rendered");
+
+            float porcentageDone = e.PartsCompleted / (float)_vm.Project.ChunkList.Count;
+
+            workProgress.Fraction = porcentageDone;
+
+            _etaCalc.Update(porcentageDone);
+
+            if (_etaCalc.ETAIsAvailable)
+            {
+                Status("ETR: " + _etaCalc.ETR.ToString(@"hh\:mm\:ss"), lblETR);
+            }
+
+            // TODO? TimeElapsed
+
+        }
+
+        private void RenderMngr_AfterRenderStarted(object sender, AfterRenderAction e)
+        {
+            workProgress.Fraction = 0;
+            workSpinner.Active = true;
+
+            switch (e)
+            {
+                case AfterRenderAction.MIX_JOIN:
+                    Status("Joining chunks w/ custom mixdown");
+                    break;
+                case AfterRenderAction.JOIN:
+                    Status("Joining chunks");
+                    break;
+                case AfterRenderAction.MIXDOWN:
+                    Status("Rendering mixdown");
+                    break;
+            }
+        }
+
+        private void RenderMngr_Finished(object sender, BrcRenderResult e)
+        {
+            StopWork(true);
+
+            if (e == BrcRenderResult.AllOk)
+            {
+                MessageDialog dlg;
+
+                if (_renderMngr.Action == AfterRenderAction.NOTHING
+                    && _settings.DeleteChunksFolder)
+                {
+                    try
+                    {
+                        Directory.Delete(_vm.Project.ChunksDirPath, true);
+                    }
+                    catch (Exception ex)
+                    {
+                         dlg = new MessageDialog(this, DialogFlags.Modal, 
+                            MessageType.Error, ButtonsType.Close,
+                            $"Failed to clear 'chunks' folder:\n\n{ex.Message} ({ex.HResult})");
+
+                        dlg.Run(); dlg.Destroy();
+                    }
+                }
+
+                dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Question, ButtonsType.YesNo,
+                        "Open destination folder?");
+
+                var result = (ResponseType)dlg.Run();
+
+                if (result == ResponseType.Yes)
+                    _vm.OpenOutputFolder();
+
+                dlg.Destroy();
+            }
+            else if (e == BrcRenderResult.Aborted)
+            {
+                Status("Operation aborted");
+            }
+            else
+            {
+                // ToDo: Share string resources
+                var dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Question, ButtonsType.Close,
+                        "An unexpected error ocurred");
+                dlg.Run(); dlg.Destroy();
+                Status("Unexpected error");
+            }
+        }
+
+        async void On_RenderMixdown_Clicked(object s, EventArgs e)
+        {
+            _vm.IsBusy = 
+            workSpinner.Active = true;
+            ResetCTS();
+
+            Status("Rendering mixdown...");
+
+            var mixcmd = new MixdownCmd(_settings.BlenderProgram)
+            {
+                BlendFile = _vm.Project.BlendFilePath,
+                Range = _vm.Project.ChunkList.GetFullRange(),
+                MixdownScript = Scripts.MixdownAudio,
+                OutputFolder = _vm.Project.OutputPath
+            };
+
+            var result = await mixcmd.RunAsync(_afterRenderCancelSrc.Token);
+
+            if (result == 0)
+            {
+                Status("Mixdown complete");
+            }
+            else
+            {
+                //MessageBox.Show("Something went wrong, check logs at the output folder...",
+                //        Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                var msgBox = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok,
+                    "Something went wrong, check logs at the output folder...");
+
+                mixcmd.SaveReport(_vm.Project.OutputPath);
+
+                Status("Something went wrong...");
+
+                msgBox.Run(); msgBox.Destroy();
+            }
+
+            _vm.IsBusy =
+            workSpinner.Active = false;
+        }
+
+        void On_JoinChunks_Clicked(object s, EventArgs e)
+        {
+            _vm.IsBusy =
+            workSpinner.Active = true;
+            ResetCTS();
+
+            // TODO: Manual concat dialog
+
+            _vm.IsBusy =
+            workSpinner.Active = false;
+
         }
 
         void BtnChangeFolder_Clicked(object s, EventArgs e)
@@ -296,13 +580,6 @@ namespace BlenderRenderController
         void BtnOpenFolder_Clicked(object s, EventArgs e)
         {
             _vm.OpenOutputFolder();
-        }
-
-        void On_ShowAbout(object s, EventArgs e)
-        {
-            //var about = new AboutWin(Builder);
-            aboutWin.Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            aboutWin.Run();
         }
 
         private void RecentMngr_Changed(object sender, EventArgs e)
@@ -348,6 +625,56 @@ namespace BlenderRenderController
 
             UpdateInfoBoxItems(vm.Project);
             UpdateOptions(vm.Project);
+        }
+
+
+        // Dialog handlers
+
+        void On_ShowAbout(object s, EventArgs e)
+        {
+            aboutWin.Run();
+            aboutWin.Hide();
+        }
+
+        void On_Preferences(object sender, EventArgs e)
+        {
+            prefWin.Run();
+            prefWin.Hide();
+        }
+
+        void On_BlenderFileSet(object s, EventArgs e)
+        {
+            var chooser = (FileChooserButton)s;
+            _settings.BlenderProgram = chooser.Filename;
+        }
+
+        void On_FFmpegFileSet(object s, EventArgs e)
+        {
+            var chooser = (FileChooserButton)s;
+            _settings.FFmpegProgram = chooser.Filename;
+        }
+
+        void On_Showtooltips_Toggle(object s, EventArgs e)
+        {
+            var tgl = (CheckButton)s;
+            _settings.DisplayToolTips = tgl.Active;
+        }
+
+        void On_DeleteChunks_Toggle(object s, EventArgs e)
+        {
+            var tgl = (CheckButton)s;
+            _settings.DeleteChunksFolder = tgl.Active;
+        }
+
+        void On_LoggingLvl_Changed(object s, EventArgs e)
+        {
+            var cb = (ComboBox)s;
+            _settings.LoggingLevel = cb.Active;
+        }
+
+        void On_PrefOk_Clicked(object s, EventArgs e)
+        {
+            prefWin.Hide();
         }
 
     }

@@ -43,6 +43,8 @@ namespace BRClib
             _chunkList = new ObservableCollection<Chunk>(Chunk.CalcChunks(Start, End, MaxConcurrency));
 
             ChunkLenght = _chunkList[0].Length;
+
+            ChunksDirPath = DefaultChunksDirPath;
         }
 
         public string BlendFilePath

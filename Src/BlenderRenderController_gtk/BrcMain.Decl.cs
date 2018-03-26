@@ -54,6 +54,7 @@ namespace BlenderRenderController
 
         FileChooserDialog openBlendDialog, chooseOutputFolderDialog;
         AboutDialog aboutWin;
+        Dialog prefWin;
 
         RecentItemsMenu recentBlendsMenu;
 
@@ -99,18 +100,42 @@ namespace BlenderRenderController
             frameRangeBox.Sensitive = chunkDivBox.Sensitive = false;
             AutoFrameRange = AutoChunkDiv = true;
 
-            SetupHandlers();
+            this.DeleteEvent += BrcMain_DeleteEvent;
+
+            InitDialogs();
+            CheckConfigs();
         }
 
-        private void SetupHandlers()
-        {
-            //RecentManager.Default.Changed += RecentMngr_Changed;
-        }
 
         void InitDialogs()
         {
             aboutWin = new AboutDialog(Builder.GetObject("AboutWin").Handle);
-            aboutWin.Close += delegate { aboutWin.Hide();};
+            aboutWin.Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            aboutWin.Close += delegate { aboutWin.Hide(); };
+
+            prefWin = new Dialog(Builder.GetObject("PrefWin").Handle);
+
+        }
+
+        void CheckConfigs()
+        {
+            _vm.ConfigOk = Services.Settings.CheckCorrectConfig();
+
+            if (!_vm.ConfigOk)
+            {
+                var msgBox = new MessageDialog(this, DialogFlags.Modal, MessageType.Warning, ButtonsType.OkCancel,
+                    "One or more required programs were not found, click 'Ok' to go to preferences...");
+
+                var resp = (ResponseType)msgBox.Run();
+
+                if (resp == ResponseType.Ok)
+                {
+                    prefWin.Run();
+                    prefWin.Hide();
+                }
+
+                msgBox.Destroy();
+            }
         }
         
         

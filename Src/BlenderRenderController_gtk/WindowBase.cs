@@ -29,7 +29,7 @@ namespace BlenderRenderController
             _builder = builder;
             builder.Autoconnect(this);
 
-            DeleteEvent += GtkWindow_DeleteEvent;
+            //DeleteEvent += GtkWindow_DeleteEvent;
         }
 
 
@@ -60,11 +60,11 @@ namespace BlenderRenderController
 
         protected Builder Builder { get => _builder; }
 
-        void GtkWindow_DeleteEvent(object o, DeleteEventArgs args)
-        {
-            Application.Quit();
-            args.RetVal = true;
-        }
+        //void GtkWindow_DeleteEvent(object o, DeleteEventArgs args)
+        //{
+        //    Application.Quit();
+        //    args.RetVal = true;
+        //}
 
 
         static Builder CreateBuilder(string filename)
