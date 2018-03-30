@@ -44,7 +44,7 @@ namespace BRClib
 
             ChunkLenght = _chunkList[0].Length;
 
-            ChunksDirPath = DefaultChunksDirPath;
+            //ChunksDirPath = DefaultChunksDirPath;
         }
 
         public string BlendFilePath

@@ -65,7 +65,7 @@ namespace BlenderRenderController
         void Initialize()
         {
             // setup filters
-            string blend = "*.blend";
+            const string blend = "*.blend";
 
             var blendFilter = new FileFilter();
             blendFilter.Name = ".blend files";
@@ -103,7 +103,6 @@ namespace BlenderRenderController
             this.DeleteEvent += BrcMain_DeleteEvent;
 
             InitDialogs();
-            CheckConfigs();
         }
 
 
@@ -126,15 +125,13 @@ namespace BlenderRenderController
                 var msgBox = new MessageDialog(this, DialogFlags.Modal, MessageType.Warning, ButtonsType.OkCancel,
                     "One or more required programs were not found, click 'Ok' to go to preferences...");
 
-                var resp = (ResponseType)msgBox.Run();
+                var resp = (ResponseType)msgBox.Run(); msgBox.Destroy();
 
                 if (resp == ResponseType.Ok)
                 {
                     prefWin.Run();
                     prefWin.Hide();
                 }
-
-                msgBox.Destroy();
             }
         }
         

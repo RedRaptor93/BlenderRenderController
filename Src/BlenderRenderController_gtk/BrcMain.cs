@@ -33,7 +33,7 @@ namespace BlenderRenderController
             _settings = Services.Settings.Current;
             _vm = new BrcViewModel();
             _vm.PropertyChanged += ViewModel_PropertyChanged;
-            //_vm.ConfigOk = true; // TODO: setup settings and scripts infra.
+            CheckConfigs();
 
             _renderMngr = new RenderManager(_settings);
             _renderMngr.Finished += RenderMngr_Finished;
@@ -535,9 +535,6 @@ namespace BlenderRenderController
             }
             else
             {
-                //MessageBox.Show("Something went wrong, check logs at the output folder...",
-                //        Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
-
                 var msgBox = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok,
                     "Something went wrong, check logs at the output folder...");
 

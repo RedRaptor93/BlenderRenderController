@@ -186,7 +186,6 @@ namespace BlenderRenderController
                 }
             }
 
-            //_appSettings.SaveCurrent();
             Settings.Save();
             logger.Info("Program closing");
         }
@@ -290,7 +289,7 @@ namespace BlenderRenderController
                 else
                     proj.OutputPath = Path.GetDirectoryName(proj.OutputPath);
 
-
+                proj.ChunksDirPath = proj.DefaultChunksDirPath;
                 logger.Info(".blend loaded successfully");
             }
             else

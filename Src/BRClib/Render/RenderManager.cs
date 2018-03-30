@@ -51,7 +51,8 @@ namespace BRClib.Render
 
             _Timer = new Timer
             {
-                Interval = 250
+                Interval = 250,
+                AutoReset = true
             };
 
             _Timer.Elapsed += delegate
@@ -191,6 +192,7 @@ namespace BRClib.Render
 
             _State = new RenderState
             {
+                TotalChunks = _ChunkList.Count,
                 ChunksToDo = _ChunkList.Count,
                 MaxConcurrency = _Proj.MaxConcurrency
             };
@@ -270,7 +272,7 @@ namespace BRClib.Render
         {
             if (_reportCount++ % 3 == 0)
             {
-                ProgressChanged?.Invoke(this, new RenderProgressInfo(framesRendered, chunksCompleted));
+                ProgressChanged?.Raise(this, new RenderProgressInfo(framesRendered, chunksCompleted));
             }
         }
 
