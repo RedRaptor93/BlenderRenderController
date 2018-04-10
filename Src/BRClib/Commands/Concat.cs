@@ -30,22 +30,22 @@ namespace BRClib.Commands
 
         // ref: https://ffmpeg.org/ffmpeg-all.html#concat-1
         // 0=ChunkTxtPath, 1=Optional mixdown input, 2=Optional duration, 3=Final file path + .EXT
-        const string CONCAT_FMT = "-f concat -safe 0 -i \"{0}\" {1} -c:v copy {2} \"{3}\" -y";
+        const string CONCAT_FMT = "-f concat -safe 0 -i \"{0}\" {1} {2} \"{3}\" -y";
 
         protected override string GetArgs()
         {
-            var mixdText = !string.IsNullOrWhiteSpace(MixdownFile) 
-                ? "-i \"" + MixdownFile + "\" -map 0:v -map 1:a" : string.Empty;
+            var codecText = !string.IsNullOrWhiteSpace(MixdownFile) 
+                ? "-i \"" + MixdownFile + "\" -c:v copy -map 0:v:0 -map 1:a:0" : "-c copy";
 
             var durText = Duration.HasValue
                 ? "-t " + Duration.Value.ToString(@"hh\:mm\:ss") : string.Empty;
 
             return string.Format(CONCAT_FMT, 
                                     ConcatTextFile, 
-                                    mixdText, 
+                                    codecText, 
                                     durText, 
                                     OutputFile);
         }
-
+        
     }
 }
