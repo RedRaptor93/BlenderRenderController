@@ -28,14 +28,23 @@ namespace BRClib.Commands
         public string MixdownFile { get; set; }
         public TimeSpan? Duration { get; set; }
 
-        // ref: https://ffmpeg.org/ffmpeg-all.html#concat-1
-        // 0=ChunkTxtPath, 1=Optional mixdown input, 2=Optional duration, 3=Final file path + .EXT
-        const string CONCAT_FMT = "-f concat -safe 0 -i \"{0}\" {1} {2} \"{3}\" -y";
 
         protected override string GetArgs()
         {
-            var codecText = !string.IsNullOrWhiteSpace(MixdownFile) 
-                ? "-i \"" + MixdownFile + "\" -c:v copy -map 0:v:0 -map 1:a:0" : "-c copy";
+            // ref: https://ffmpeg.org/ffmpeg-all.html#concat-1
+            // 0=ChunkTxtPath, 1=codec specs, 2=Optional duration, 3=Final file path + .EXT
+            const string CONCAT_FMT = "-f concat -safe 0 -i \"{0}\" {1} {2} \"{3}\" -y";
+
+            string codecText;
+
+            if (string.IsNullOrWhiteSpace(MixdownFile))
+            {
+                codecText = "-c copy";
+            }
+            else
+            {
+                codecText = string.Format("-i \"{0}\" -c copy -map 0:v:0 -map 1:a:0", MixdownFile);
+            }
 
             var durText = Duration.HasValue
                 ? "-t " + Duration.Value.ToString(@"hh\:mm\:ss") : string.Empty;
