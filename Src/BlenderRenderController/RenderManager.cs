@@ -58,7 +58,7 @@ namespace BlenderRenderController.Render
         BrcSettings _setts = Services.Settings.Current;
 
         // after render
-        List<Process> _arProcesses;
+        //List<Process> _arProcesses;
         const string MIX_KEY = "mixdown";
         const string CONCAT_KEY = "concat";
         CancellationTokenSource _arCts;
@@ -140,7 +140,7 @@ namespace BlenderRenderController.Render
         {
             _timer = new Timer
             {
-                Interval = 100,
+                Interval = 250,
             };
 
             _timer.Tick += delegate 
@@ -308,7 +308,7 @@ namespace BlenderRenderController.Render
         {
             _chunkList = _proj.ChunkList.ToList();
             _processes = _chunkList.Select(CreateRenderProcess).ToList();
-            _arProcesses = new List<Process>();
+            //_arProcesses = new List<Process>();
 
             _framesRendered = new ConcurrentHashSet<int>();
             _currentIndex = 0;
@@ -425,6 +425,7 @@ namespace BlenderRenderController.Render
         private void OnChunksFinished()
         {
             bool renderOk = _processes.TrueForAll(p => p.ExitCode == 0);
+            _processes.Clear();
 
             if (!renderOk)
             {
@@ -474,7 +475,7 @@ namespace BlenderRenderController.Render
         private void DisposeProcesses()
         {
             var procList = _processes.ToList();
-            procList.AddRange(_arProcesses);
+            //procList.AddRange(_arProcesses);
 
             foreach (var p in procList)
             {
@@ -598,7 +599,7 @@ namespace BlenderRenderController.Render
             if (_arCts.IsCancellationRequested) return false;
 
             // check for bad exit codes
-            var badProcResults = _arProcesses.Where(p => p != null && p.ExitCode != 0).ToArray();
+            var badProcResults = _processes.Where(p => p != null && p.ExitCode != 0).ToArray();
 
             if (badProcResults.Length > 0)
             {
@@ -661,7 +662,7 @@ namespace BlenderRenderController.Render
                 proc.BeginOutputReadLine();
                 proc.BeginErrorReadLine();
 
-                _arProcesses.Add(proc);
+                _processes.Add(proc);
 
                 proc.WaitForExit();
 

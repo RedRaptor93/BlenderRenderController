@@ -35,7 +35,7 @@ namespace UnitTests
             proc.Start();
             var output = proc.StandardOutput.ReadToEnd();
 
-            return Utilities.ParsePyOutput(output);
+            return BlendData.FromPyOutput(output);
         }
 
         public static Process GetBlendDataProc(string path)
