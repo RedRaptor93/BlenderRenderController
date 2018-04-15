@@ -194,6 +194,10 @@ namespace BlenderRenderController
             }
 
             Services.Settings.Save();
+
+            if (aboutWin != null) aboutWin.Destroy();
+            if (prefWin != null) prefWin.Destroy();
+            recentBlendsMenu.Destroy();
         }
 
         private void On_OpenFile(object sender, EventArgs e)
