@@ -170,6 +170,9 @@ namespace BRClib.Render
                 throw new FileNotFoundException("Could not find 'blend' file", _Proj.BlendFilePath);
             }
 
+            if (_Proj.ChunksDirPath == null)
+                _Proj.ChunksDirPath = _Proj.DefaultChunksDirPath;
+
             if (!Directory.Exists(_Proj.ChunksDirPath))
             {
                 try

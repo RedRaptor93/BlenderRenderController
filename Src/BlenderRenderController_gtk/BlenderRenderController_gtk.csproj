@@ -88,7 +88,6 @@
     </Compile>
     <Compile Include="BrcMain.Decl.cs" />
     <Compile Include="BrcMain.cs" />
-    <None Include="GtkISyncInvoke.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecentItemsMenu.cs" />
@@ -137,9 +136,7 @@
       <Link>Resources\SoundFile_16x.png</Link>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Ui\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <MonoDevelop>
@@ -156,6 +153,7 @@
     <Error Condition="!Exists('..\..\packages\gtk-sharp-3.3.22.6.4\build\net40\gtk-sharp-3.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\gtk-sharp-3.3.22.6.4\build\net40\gtk-sharp-3.targets'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>xcopy $(ProjectDir)$(OutDir)*.* /S /F /I /Y "F:\PCsVirtuais\_transfer\brc\builds"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

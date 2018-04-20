@@ -157,6 +157,7 @@ namespace BlenderRenderController
             {
                 item.Text = text;
             });
+
         }
 
         void ResetCTS()
@@ -188,11 +189,11 @@ namespace BlenderRenderController
                 }
                 else
                 {
-                    args.RetVal = true;
                     StopWork(false);
                 }
             }
 
+            args.RetVal = true;
             Services.Settings.Save();
 
             if (aboutWin != null) aboutWin.Destroy();
@@ -429,22 +430,27 @@ namespace BlenderRenderController
 
         private void RenderMngr_ProgressChanged(object sender, RenderProgressInfo e)
         {
-            Status($"Completed {e.PartsCompleted} / {_vm.Project.ChunkList.Count} chunks, " +
-                $"{e.FramesRendered} frames rendered");
-
-            float porcentageDone = e.PartsCompleted / (float)_vm.Project.ChunkList.Count;
-
-            workProgress.Fraction = porcentageDone;
-
-            _etaCalc.Update(porcentageDone);
-
-            if (_etaCalc.ETAIsAvailable)
+            // BUG: Progress reporting does not update main UI
+            Application.Invoke(delegate
             {
-                Status("ETR: " + _etaCalc.ETR.ToString(@"hh\:mm\:ss"), lblETR);
-            }
 
-            // TODO? TimeElapsed
+               lblStatus.Text = $"Completed {e.PartsCompleted} / {_vm.Project.ChunkList.Count} chunks, " +
+                    $"{e.FramesRendered} frames rendered";
 
+                float porcentageDone = e.PartsCompleted / (float)_vm.Project.ChunkList.Count;
+
+                workProgress.Fraction = porcentageDone;
+
+                _etaCalc.Update(porcentageDone);
+
+                if (_etaCalc.ETAIsAvailable)
+                {
+                    lblETR.Text = "ETR: " + _etaCalc.ETR.ToString(@"hh\:mm\:ss");
+                }
+
+                // TODO? TimeElapsed
+
+            });
         }
 
         private void RenderMngr_AfterRenderStarted(object sender, AfterRenderAction e)
@@ -468,6 +474,11 @@ namespace BlenderRenderController
 
         private void RenderMngr_Finished(object sender, BrcRenderResult e)
         {
+            Application.Invoke(delegate
+            {
+
+
+
             StopWork(true);
 
             if (e == BrcRenderResult.AllOk)
@@ -513,6 +524,10 @@ namespace BlenderRenderController
                 dlg.Run(); dlg.Destroy();
                 Status("Unexpected error");
             }
+
+
+            });
+
         }
 
         async void On_RenderMixdown_Clicked(object s, EventArgs e)
@@ -605,7 +620,8 @@ namespace BlenderRenderController
             miUnload.Sensitive = vm.CanEditCurrentProject;
 
             miRenderMixdown.Sensitive = vm.CanRender && !vm.IsBusy;
-            miJoinChunks.Sensitive = !vm.IsBusy;
+            //miJoinChunks.Sensitive = !vm.IsBusy;
+            miJoinChunks.Sensitive = false; // TODO: manual concat UI
 
             miPref.Sensitive = !vm.IsBusy;
 

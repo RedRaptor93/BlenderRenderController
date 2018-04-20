@@ -113,7 +113,10 @@ namespace BlenderRenderController
             aboutWin.Close += delegate { aboutWin.Hide(); };
 
             prefWin = new Dialog(Builder.GetObject("PrefWin").Handle);
-
+            prefWin.Close += delegate
+            {
+                _vm.ConfigOk = Services.Settings.CheckCorrectConfig();
+            };
         }
 
         void CheckConfigs()
