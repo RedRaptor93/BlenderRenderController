@@ -498,16 +498,7 @@ namespace BRClib.Render
 
             void RunProc(ref Process proc, string key)
             {
-                //string stdOut = string.Empty;
-                //string stdErr = string.Empty;
-
-                // its important to read the streams asynchronously, to avoid deadlocks
-                //proc.OutputDataReceived += (s, e) => ReadStreamToString(e.Data, ref stdOut);
-                //proc.ErrorDataReceived += (s, e) => ReadStreamToString(e.Data, ref stdErr);
-
                 proc.Start();
-                //proc.BeginOutputReadLine();
-                //proc.BeginErrorReadLine();
                 _Processes.Add(proc);
 
                 var soTask = proc.StandardOutput.ReadToEndAsync();
@@ -515,17 +506,7 @@ namespace BRClib.Render
 
                 proc.WaitForExit();
 
-                //arReports[key] = new ProcessResult(proc.ExitCode, stdOut, stdErr);
                 arReports[key] = new ProcessResult(proc.ExitCode, soTask.Result, seTask.Result);
-
-                // ----
-                //void ReadStreamToString(string data, ref string target)
-                //{
-                //    if (data != null)
-                //    {
-                //        target += data + Environment.NewLine;
-                //    }
-                //}
             }
 
         }
@@ -534,7 +515,6 @@ namespace BRClib.Render
         private void DisposeProcesses()
         {
             var procList = _Processes.ToList();
-            //procList.AddRange(_arProcesses);
 
             foreach (var p in procList)
             {

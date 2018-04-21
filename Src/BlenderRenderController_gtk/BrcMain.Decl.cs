@@ -101,10 +101,22 @@ namespace BlenderRenderController
             AutoFrameRange = AutoChunkDiv = true;
 
             this.DeleteEvent += BrcMain_DeleteEvent;
+            this.numChunkSizeAdjust.Changed += NumChunkSizeAdjust_Changed;
+            this.tsOpenRecent.Clicked += TsOpenRecent_Clicked;
 
             InitDialogs();
         }
 
+        private void TsOpenRecent_Clicked(object sender, EventArgs e)
+        {
+            recentBlendsMenu.PopupAtWidget((MenuToolButton)sender, Gdk.Gravity.SouthWest, Gdk.Gravity.NorthWest, null);
+        }
+
+        private void NumChunkSizeAdjust_Changed(object sender, EventArgs e)
+        {
+            var adjust = (Adjustment)sender;
+            _vm.Project.ChunkLenght = (int)adjust.Value;
+        }
 
         void InitDialogs()
         {
@@ -138,6 +150,12 @@ namespace BlenderRenderController
             }
         }
         
+        void Invoke<T>(EventHandler<T> handler, object s, T args)
+        {
+            Application.Invoke(delegate {
+                handler(s, args);
+            });
+        }
         
         // private properties
         bool AutoFrameRange { get; set; }

@@ -36,9 +36,11 @@ namespace BlenderRenderController
             CheckConfigs();
 
             _renderMngr = new RenderManager(_settings);
-            _renderMngr.Finished += RenderMngr_Finished;
-            _renderMngr.AfterRenderStarted += RenderMngr_AfterRenderStarted;
-            _renderMngr.ProgressChanged += RenderMngr_ProgressChanged;
+
+            // 'Invoke' makes sure the event handlers will run on the UI thread
+            _renderMngr.Finished += (s,e) => Invoke(RenderMngr_Finished, s, e);
+            _renderMngr.AfterRenderStarted += (s, e) => Invoke(RenderMngr_AfterRenderStarted, s, e);
+            _renderMngr.ProgressChanged += (s, e) => Invoke(RenderMngr_ProgressChanged, s, e);
 
             _etaCalc = new ETACalculator(10, 5);
         }
@@ -127,7 +129,7 @@ namespace BlenderRenderController
 
             numStartFrameAdjust.Value = project.Start;
             numEndFrameAdjust.Value = project.End;
-            numChunkSizeAdjust.Value = project.ChunkList[0].Length;
+            numChunkSizeAdjust.Value = project.ChunkLenght;
             numProcMaxAdjust.Value = project.MaxConcurrency;
 
             entryOutputPath.Text = project.OutputPath;
@@ -153,10 +155,10 @@ namespace BlenderRenderController
         {
             if (item == null) item = lblStatus;
 
-            Application.Invoke(delegate
-            {
+            //Application.Invoke(delegate
+            //{
                 item.Text = text;
-            });
+            //});
 
         }
 
@@ -199,6 +201,8 @@ namespace BlenderRenderController
             if (aboutWin != null) aboutWin.Destroy();
             if (prefWin != null) prefWin.Destroy();
             recentBlendsMenu.Destroy();
+
+            Application.Quit();
         }
 
         private void On_OpenFile(object sender, EventArgs e)
@@ -329,7 +333,7 @@ namespace BlenderRenderController
 
         void StartRender_Clicked(object s, EventArgs e)
         {
-            // start render...
+            // start render... 
 
             var outdir = _vm.Project.OutputPath;
 
@@ -431,32 +435,29 @@ namespace BlenderRenderController
         private void RenderMngr_ProgressChanged(object sender, RenderProgressInfo e)
         {
             // BUG: Progress reporting does not update main UI
-            Application.Invoke(delegate
+
+            lblStatus.Text = $"Completed {e.PartsCompleted} / {_vm.Project.ChunkList.Count} chunks, " +
+                $"{e.FramesRendered} frames rendered";
+
+            float porcentageDone = e.PartsCompleted / (float)_vm.Project.ChunkList.Count;
+
+            workProgress.Fraction = porcentageDone;
+
+            _etaCalc.Update(porcentageDone);
+
+            if (_etaCalc.ETAIsAvailable)
             {
+                lblETR.Text = "ETR: " + _etaCalc.ETR.ToString(@"hh\:mm\:ss");
+            }
 
-               lblStatus.Text = $"Completed {e.PartsCompleted} / {_vm.Project.ChunkList.Count} chunks, " +
-                    $"{e.FramesRendered} frames rendered";
+            // TODO? TimeElapsed
 
-                float porcentageDone = e.PartsCompleted / (float)_vm.Project.ChunkList.Count;
-
-                workProgress.Fraction = porcentageDone;
-
-                _etaCalc.Update(porcentageDone);
-
-                if (_etaCalc.ETAIsAvailable)
-                {
-                    lblETR.Text = "ETR: " + _etaCalc.ETR.ToString(@"hh\:mm\:ss");
-                }
-
-                // TODO? TimeElapsed
-
-            });
         }
 
         private void RenderMngr_AfterRenderStarted(object sender, AfterRenderAction e)
         {
             workProgress.Fraction = 0;
-            workSpinner.Active = true;
+            workSpinner.Start();
 
             switch (e)
             {
@@ -474,11 +475,6 @@ namespace BlenderRenderController
 
         private void RenderMngr_Finished(object sender, BrcRenderResult e)
         {
-            Application.Invoke(delegate
-            {
-
-
-
             StopWork(true);
 
             if (e == BrcRenderResult.AllOk)
@@ -524,9 +520,6 @@ namespace BlenderRenderController
                 dlg.Run(); dlg.Destroy();
                 Status("Unexpected error");
             }
-
-
-            });
 
         }
 
@@ -608,13 +601,19 @@ namespace BlenderRenderController
             Console.WriteLine("Recent items" + string.Join(", ", orderedItems));
         }
 
+        void VMProject_PropChanged(object s, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            var proj = (Project)s;
+            UpdateOptions(proj);
+            UpdateInfoBoxItems(proj);
+        }
 
         private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             var vm = (BrcViewModel)sender;
 
             Console.WriteLine("Propchanged invoked, Name = {0}", e.PropertyName);
-            Console.WriteLine(vm);
+            //Console.WriteLine(vm);
 
             startStopStack.Sensitive = vm.CanRender;
             miUnload.Sensitive = vm.CanEditCurrentProject;
@@ -640,8 +639,14 @@ namespace BlenderRenderController
 
             lblStatus.Text = vm.DefaultStatusMessage;
 
-            UpdateInfoBoxItems(vm.Project);
-            UpdateOptions(vm.Project);
+            if (e.PropertyName == nameof(vm.Project))
+            {
+                vm.Project.PropertyChanged += VMProject_PropChanged;
+
+                UpdateOptions(vm.Project);
+                UpdateInfoBoxItems(vm.Project);
+            }
+
         }
 
 

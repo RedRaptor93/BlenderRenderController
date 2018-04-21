@@ -21,11 +21,6 @@ namespace BlenderRenderController
 {
     class BrcViewModel : BindingBase
     {
-
-        public BrcViewModel()
-        {
-        }
-
         private Project _proj;
 
         public Project Project
