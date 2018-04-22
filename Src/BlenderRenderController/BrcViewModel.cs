@@ -9,13 +9,12 @@ using BRClib.Commands;
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using BRClib.Extentions;
+using BRCRes = BRClib.Properties.Resources;
 
 namespace BlenderRenderController
 {
@@ -113,29 +112,23 @@ namespace BlenderRenderController
             Process.Start(url);
         }
 
-        public void OpenOutputFolder()
+        public bool OpenOutputFolder()
         {
             if (Directory.Exists(Project.OutputPath))
             {
                 Process.Start(Project.OutputPath);
+                return true;
             }
-            else
-            {
-                MessageBox.Show("Output folder does not exist.", "",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Exclamation);
-            }
+
+            return false;
         }
 
-        public async Task GetBlendInfo(string blendFile)
+        public async Task<Tuple<int, string>> GetBlendInfo(string blendFile)
         {
             if (!File.Exists(blendFile))
             {
                 // error: file does not exist
-                //Trace.TraceError("File does not exist");
-                Console.WriteLine("File does not exist");
-                MessageBox.Show("File does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                return;
+                return Tuple.Create(1, "File does not exist");
             }
 
             var giScript = Scripts.GetProjectInfo;
@@ -143,11 +136,13 @@ namespace BlenderRenderController
 
             await cmd.RunAsync();
 
+            var report = string.Format(BRCRes.Extern_Report, "blender", cmd.ExitCode, cmd.StdOutput, cmd.StdError);
+
             if (cmd.StdOutput.Length == 0)
             {
                 // error: no info received
                 Console.WriteLine("No information recived from Blender");
-                return;
+                return Tuple.Create(2, report);
             }
 
             BlendData blendData = BlendData.FromPyOutput(cmd.StdOutput);
@@ -156,10 +151,7 @@ namespace BlenderRenderController
             {
                 // error: Unexpected output.
                 Console.WriteLine("Unexpected get_project_info output");
-                //ShowMsgBox("Unexpected get_project_info output", MessageType.Error);
-                MessageBox.Show("Unexpected get_project_info output", "Error", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                return Tuple.Create(3, report);
             }
 
             var proj = new Project(blendData)
@@ -167,20 +159,22 @@ namespace BlenderRenderController
                 BlendFilePath = blendFile,
             };
 
+            string warns = string.Empty;
+
             if (RenderFormats.IMAGES.Contains(blendData.FileFormat))
             {
                 // warning: Render format is Img
                 Console.WriteLine("Render format is Img");
-                MessageBox.Show("Render format is Img", "Warning",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                warns += "- Render format is Img\n";
             }
 
             if (string.IsNullOrWhiteSpace(proj.OutputPath))
             {
                 // warning: outputPath is unset, use blend path
                 Console.WriteLine("OutputPath is unset, using .blend dir");
-
                 proj.OutputPath = Path.GetDirectoryName(blendFile);
+
+                warns += "- OutputPath is unset, using .blend dir\n";
             }
             else
                 proj.OutputPath = Path.GetDirectoryName(proj.OutputPath);
@@ -188,6 +182,8 @@ namespace BlenderRenderController
             Console.WriteLine("Loaded Project");
             _proj = proj;
             OnPropertyChanged(nameof(Project));
+
+            return Tuple.Create(0, warns);
         }
 
         public void UpdateCurrentChunks(IEnumerable<Chunk> chunks)

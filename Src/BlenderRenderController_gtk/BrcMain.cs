@@ -138,17 +138,47 @@ namespace BlenderRenderController
         async void OpenBlendFile(string blendFile)
         {
             Status("Loading " + PathIO.GetFileName(blendFile) + " ...");
-            workSpinner.Active = true;
+            workSpinner.Start();
 
-            await _vm.GetBlendInfo(blendFile);
+            var result = await _vm.GetBlendInfo(blendFile);
+            int errcode = result.Item1;
+            string msg = result.Item2;
 
-            if (_vm.ProjectLoaded)
+            MessageDialog dlg = null;
+
+            switch (errcode)
             {
-                _autoStartF = _vm.Project.Start;
-                _autoEndF = _vm.Project.End;
+                case 1: // File not found
+                    dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, msg);
+                    break;
+                case 2: // No info receved
+                    dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok,
+                        $"Error: No Info received.\n\n{msg}");
+                    break;
+                case 3: // Unexpected output
+                    dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, 
+                        $"Error: Unexpected output\n\n{msg}");
+                    break;
+                case 0: // Success, check for warnings
+                    Debug.Assert(_vm.ProjectLoaded);
+
+                    _autoStartF = _vm.Project.Start;
+                    _autoEndF = _vm.Project.End;
+
+                    if (msg != string.Empty)
+                    {
+                        string warnMsg = "Warning!\n\n" + msg;
+                        dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, warnMsg);
+                    }
+                    break;
             }
 
-            workSpinner.Active = false;
+            if (dlg != null)
+            {
+                dlg.Run(); dlg.Destroy();
+            }
+
+            workSpinner.Stop();
         }
 
         void Status(string text, Label item = null)
