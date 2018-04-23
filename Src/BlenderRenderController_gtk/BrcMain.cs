@@ -9,10 +9,11 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Gtk;
-
 using PathIO = System.IO.Path;
 using System.Threading;
 using System.Collections.Generic;
+using BlenderRenderController.Ui;
+
 
 namespace BlenderRenderController
 {
@@ -43,6 +44,8 @@ namespace BlenderRenderController
             _renderMngr.ProgressChanged += (s, e) => Invoke(RenderMngr_ProgressChanged, s, e);
 
             _etaCalc = new ETACalculator(10, 5);
+
+            ShowAll();
         }
 
 
@@ -144,7 +147,7 @@ namespace BlenderRenderController
             int errcode = result.Item1;
             string msg = result.Item2;
 
-            MessageDialog dlg = null;
+            Dialog dlg = null;
 
             switch (errcode)
             {
@@ -152,12 +155,10 @@ namespace BlenderRenderController
                     dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, msg);
                     break;
                 case 2: // No info receved
-                    dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok,
-                        $"Error: No Info received.\n\n{msg}");
+                    dlg = new DetailDialog("Error: No Info received.", "Error", msg, this, MessageType.Error);
                     break;
                 case 3: // Unexpected output
-                    dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, 
-                        $"Error: Unexpected output\n\n{msg}");
+                    dlg = new DetailDialog("Error: Unexpected output", "Error", msg, this, MessageType.Error);
                     break;
                 case 0: // Success, check for warnings
                     Debug.Assert(_vm.ProjectLoaded);
@@ -230,7 +231,7 @@ namespace BlenderRenderController
 
             if (aboutWin != null) aboutWin.Destroy();
             if (prefWin != null) prefWin.Destroy();
-            recentBlendsMenu.Destroy();
+            //recentBlendsMenu.Destroy();
 
             Application.Quit();
         }
@@ -671,10 +672,11 @@ namespace BlenderRenderController
 
             if (e.PropertyName == nameof(vm.Project))
             {
-                vm.Project.PropertyChanged += VMProject_PropChanged;
-
                 UpdateOptions(vm.Project);
                 UpdateInfoBoxItems(vm.Project);
+
+                if (vm.ProjectLoaded)
+                    vm.Project.PropertyChanged += VMProject_PropChanged;
             }
 
         }

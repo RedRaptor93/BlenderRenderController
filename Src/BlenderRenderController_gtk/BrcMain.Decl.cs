@@ -105,6 +105,18 @@ namespace BlenderRenderController
             this.tsOpenRecent.Clicked += TsOpenRecent_Clicked;
 
             InitDialogs();
+
+            //var gObj = Builder.GetObject("miTools");
+            //var mitools = (Menu)new MenuItem(gObj.Handle).Submenu;
+
+            //var testItem = new MenuItem("** Test item **");
+            //testItem.Activated += delegate
+            //{
+            //    var dlg = new Ui.DetailDialog("Test message", "Dialog", "Lorem ipsum dolor sit amet.", this, MessageType.Info);
+            //    dlg.Run(); dlg.Destroy();
+            //};
+
+            //mitools.Append(testItem);
         }
 
         private void TsOpenRecent_Clicked(object sender, EventArgs e)

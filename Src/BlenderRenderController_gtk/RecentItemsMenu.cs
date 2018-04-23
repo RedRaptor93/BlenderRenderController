@@ -17,9 +17,7 @@ namespace BlenderRenderController
         MenuItem miEmptyPH = new MenuItem("Empty") { Sensitive = false };
 
 
-        public RecentItemsMenu() : this(null)
-        {
-        }
+        public RecentItemsMenu() : this(null) { }
 
         public RecentItemsMenu(RecentFilter filter)
         {
@@ -55,6 +53,11 @@ namespace BlenderRenderController
             UpdateRecentItems();
         }
 
+        protected override void OnDestroyed()
+        {
+            _RecentChooser.Destroy();
+            base.OnDestroyed();
+        }
 
         private new void Add(Widget widget) => base.Add(widget);
         private new void Remove(Widget widget) => base.Remove(widget);
@@ -125,25 +128,11 @@ namespace BlenderRenderController
             }
 
             _Manager.PurgeItems();
-            //ClearRecentMenuItems();
         }
 
         IEnumerable<MenuItem> GetRecentMenuItems() =>
             AllChildren.Cast<MenuItem>().Where(m => m.Name == RECENT_ITEM_NAME);
 
-
-        class RecentMenuItem : MenuItem
-        {
-            public RecentMenuItem()
-            {
-            }
-
-            public RecentMenuItem(string label) : base(label)
-            {
-            }
-
-            public RecentInfo Info { get; set; }
-        }
 
         #region IRecentChooser Impl
         //

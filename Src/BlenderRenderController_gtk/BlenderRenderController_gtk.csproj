@@ -63,7 +63,6 @@
       <HintPath>..\..\packages\gtk-sharp-3.3.22.6.4\lib\net40\pango-sharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\BlenderRenderController\BrcViewModel.cs">
@@ -86,21 +85,24 @@
     </Compile>
     <Compile Include="BrcMain.Decl.cs" />
     <Compile Include="BrcMain.cs" />
+    <Compile Include="Helpers.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecentItemsMenu.cs" />
+    <Compile Include="Ui\DetailDialog.cs" />
     <Compile Include="WindowBase.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="BrcGtk.glade">
+    <EmbeddedResource Include="Ui\BrcGtk.glade">
       <!-- <LogicalName>%(Filename)%(Extension)</LogicalName> -->
     </EmbeddedResource>
-    <EmbeddedResource Include="brc_style.css">
+    <EmbeddedResource Include="Ui\brc_style.css">
       <!-- <LogicalName>%(Filename)%(Extension)</LogicalName> -->
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <EmbeddedResource Include="Ui\Dialogs.glade" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BRClib\BRClib.csproj">
@@ -133,6 +135,10 @@
       <Link>Resources\github-logo.png</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\BlenderRenderController\Resources\Join_16x.png">
+      <Link>Resources\Join_16x.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\BlenderRenderController\Resources\render-icon.png">
       <Link>Resources\render-icon.png</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -141,6 +147,7 @@
       <Link>Resources\SoundFile_16x.png</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="Ui\dialogs_style.css" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

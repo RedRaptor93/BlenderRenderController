@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.21.0 
+<!-- Generated with glade 3.22.1 
 
 The MIT License (MIT)
 
@@ -26,7 +26,7 @@ THE SOFTWARE.
 -->
 <interface>
   <requires lib="gtk+" version="3.18"/>
-  <!-- interface-local-resource-path ../BlenderRenderController/Resources -->
+  <!-- interface-local-resource-path C:\\Users\\Pedro\\Source\\Repos\\BlenderRenderController\\Src\\BlenderRenderController\\Resources -->
   <!-- interface-css-provider-path brc_style.css -->
   <!-- interface-license-type mit -->
   <!-- interface-name Blender Render Controller -->
@@ -226,6 +226,9 @@ THE SOFTWARE.
     <property name="default_width">660</property>
     <property name="default_height">635</property>
     <property name="icon">brc_icon.png</property>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>
@@ -1518,9 +1521,6 @@ THE SOFTWARE.
         </child>
       </object>
     </child>
-    <child type="titlebar">
-      <placeholder/>
-    </child>
   </object>
   <object class="GtkAboutDialog" id="AboutWin">
     <property name="can_focus">False</property>
@@ -1536,6 +1536,9 @@ THE SOFTWARE.
     <property name="authors">Pedro Oliva Rodrigues</property>
     <property name="logo">brc_icon.png</property>
     <property name="license_type">mit-x11</property>
+    <child>
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
@@ -1557,9 +1560,6 @@ THE SOFTWARE.
         </child>
       </object>
     </child>
-    <child>
-      <placeholder/>
-    </child>
   </object>
   <object class="GtkDialog" id="PrefWin">
     <property name="can_focus">False</property>
@@ -1567,6 +1567,9 @@ THE SOFTWARE.
     <property name="default_height">250</property>
     <property name="type_hint">dialog</property>
     <property name="transient_for">BrcMain</property>
+    <child>
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
@@ -1833,9 +1836,6 @@ THE SOFTWARE.
           </packing>
         </child>
       </object>
-    </child>
-    <child>
-      <placeholder/>
     </child>
   </object>
 </interface>
