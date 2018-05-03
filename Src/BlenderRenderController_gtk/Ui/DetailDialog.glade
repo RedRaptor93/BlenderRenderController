@@ -2,7 +2,7 @@
 <!-- Generated with glade 3.22.1 -->
 <interface>
   <requires lib="gtk+" version="3.18"/>
-  <!-- interface-css-provider-path dialogs_style.css -->
+  <!-- interface-css-provider-path brc_style.css -->
   <object class="GtkTextTagTable" id="detailsTagTable"/>
   <object class="GtkTextBuffer" id="detailsBuffer">
     <property name="tag_table">detailsTagTable</property>

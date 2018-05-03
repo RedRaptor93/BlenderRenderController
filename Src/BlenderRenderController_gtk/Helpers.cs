@@ -1,21 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Gtk;
 
 namespace BlenderRenderController
 {
     static class Glade
     {
-        public static Builder LoadUI(string gladeFile)
+        public static Builder Load(string gladeFile)
         {
             Builder builder;
 
-            using (Stream stream = GetEmbedded(gladeFile))
+            var assembly = Assembly.GetExecutingAssembly();
+            var assbName = assembly.GetName().Name;
+            var resourceName = $"{assbName}.Ui.{gladeFile}";
+
+            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
             {
                 builder = new Builder(stream);
             }
@@ -40,16 +40,6 @@ namespace BlenderRenderController
             }
 
             return Tuple.Create(builder, styleProvider);
-        }
-
-
-        static Stream GetEmbedded(string name)
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            var assbName = assembly.GetName().Name;
-            var resourceName = assbName + '.' + name;
-
-            return assembly.GetManifestResourceStream(resourceName);
         }
 
     }

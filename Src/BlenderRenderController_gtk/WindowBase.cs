@@ -1,8 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
-using System.IO;
-using System.Reflection;
-using System.Threading;
 using Gtk;
 
 
@@ -18,7 +14,7 @@ namespace BlenderRenderController
         { }
         
         protected WindowBase(string gladeFile, string rootElement)
-            : this(Glade.LoadUI(gladeFile), rootElement) 
+            : this(Glade.Load(gladeFile), rootElement) 
         { }
 
         private WindowBase(Builder builder, string root)

@@ -106,17 +106,6 @@ namespace BlenderRenderController
 
             InitDialogs();
 
-            //var gObj = Builder.GetObject("miTools");
-            //var mitools = (Menu)new MenuItem(gObj.Handle).Submenu;
-
-            //var testItem = new MenuItem("** Test item **");
-            //testItem.Activated += delegate
-            //{
-            //    var dlg = new Ui.DetailDialog("Test message", "Dialog", "Lorem ipsum dolor sit amet.", this, MessageType.Info);
-            //    dlg.Run(); dlg.Destroy();
-            //};
-
-            //mitools.Append(testItem);
         }
 
         private void TsOpenRecent_Clicked(object sender, EventArgs e)
@@ -136,8 +125,10 @@ namespace BlenderRenderController
             aboutWin.Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
             aboutWin.Close += delegate { aboutWin.Hide(); };
 
-            prefWin = new Dialog(Builder.GetObject("PrefWin").Handle);
-            prefWin.Close += delegate
+            //prefWin = new Dialog(Builder.GetObject("PrefWin").Handle);
+            prefWin = new PreferencesWin();
+            prefWin.TransientFor = this;
+            prefWin.Hidden += delegate
             {
                 _vm.ConfigOk = Services.Settings.CheckCorrectConfig();
             };

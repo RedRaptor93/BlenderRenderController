@@ -7,7 +7,7 @@ using Gtk;
 using UI = Gtk.Builder.ObjectAttribute;
 
 
-namespace BlenderRenderController.Ui
+namespace BlenderRenderController
 {
     class DetailDialog : Dialog
     {
@@ -17,18 +17,15 @@ namespace BlenderRenderController.Ui
 #pragma warning restore 649
 
         private DetailDialog(Tuple<Builder, CssProvider> elements, string root) 
-            : this(elements.Item1, elements.Item2, root) { }
-
-        private DetailDialog(Builder builder, CssProvider cssProvider, string root)
-            : base(builder.GetObject(root).Handle)
+            : base(elements.Item1.GetObject(root).Handle)
         {
-            builder.Autoconnect(this);
-            StyleContext.AddProviderForScreen(Screen, cssProvider, 800);
+            elements.Item1.Autoconnect(this);
+            StyleContext.AddProviderForScreen(Screen, elements.Item2, 800);
         }
 
         public DetailDialog(string message, string title, string details, Window parent, MessageType type, 
                             ButtonsType buttons = ButtonsType.Ok)
-            : this(Glade.LoadUI("Dialogs.glade", "dialogs_style.css"), "DetailedDialog")
+            : this(Glade.LoadUI("DetailDialog.glade", "brc_style.css"), "DetailedDialog")
         {
             SetupButtons(buttons);
             SetDialogIcon(type);

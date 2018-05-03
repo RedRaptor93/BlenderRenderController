@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Gtk;
 
 namespace BlenderRenderController
@@ -76,7 +74,9 @@ namespace BlenderRenderController
                 {
                     TooltipText = item.UriDisplay,
                     Name = RECENT_ITEM_NAME,
+#pragma warning disable CS0612 // Type or member is obsolete
                     Image = new Image(item.GetIcon(16))
+#pragma warning restore CS0612 // Type or member is obsolete
                 };
                 mi.Activated += delegate { OnRecentItemClicked(item); };
                 Append(mi);

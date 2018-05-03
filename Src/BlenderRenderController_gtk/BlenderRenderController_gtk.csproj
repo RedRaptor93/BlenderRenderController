@@ -86,10 +86,11 @@
     <Compile Include="BrcMain.Decl.cs" />
     <Compile Include="BrcMain.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="PreferencesWin.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RecentItemsMenu.cs" />
-    <Compile Include="Ui\DetailDialog.cs" />
+    <Compile Include="DetailDialog.cs" />
     <Compile Include="WindowBase.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -102,7 +103,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <EmbeddedResource Include="Ui\Dialogs.glade" />
+    <EmbeddedResource Include="Ui\DetailDialog.glade" />
+    <EmbeddedResource Include="Ui\PrefWin.glade" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BRClib\BRClib.csproj">
@@ -147,7 +149,6 @@
       <Link>Resources\SoundFile_16x.png</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <EmbeddedResource Include="Ui\dialogs_style.css" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

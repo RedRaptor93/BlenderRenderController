@@ -12,7 +12,6 @@ using Gtk;
 using PathIO = System.IO.Path;
 using System.Threading;
 using System.Collections.Generic;
-using BlenderRenderController.Ui;
 
 
 namespace BlenderRenderController
@@ -523,7 +522,7 @@ namespace BlenderRenderController
                     {
                          dlg = new MessageDialog(this, DialogFlags.Modal, 
                             MessageType.Error, ButtonsType.Close,
-                            $"Failed to clear 'chunks' folder:\n\n{ex.Message} ({ex.HResult})");
+                            $"Failed to clear 'chunks' folder:\n\n{ex.Message} ({ex.HResult:X})");
 
                         dlg.Run(); dlg.Destroy();
                     }
@@ -681,9 +680,6 @@ namespace BlenderRenderController
 
         }
 
-
-        // Dialog handlers
-
         void On_ShowAbout(object s, EventArgs e)
         {
             aboutWin.Run();
@@ -693,41 +689,6 @@ namespace BlenderRenderController
         void On_Preferences(object sender, EventArgs e)
         {
             prefWin.Run();
-            prefWin.Hide();
-        }
-
-        void On_BlenderFileSet(object s, EventArgs e)
-        {
-            var chooser = (FileChooserButton)s;
-            _settings.BlenderProgram = chooser.Filename;
-        }
-
-        void On_FFmpegFileSet(object s, EventArgs e)
-        {
-            var chooser = (FileChooserButton)s;
-            _settings.FFmpegProgram = chooser.Filename;
-        }
-
-        void On_Showtooltips_Toggle(object s, EventArgs e)
-        {
-            var tgl = (CheckButton)s;
-            _settings.DisplayToolTips = tgl.Active;
-        }
-
-        void On_DeleteChunks_Toggle(object s, EventArgs e)
-        {
-            var tgl = (CheckButton)s;
-            _settings.DeleteChunksFolder = tgl.Active;
-        }
-
-        void On_LoggingLvl_Changed(object s, EventArgs e)
-        {
-            var cb = (ComboBox)s;
-            _settings.LoggingLevel = cb.Active;
-        }
-
-        void On_PrefOk_Clicked(object s, EventArgs e)
-        {
             prefWin.Hide();
         }
 
