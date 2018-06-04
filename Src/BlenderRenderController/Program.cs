@@ -95,7 +95,7 @@ namespace BlenderRenderController
             }
 
             var target = LogManager.Configuration.FindTargetByName(fileTgt);
-            LogManager.Configuration.AddRule(lLvl, LogLevel.Fatal, fileTgt, "*");
+            LogManager.Configuration.AddRule(lLvl, LogLevel.Fatal, target, "*");
 
             LogManager.ReconfigExistingLoggers();
         }

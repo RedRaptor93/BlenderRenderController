@@ -468,7 +468,7 @@ namespace BlenderRenderController.Render
             // Stagger report sending to save some heap allocation
             if (_reportCount++ % PROG_STACK_SIZE == 0)
             {
-                ProgressChanged?.Invoke(this, new RenderProgressInfo(framesRendered, chunksCompleted));
+                ProgressChanged?.Raise(this, new RenderProgressInfo(framesRendered, chunksCompleted));
             }
         }
 

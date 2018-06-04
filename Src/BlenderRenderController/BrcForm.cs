@@ -651,12 +651,7 @@ namespace BlenderRenderController
             }
 
         }
-
-        /// <summary>
-        /// Thread safe method to change UI text
-        /// </summary>
-        /// <param name="msg">new text</param>
-        /// <param name="ctrl">Control to update</param>
+        
         private void SafeChangeText(string msg, Control ctrl)
         {
             if (ctrl.InvokeRequired)
@@ -672,7 +667,11 @@ namespace BlenderRenderController
         private void Status(string msg, ToolStripItem tsItem = null)
         {
             if (tsItem == null) tsItem = statusMessage;
-            tsItem.Text = msg;
+
+            if (InvokeRequired)
+                Invoke(new Action<string, ToolStripItem>(Status), msg, tsItem);
+            else
+                tsItem.Text = msg;
         }
 
         #endregion
