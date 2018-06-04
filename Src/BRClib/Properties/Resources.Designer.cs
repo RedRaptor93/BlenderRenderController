@@ -61,15 +61,102 @@ namespace BRClib.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} exited w/ code {1}
-        ///
-        ///{2}
-        ///# -------------------------------------------------- #
-        ///{3}.
+        ///   Looks up a localized string similar to Unable to read output path, using project location..
         /// </summary>
-        public static string Extern_Report {
+        public static string AppErr_BlendOutputInvalid {
             get {
-                return ResourceManager.GetString("Extern_Report", resourceCulture);
+                return ResourceManager.GetString("AppErr_BlendOutputInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to read project info, no information was received..
+        /// </summary>
+        public static string AppErr_NoInfoReceived {
+            get {
+                return ResourceManager.GetString("AppErr_NoInfoReceived", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The render format is a {0} image.
+        ///You can render an image sequence with this tool but you will need to make a video with other SW..
+        /// </summary>
+        public static string AppErr_RenderFormatIsImage {
+            get {
+                return ResourceManager.GetString("AppErr_RenderFormatIsImage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to One or more required program(s) were not found (Path invalid OR first time run), set the paths in the Settings window.
+        /// </summary>
+        public static string AppErr_RequiredProgramsNotFound {
+            get {
+                return ResourceManager.GetString("AppErr_RequiredProgramsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to read project info. Unexpected output..
+        /// </summary>
+        public static string AppErr_UnexpectedOutput {
+            get {
+                return ResourceManager.GetString("AppErr_UnexpectedOutput", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Join chunks w/ Mixdown audio.
+        /// </summary>
+        public static string AR_JoinMixdown {
+            get {
+                return ResourceManager.GetString("AR_JoinMixdown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Join chunks.
+        /// </summary>
+        public static string AR_JoinOnly {
+            get {
+                return ResourceManager.GetString("AR_JoinOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No extra action.
+        /// </summary>
+        public static string AR_NoAction {
+            get {
+                return ResourceManager.GetString("AR_NoAction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blender Renderer.
+        /// </summary>
+        public static string Renderer_Blender {
+            get {
+                return ResourceManager.GetString("Renderer_Blender", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cycles Renderer.
+        /// </summary>
+        public static string Renderer_Cycles {
+            get {
+                return ResourceManager.GetString("Renderer_Cycles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An unexpected error ocurred while rendering, check the output folder for a log file.
+        /// </summary>
+        public static string RM_unexpected_error {
+            get {
+                return ResourceManager.GetString("RM_unexpected_error", resourceCulture);
             }
         }
     }

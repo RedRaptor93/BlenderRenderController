@@ -134,14 +134,12 @@
     <Compile Include="BrcForm.Designer.cs">
       <DependentUpon>BrcForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="BrcViewModel.cs" />
     <Compile Include="ConcatForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="ConcatForm.Designer.cs">
       <DependentUpon>ConcatForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Config\BrcSettings.cs" />
     <Compile Include="Infra\Cmd\CmdArguments.cs" />
     <Compile Include="Infra\ETACalculator.cs" />
     <Compile Include="Helper.cs" />
@@ -154,8 +152,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Services\Scripts.cs" />
-    <Compile Include="Services\Settings.cs" />
     <Compile Include="SettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>

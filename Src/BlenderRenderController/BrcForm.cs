@@ -3,6 +3,7 @@
 // Copyright 2017-present Pedro Oliva Rodrigues
 // This code is released under the MIT licence
 
+using BRCRes = BRClib.Properties.Resources;
 using BlenderRenderController.Properties;
 using BRClib.Render;
 using BRClib;
@@ -24,8 +25,7 @@ using System.Windows.Forms;
 
 namespace BlenderRenderController
 {
-    using Settings = Services.Settings;
-    using Scripts = Services.Scripts;
+    using static Global;
 
     /// <summary>
     /// Main Window
@@ -42,7 +42,6 @@ namespace BlenderRenderController
 
         int _autoStartF, _autoEndF;
 
-        BrcSettings _appSettings;
         RenderManager _renderMngr;
         Stopwatch _chrono;
         ETACalculator _etaCalc;
@@ -55,7 +54,6 @@ namespace BlenderRenderController
         {
             InitializeComponent();
 
-            _appSettings = Settings.Current;
             _vm = new BrcViewModel();
             _vm.PropertyChanged += ViewModel_PropertyChanged;
 
@@ -63,7 +61,7 @@ namespace BlenderRenderController
             TaskbarManager.Instance.ApplicationId = progId;
 
             // RenderManager
-            _renderMngr = new RenderManager(_appSettings);
+            _renderMngr = new RenderManager();
             _renderMngr.Finished += RenderManager_Finished;
             _renderMngr.AfterRenderStarted += RenderManager_AfterRenderStarted;
             _renderMngr.ProgressChanged += (s, prog) => UpdateProgress(prog);
@@ -74,10 +72,10 @@ namespace BlenderRenderController
 
         public BrcForm(string blendFile) : this()
         {
-            if (Settings.CheckCorrectConfig())
+            if (CheckProgramPaths())
             {
                 // window must be visible
-                Show(); 
+                Show();
 
                 GetBlendInfo(blendFile);
             }
@@ -86,22 +84,22 @@ namespace BlenderRenderController
 
         private void BrcForm_Load(object sender, EventArgs e)
         {
-            _vm.ConfigOk = Settings.CheckCorrectConfig();
+            _vm.ConfigOk = CheckProgramPaths();
 
             // invoke manually to set starting state
             ViewModel_PropertyChanged(_vm, new PropertyChangedEventArgs("Created"));
 
             // setup sources for ComboBoxes
-            SetComboBoxData(cbRenderer, CustomRes.RendererResources, _appSettings.Renderer);
+            SetComboBoxData(cbRenderer, CustomRes.RendererResources, Settings.Renderer);
             cbRenderer.SelectedIndexChanged += Renderer_Changed;
 
-            SetComboBoxData(cbAfterRenderAction, CustomRes.AfterRenderResources, _appSettings.AfterRender);
+            SetComboBoxData(cbAfterRenderAction, CustomRes.AfterRenderResources, Settings.AfterRender);
             cbAfterRenderAction.SelectedIndexChanged += AfterRenderAction_Changed;
 
             // load recent blends from file
             UpdateRecentBlendsMenu();
 
-            _appSettings.RecentProjects.CollectionChanged += delegate { UpdateRecentBlendsMenu(); };
+            //Settings.RecentProjects.CollectionChanged += delegate { UpdateRecentBlendsMenu(); };
 
             processCountNumericUpDown.Maximum = Environment.ProcessorCount;
 
@@ -145,7 +143,7 @@ namespace BlenderRenderController
                 {
                     Caption = "Setup required",
                     InstructionText = "Paths missing",
-                    Text = Resources.AppErr_RequiredProgramsNotFound,
+                    Text = BRCRes.AppErr_RequiredProgramsNotFound,
                     Icon = TaskDialogStandardIcon.Warning,
                     StandardButtons = TaskDialogStandardButtons.Close,
                     OwnerWindowHandle = this.Handle
@@ -185,7 +183,6 @@ namespace BlenderRenderController
                 }
             }
 
-            Settings.Save();
             logger.Info("Program closing");
         }
 
@@ -193,7 +190,7 @@ namespace BlenderRenderController
         {
             // when closing the Settings window, check if valid
             // and update UI if needed
-            _vm.ConfigOk = Settings.CheckCorrectConfig();
+            _vm.ConfigOk = CheckProgramPaths();
         }
 
         private void SetComboBoxData<T>(ComboBox cb, IDictionary<T, string> data, T selected)
@@ -208,121 +205,63 @@ namespace BlenderRenderController
         #region BlendFileInfo
         private async void GetBlendInfo(string blendFile)
         {
-
-            if (!File.Exists(blendFile))
-            {
-                MessageBox.Show("File does not exist", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                ReadFail();
-                return;
-            }
-
             logger.Info("Loading .blend");
             Status("Reading .blend file...");
             UpdateProgressBars(-1);
 
-            // exec process asynchronously
-            var giScript = Scripts.GetProjectInfo;
+            var result = await _vm.GetBlendInfo(blendFile);
 
-            var giProc = new Process
+            int errorCode = result.Item1;
+            string details = result.Item2;
+
+            if (errorCode != 0)
             {
-                StartInfo = new ProcessStartInfo
+                switch (errorCode)
                 {
-                    FileName = _appSettings.BlenderProgram,
-                    Arguments = $"-b \"{blendFile}\" -P \"{giScript}\"",
+                    case 1: // File not found
+                        MessageBox.Show(details, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        break;
+                    case 2: // no info receved
+                        ShowErrorDialog("Error", BRCRes.AppErr_NoInfoReceived);
+                        break;
+                    case 3: // unexpected output
+                        ShowErrorDialog("Error", BRCRes.AppErr_UnexpectedOutput);
+                        break;
+                    case 0: // success, check for warnings
+                        Debug.Assert(_vm.ProjectLoaded);
 
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true
-                },
+                        _autoStartF = _vm.Project.Start;
+                        _autoEndF = _vm.Project.End;
 
-                EnableRaisingEvents = true,
-            };
+                        if (details != string.Empty)
+                        {
+                            MessageBox.Show(details, "Warning");
+                        }
 
-            var pResult = await giProc.StartAsync();
-
-            var detailsReport = $"blender exited w/ code {pResult.ExitCode}\n\n" +
-                                pResult.StdOutput +
-                                $"\n# {new string('-', 50)} # \n" +
-                                pResult.StdError;
-
-            // detect errors
-            if (pResult.StdOutput.Length == 0)
-            {
-                ShowErrorDialog(Resources.Error, "Failed to read project info, no information was received.");
-                return;
-            }
-
-            Project proj;
-            var blendData = BlendData.FromPyOutput(pResult.StdOutput);
-
-            if (blendData != null)
-            {
-                proj = new Project(blendData)
-                {
-                    BlendFilePath = blendFile,
-                    MaxConcurrency = Environment.ProcessorCount
-                };
-
-                // save copy of start and end frames values
-                _autoStartF = blendData.Start;
-                _autoEndF = blendData.End;
-
-
-                if (RenderFormats.IMAGES.Contains(blendData.FileFormat))
-                {
-                    var eMsg = string.Format(Resources.AppErr_RenderFormatIsImage,
-                                             blendData.FileFormat);
-
-                    MessageBox.Show(eMsg, "", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                        break;
                 }
-
-                if (string.IsNullOrWhiteSpace(proj.OutputPath))
-                {
-                    // use .blend folder path if outputPath is unset, display a warning about it
-                    MessageBox.Show(Resources.AppErr_BlendOutputInvalid, "",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    proj.OutputPath = Path.GetDirectoryName(blendFile);
-                }
-                else
-                    proj.OutputPath = Path.GetDirectoryName(proj.OutputPath);
-
-                proj.ChunksDirPath = proj.DefaultChunksDirPath;
-                logger.Info(".blend loaded successfully");
-            }
-            else
-            {
-                ShowErrorDialog("Read Error", "Failed to read blend file info. Unexpected output.");
-                return;
             }
 
-            _vm.Project = proj;
             projectBindingSrc.DataSource = _vm.Project;
 
-            var chunks = Chunk.CalcChunks(blendData.Start, blendData.End, proj.MaxConcurrency);
-            UpdateCurrentChunks(chunks);
-            _appSettings.RecentProjects.Add(blendFile);
+            Settings.RecentProjects.Add(blendFile);
+            UpdateRecentBlendsMenu();
             UpdateProgressBars();
             // ---
 
-            // call this if GetBlendInfo fails
-            void ReadFail()
-            {
-                logger.Error(".blend was NOT loaded");
-                Status("Error loading blend file");
-                UpdateProgressBars();
-            };
-
             void ShowErrorDialog(string title, string message)
             {
-                var dialog = new Ui.DetailedMessageBox(message, title, detailsReport, MessageBoxButtons.RetryCancel);
-                var result = dialog.ShowDialog();
+                var dialog = new Ui.DetailedMessageBox(message, title, details, MessageBoxButtons.RetryCancel);
+                var d = dialog.ShowDialog();
 
-                if (result == DialogResult.Retry)
+                if (d == DialogResult.Retry)
                     GetBlendInfo(blendFile);
                 else
-                    ReadFail();
+                {
+                    logger.Error(".blend was NOT loaded");
+                    Status("Error loading blend file");
+                    UpdateProgressBars();
+                }
             }
         }
 
@@ -360,7 +299,7 @@ namespace BlenderRenderController
 
                 if (res == DialogResult.Yes)
                 {
-                    _appSettings.RecentProjects.Remove(blendPath);
+                    Settings.RecentProjects.Remove(blendPath);
                 }
 
                 return;
@@ -391,7 +330,7 @@ namespace BlenderRenderController
 
             _vm.IsBusy = true;
 
-            _renderMngr.Setup(_vm.Project, _appSettings.AfterRender, _appSettings.Renderer);
+            _renderMngr.Setup(_vm.Project, Settings.AfterRender, Settings.Renderer);
 
             statusTime.Text = TimePassedPrefix + TimeSpan.Zero.ToString(TimeFmt);
 
@@ -411,7 +350,7 @@ namespace BlenderRenderController
             if (e == BrcRenderResult.AllOk) // AfterActions ran Ok
             {
                 if (_renderMngr.Action != AfterRenderAction.NOTHING &&
-                    _appSettings.DeleteChunksFolder)
+                    Settings.DeleteChunksFolder)
                 {
                     try
                     {
@@ -420,7 +359,7 @@ namespace BlenderRenderController
                     catch (Exception ex)
                     {
                         MessageBox.Show("Failed to clear 'chunks' folder:\n\n" + ex.Message,
-                                        Resources.Error,
+                                        "Error",
                                         MessageBoxButtons.OK,
                                         MessageBoxIcon.Error);
                     }
@@ -437,7 +376,7 @@ namespace BlenderRenderController
             }
             else if (!_renderMngr.WasAborted) // Erros detected
             {
-                MessageBox.Show(Resources.RM_unexpected_error, Resources.Error,
+                MessageBox.Show(BRCRes.RM_unexpected_error, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
                 Status("Errors detected");
@@ -624,7 +563,7 @@ namespace BlenderRenderController
 
 
             // show placeholder if recents list is empty
-            if (_appSettings.RecentProjects.Count == 0)
+            if (Settings.RecentProjects.Count == 0)
             {
                 miEmptyPH.Visible = true;
                 return;
@@ -635,7 +574,7 @@ namespace BlenderRenderController
             }
 
             // make items from recent list
-            foreach (string item in _appSettings.RecentProjects)
+            foreach (string item in Settings.RecentProjects)
             {
                 var menuItem = new ToolStripMenuItem
                 {
@@ -684,11 +623,11 @@ namespace BlenderRenderController
 
             Status("Rendering mixdown...");
 
-            var mix = new MixdownCmd(_appSettings.BlenderProgram,
+            var mix = new MixdownCmd(Settings.BlenderProgram,
                                     _vm.Project.BlendFilePath,
                                     _vm.Project.Start,
                                     _vm.Project.End,
-                                    Scripts.MixdownAudio,
+                                    MixdownScript,
                                     _vm.Project.OutputPath);
 
             var result = await mix.RunAsync(_afterRenderCancelSrc.Token);
@@ -722,7 +661,7 @@ namespace BlenderRenderController
 
             if (dResult == DialogResult.OK)
             {
-                var concat = new ConcatCmd(_appSettings.FFmpegProgram,
+                var concat = new ConcatCmd(Settings.FFmpegProgram,
                                         manConcat.ChunksTextFile,
                                         manConcat.OutputFile,
                                         manConcat.MixdownAudioFile);
@@ -762,17 +701,12 @@ namespace BlenderRenderController
 
         private void OpenOutputFolder()
         {
-            if (Directory.Exists(_vm.Project.OutputPath))
-            {
-                Process.Start(_vm.Project.OutputPath);
-            }
-            else
+            if (!_vm.OpenOutputFolder())
             {
                 MessageBox.Show("Output folder does not exist.", "",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Exclamation);
             }
-
         }
 
 
@@ -818,12 +752,12 @@ namespace BlenderRenderController
 
         private void AfterRenderAction_Changed(object sender, EventArgs e)
         {
-            _appSettings.AfterRender = (AfterRenderAction)cbAfterRenderAction.SelectedValue;
+            Settings.AfterRender = (AfterRenderAction)cbAfterRenderAction.SelectedValue;
         }
 
         private void Renderer_Changed(object sender, EventArgs e)
         {
-            _appSettings.Renderer = (Renderer)cbRenderer.SelectedValue;
+            Settings.Renderer = (Renderer)cbRenderer.SelectedValue;
         }
 
 
@@ -891,21 +825,7 @@ namespace BlenderRenderController
 
         private void donateButton_Click(object sender, EventArgs e)
         {
-            string business = "9SGQVK6TK2UJG";
-            string description = "Donation%20for%20Blender%20Render%20Controller";
-            string country = "BR";
-            string currency = "USD";
-
-            string url = "https://www.paypal.com/cgi-bin/webscr" +
-                    "?cmd=_donations" +
-                    "&business=" + business +
-                    "&lc=" + country +
-                    "&item_name=" + description +
-                    "&item_number=BRC" +
-                    "&currency_code=" + currency +
-                    "&bn=PP%2dDonationsBF";
-
-            Process.Start(url);
+            _vm.OpenDonationPage();
         }
 
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -917,14 +837,12 @@ namespace BlenderRenderController
 
         private void toolStripMenuItemBug_Click(object sender, EventArgs e)
         {
-            string url = "https://github.com/RedRaptor93/BlenderRenderController/wiki/Reporting-an-issue";
-
-            Process.Start(url);
+            Process.Start("https://github.com/RedRaptor93/BlenderRenderController/wiki/Reporting-an-issue");
         }
 
         private void clearRecentProjectsListToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (_appSettings.RecentProjects.Count == 0)
+            if (Settings.RecentProjects.Count == 0)
                 return;
 
             var response = MessageBox.Show(
@@ -933,7 +851,7 @@ namespace BlenderRenderController
                  MessageBoxButtons.YesNo, MessageBoxIcon.Information);
 
             if (response == DialogResult.Yes)
-                _appSettings.RecentProjects.Clear();
+                Settings.RecentProjects.Clear();
         }
 
         private void UnloadCurrent_Click(object sender, EventArgs e)
@@ -944,8 +862,7 @@ namespace BlenderRenderController
 
         private void AboutBRC_Click(object sender, EventArgs e)
         {
-            var aboutBox = new AboutBox();
-            aboutBox.ShowDialog();
+            new AboutBox().ShowDialog();
         }
 
         private void miGithub_Click(object sender, EventArgs e)

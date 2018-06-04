@@ -65,23 +65,11 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\BlenderRenderController\BrcViewModel.cs">
-      <Link>BrcViewModel.cs</Link>
-    </Compile>
-    <Compile Include="..\BlenderRenderController\Config\BrcSettings.cs">
-      <Link>Config\BrcSettings.cs</Link>
-    </Compile>
     <Compile Include="..\BlenderRenderController\Infra\ETACalculator.cs">
       <Link>Infra\ETACalculator.cs</Link>
     </Compile>
     <Compile Include="..\BlenderRenderController\Infra\RecentBlendsCollection.cs">
       <Link>Infra\RecentBlendsCollection.cs</Link>
-    </Compile>
-    <Compile Include="..\BlenderRenderController\Services\Scripts.cs">
-      <Link>Services\Scripts.cs</Link>
-    </Compile>
-    <Compile Include="..\BlenderRenderController\Services\Settings.cs">
-      <Link>Services\Settings.cs</Link>
     </Compile>
     <Compile Include="BrcMain.Decl.cs" />
     <Compile Include="BrcMain.cs" />

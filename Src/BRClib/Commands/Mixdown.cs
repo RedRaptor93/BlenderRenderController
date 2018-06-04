@@ -9,7 +9,6 @@ namespace BRClib.Commands
 {
     public class MixdownCmd : ExternalCommand
     {
-
         public MixdownCmd(string program, string blendFile, Chunk range, 
                        string mixdownScript, string outputFolder)
             : base(program)
@@ -27,10 +26,12 @@ namespace BRClib.Commands
 
         public MixdownCmd(string program) : base(program) { }
 
+        public MixdownCmd() : base(Global.Settings.BlenderProgram) { }
+
 
         public string BlendFile { get; set; }
         public Chunk Range { get; set; }
-        public string MixdownScript { get; set; }
+        public string MixdownScript { get; set; } = Global.MixdownScript;
         public string OutputFolder { get; set; }
 
         // 0=Blend file, 1=start frame, 2=end frame, 3=mixdown_audio.py, 4=Output Folder

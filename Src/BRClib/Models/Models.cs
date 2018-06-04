@@ -21,13 +21,6 @@ namespace BRClib
         }
     }
 
-    public interface IRenderContext : Scripts.IScriptPath
-    {
-        string Blender { get; }
-
-        string FFmpeg { get; }
-    }
-
     public enum Renderer
     {
         BLENDER_RENDER, CYCLES

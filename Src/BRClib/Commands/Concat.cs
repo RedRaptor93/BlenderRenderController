@@ -22,6 +22,8 @@ namespace BRClib.Commands
 
         public ConcatCmd(string program) : base(program) { }
 
+        public ConcatCmd() : base(Global.Settings.FFmpegProgram) { }
+
 
         public string ConcatTextFile { get; set; }
         public string OutputFile { get; set; }

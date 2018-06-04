@@ -3,8 +3,6 @@
 // Copyright 2017-present Pedro Oliva Rodrigues
 // This code is released under the MIT licence
 
-using BlenderRenderController.Services;
-using BRClib;
 using BRClib.Commands;
 using System;
 using System.Diagnostics;
@@ -16,9 +14,9 @@ using System.Threading.Tasks;
 using BRClib.Extentions;
 using BRCRes = BRClib.Properties.Resources;
 
-namespace BlenderRenderController
+namespace BRClib
 {
-    class BrcViewModel : BindingBase
+    public class BrcViewModel : BindingBase
     {
         private Project _proj;
 
@@ -123,25 +121,35 @@ namespace BlenderRenderController
             return false;
         }
 
+        /// <summary>
+        /// Loads a blend file
+        /// </summary>
+        /// <returns>
+        /// A tuple containing a code and a string
+        /// Error codes
+        /// 0 = no error, message field might contain warnings
+        /// 1 = Blend file not found
+        /// 2 = No info receved
+        /// 3 = Unexpected output
+        /// </returns>
         public async Task<Tuple<int, string>> GetBlendInfo(string blendFile)
         {
             if (!File.Exists(blendFile))
             {
                 // error: file does not exist
-                return Tuple.Create(1, "File does not exist");
+                return Tuple.Create(1, "File not found");
             }
 
-            var giScript = Scripts.GetProjectInfo;
-            var cmd = new GetInfoCmd(Settings.Current.BlenderProgram, blendFile, giScript);
+            var giScript = Global.GetProjInfoScript;
+            var cmd = new GetInfoCmd(Global.Settings.BlenderProgram, blendFile, giScript);
 
             await cmd.RunAsync();
 
-            var report = string.Format(BRCRes.Extern_Report, "blender", cmd.ExitCode, cmd.StdOutput, cmd.StdError);
+            var report = cmd.GenerateReport();
 
             if (cmd.StdOutput.Length == 0)
             {
                 // error: no info received
-                Console.WriteLine("No information recived from Blender");
                 return Tuple.Create(2, report);
             }
 
@@ -150,7 +158,6 @@ namespace BlenderRenderController
             if (blendData == null)
             {
                 // error: Unexpected output.
-                Console.WriteLine("Unexpected get_project_info output");
                 return Tuple.Create(3, report);
             }
 
@@ -159,31 +166,27 @@ namespace BlenderRenderController
                 BlendFilePath = blendFile,
             };
 
-            string warns = string.Empty;
+            var warnings = new List<string>();
 
             if (RenderFormats.IMAGES.Contains(blendData.FileFormat))
             {
                 // warning: Render format is Img
-                Console.WriteLine("Render format is Img");
-                warns += "- Render format is Img\n";
+                warnings.Add(BRCRes.AppErr_RenderFormatIsImage);
             }
 
             if (string.IsNullOrWhiteSpace(proj.OutputPath))
             {
                 // warning: outputPath is unset, use blend path
-                Console.WriteLine("OutputPath is unset, using .blend dir");
                 proj.OutputPath = Path.GetDirectoryName(blendFile);
-
-                warns += "- OutputPath is unset, using .blend dir\n";
+                warnings.Add(BRCRes.AppErr_BlendOutputInvalid);
             }
             else
                 proj.OutputPath = Path.GetDirectoryName(proj.OutputPath);
 
-            Console.WriteLine("Loaded Project");
             _proj = proj;
             OnPropertyChanged(nameof(Project));
 
-            return Tuple.Create(0, warns);
+            return Tuple.Create(0, string.Join("\n", warnings));
         }
 
         public void UpdateCurrentChunks(IEnumerable<Chunk> chunks)

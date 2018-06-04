@@ -1,5 +1,4 @@
-﻿using BlenderRenderController.Services;
-using BRClib;
+﻿using BRClib;
 using BRClib.Render;
 using BRClib.Commands;
 using BRClib.Extentions;
@@ -16,9 +15,10 @@ using System.Collections.Generic;
 
 namespace BlenderRenderController
 {
+    using static BRClib.Global;
+
     public partial class BrcMain : WindowBase
     {
-        BrcSettings _settings;
         BrcViewModel _vm;
         RenderManager _renderMngr;
         ETACalculator _etaCalc;
@@ -30,12 +30,11 @@ namespace BlenderRenderController
         {
             Initialize();
 
-            _settings = Services.Settings.Current;
             _vm = new BrcViewModel();
             _vm.PropertyChanged += ViewModel_PropertyChanged;
             CheckConfigs();
 
-            _renderMngr = new RenderManager(_settings);
+            _renderMngr = new RenderManager();
 
             // 'Invoke' makes sure the event handlers will run on the UI thread
             _renderMngr.Finished += (s,e) => Invoke(RenderMngr_Finished, s, e);
@@ -226,7 +225,7 @@ namespace BlenderRenderController
             }
 
             args.RetVal = true;
-            Services.Settings.Save();
+            SaveSettings();
 
             if (aboutWin != null) aboutWin.Destroy();
             if (prefWin != null) prefWin.Destroy();
@@ -303,14 +302,14 @@ namespace BlenderRenderController
             var cb = (ComboBox)s;
             var active = cb.Active;
 
-            _settings.AfterRender = (AfterRenderAction)active;
+            Settings.AfterRender = (AfterRenderAction)active;
         }
 
         void On_cbRenderer_Changed(object s, EventArgs e)
         {
             var cb = (ComboBox)s;
             var active = cb.Active;
-            _settings.Renderer = (Renderer)active;
+            Settings.Renderer = (Renderer)active;
         }
 
         void On_AutoStartStop_Toggled(object s, EventArgs e)
@@ -434,7 +433,7 @@ namespace BlenderRenderController
 
             _vm.IsBusy = true;
 
-            _renderMngr.Setup(_vm.Project, _settings.AfterRender, _settings.Renderer);
+            _renderMngr.Setup(_vm.Project, Settings.AfterRender, Settings.Renderer);
 
             Status("Starting render...");
 
@@ -512,7 +511,7 @@ namespace BlenderRenderController
                 MessageDialog dlg;
 
                 if (_renderMngr.Action == AfterRenderAction.NOTHING
-                    && _settings.DeleteChunksFolder)
+                    && Settings.DeleteChunksFolder)
                 {
                     try
                     {
@@ -561,11 +560,10 @@ namespace BlenderRenderController
 
             Status("Rendering mixdown...");
 
-            var mixcmd = new MixdownCmd(_settings.BlenderProgram)
+            var mixcmd = new MixdownCmd(Settings.BlenderProgram)
             {
                 BlendFile = _vm.Project.BlendFilePath,
                 Range = _vm.Project.ChunkList.GetFullRange(),
-                MixdownScript = Scripts.MixdownAudio,
                 OutputFolder = _vm.Project.OutputPath
             };
 
@@ -593,6 +591,8 @@ namespace BlenderRenderController
 
         void On_JoinChunks_Clicked(object s, EventArgs e)
         {
+            return;
+
             _vm.IsBusy =
             workSpinner.Active = true;
             ResetCTS();
@@ -626,9 +626,9 @@ namespace BlenderRenderController
             var items = RecentManager.Default.RecentItems;
             var orderedItems = items.OrderBy(ri => ri.Added).Select(ri => ri.Uri);
 
-            _settings.RecentProjects = new Infra.RecentBlendsCollection(orderedItems);
+            Settings.RecentProjects = new List<string>(orderedItems);
 
-            Console.WriteLine("Recent items" + string.Join(", ", orderedItems));
+            Trace.WriteLine("Recent items" + string.Join(", ", orderedItems));
         }
 
         void VMProject_PropChanged(object s, System.ComponentModel.PropertyChangedEventArgs e)

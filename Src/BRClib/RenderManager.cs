@@ -11,6 +11,7 @@ using System.IO;
 using System.Diagnostics;
 using FrameSet = System.Collections.Concurrent.ConcurrentHashSet<int>;
 using Timer = System.Timers.Timer;
+using static BRClib.Global;
 
 namespace BRClib.Render
 {
@@ -42,12 +43,9 @@ namespace BRClib.Render
         Timer _Timer;
         object _syncLock = new object();
 
-        IRenderContext _Context;
 
-
-        public RenderManager(IRenderContext context)
+        public RenderManager()
         {
-            _Context = context;
 
             _Timer = new Timer
             {
@@ -148,16 +146,19 @@ namespace BRClib.Render
 
         private void CheckForValidProperties()
         {
-            string[] mustHaveValues = { _Context.Blender, _Context.FFmpeg };
+            string[] mustHaveValues = {
+                Global.Settings.BlenderProgram,
+                Global.Settings.FFmpegProgram
+            };
 
             if (mustHaveValues.Any(x => string.IsNullOrWhiteSpace(x)))
             {
-                throw new Exception("Required info missing");
+                throw new Exception("Required programs missing");
             }
 
             if (_Proj == null)
             {
-                throw new Exception("Invalid settings");
+                throw new Exception("Invalid project");
             }
 
             if (_Proj.ChunkList.Count == 0)
@@ -281,7 +282,7 @@ namespace BRClib.Render
 
         Process CreateRenderProcess(Chunk chunk)
         {
-            var render = new RenderCmd(_Context.Blender,
+            var render = new RenderCmd(Settings.BlenderProgram,
                               _Proj.BlendFilePath,
                               Path.Combine(_Proj.ChunksDirPath, _Proj.ProjectName + "-#"),
                               Renderer, chunk).GetProcess();
@@ -394,15 +395,14 @@ namespace BRClib.Render
             var projFinalPath = Path.Combine(_Proj.OutputPath, _Proj.ProjectName + videoExt);
             var mixdownPath = Path.Combine(_Proj.OutputPath, MixdownFile);
 
-            var mixdowncmd = new MixdownCmd(_Context.Blender)
+            var mixdowncmd = new MixdownCmd()
             {
                 BlendFile = _Proj.BlendFilePath,
-                MixdownScript = _Context.MixdownAudio,
                 Range = fullrange,
                 OutputFolder = _Proj.OutputPath
             };
 
-            var concatcmd = new ConcatCmd(_Context.FFmpeg)
+            var concatcmd = new ConcatCmd()
             {
                 ConcatTextFile = concatFile,
                 OutputFile = projFinalPath,

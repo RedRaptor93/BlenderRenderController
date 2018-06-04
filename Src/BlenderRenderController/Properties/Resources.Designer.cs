@@ -70,6 +70,15 @@ namespace BlenderRenderController.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to read project info, no information was received..
+        /// </summary>
+        internal static string AppErr_NoInfoReceived {
+            get {
+                return ResourceManager.GetString("AppErr_NoInfoReceived", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The render format is a {0} image.
         ///You can render an image sequence with this tool but you will need to make a video with other SW..
         /// </summary>

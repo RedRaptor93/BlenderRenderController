@@ -22,6 +22,8 @@ namespace BRClib
                              "BlenderRenderController");
 
             _scriptsDir = Path.Combine(_baseDir, "scripts");
+            _configFilePath = Path.Combine(_baseDir, SETTINGS_FILE);
+
             Directory.CreateDirectory(_scriptsDir);
 
             GetProjInfoScript = Path.Combine(_scriptsDir, PyGetProjInfo);
@@ -29,8 +31,6 @@ namespace BRClib
 
             var fw = ScriptsToDisk();
             Trace.WriteLine(fw + " scripts written to disk");
-
-            _configFilePath = Path.Combine(_baseDir, SETTINGS_FILE);
         }
 
         public static ConfigModel Settings { get; private set; }
