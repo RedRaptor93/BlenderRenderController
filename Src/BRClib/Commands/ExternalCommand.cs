@@ -151,13 +151,16 @@ namespace BRClib.Commands
         {
             var filePath = Path.Combine(folderPath, ReportFileName);
 
-            string fmt = REPORT_FMT;
             using (var sw = File.AppendText(filePath))
             {
-                sw.WriteLine(string.Format(fmt, _procName, ExitCode, 
-                                            StdError, StdOutput));
+                sw.WriteLine(GenerateReport());
                 sw.Write("\n\n");
             }
+        }
+
+        public string GenerateReport()
+        {
+            return string.Format(REPORT_FMT, _procName, ExitCode, StdError, StdOutput);
         }
 
         public override string ToString()

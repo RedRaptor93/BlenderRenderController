@@ -102,6 +102,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\BlenderRenderController\App.config">
+      <Link>App.config</Link>
+    </None>
     <None Include="packages.config" />
     <EmbeddedResource Include="Ui\DetailDialog.glade" />
     <EmbeddedResource Include="Ui\PrefWin.glade" />

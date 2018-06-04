@@ -74,7 +74,7 @@ namespace BlenderRenderController
                 {
                     TooltipText = item.UriDisplay,
                     Name = RECENT_ITEM_NAME,
-#pragma warning disable CS0612 // Type or member is obsolete
+#pragma warning disable CS0612
                     Image = new Image(item.GetIcon(16))
 #pragma warning restore CS0612 // Type or member is obsolete
                 };
