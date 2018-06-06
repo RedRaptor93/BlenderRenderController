@@ -141,8 +141,7 @@ namespace BRClib.Commands
                 _stdErr = t.Result.StdError;
 
                 tcs.SetResult(ExitCode);
-            },
-            TaskContinuationOptions.ExecuteSynchronously);
+            });
 
             return tcs.Task;
         }

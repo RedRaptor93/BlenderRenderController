@@ -13,8 +13,6 @@ namespace BRClib
 
     public static class Global
     {
-        // ToDo: move Settings and Script things here
-
         public static void Init(bool portableMode)
         {
             _baseDir = portableMode ? Env.CurrentDirectory :
@@ -31,6 +29,8 @@ namespace BRClib
 
             var fw = ScriptsToDisk();
             Trace.WriteLine(fw + " scripts written to disk");
+
+            Settings = Load(_configFilePath);
         }
 
         public static ConfigModel Settings { get; private set; }
@@ -66,6 +66,8 @@ namespace BRClib
 
             return blenderFound && ffmpegFound;
         }
+        
+
 
         static string _baseDir, _scriptsDir, _configFilePath;
 
@@ -105,7 +107,7 @@ namespace BRClib
                 DisplayToolTips = true,
                 AfterRender = AfterRenderAction.MIX_JOIN,
                 Renderer = Renderer.BLENDER_RENDER,
-                RecentProjects = new List<string>(),
+                RecentProjects = new Infra.RecentBlendsCollection(),
                 DeleteChunksFolder = false
             };
         }

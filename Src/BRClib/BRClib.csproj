@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="BrcViewModel.cs" />
     <Compile Include="Global.cs" />
+    <Compile Include="Infra\ETACalculator.cs" />
     <Compile Include="Models\BindingBase.cs" />
     <Compile Include="Models\BlendData.cs" />
     <Compile Include="Models\Chunk.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="ConcurrentHashSet.cs" />
     <Compile Include="Extentions.cs" />
     <Compile Include="Models\ConfigModel.cs" />
+    <Compile Include="Infra\RecentBlendsCollection.cs" />
     <Compile Include="RenderManager.cs" />
     <Compile Include="Models\Models.cs" />
     <Compile Include="Models\Project.cs" />

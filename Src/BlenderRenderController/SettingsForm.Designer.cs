@@ -66,7 +66,7 @@
             // 
             // settingsBindingSrc
             // 
-            this.settingsBindingSrc.DataSource = typeof(BlenderRenderController.BrcSettings);
+            this.settingsBindingSrc.DataSource = typeof(BRClib.ConfigModel);
             // 
             // ffmpegPathTextBox
             // 

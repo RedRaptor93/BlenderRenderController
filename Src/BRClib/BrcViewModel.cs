@@ -140,8 +140,7 @@ namespace BRClib
                 return Tuple.Create(1, "File not found");
             }
 
-            var giScript = Global.GetProjInfoScript;
-            var cmd = new GetInfoCmd(Global.Settings.BlenderProgram, blendFile, giScript);
+            var cmd = new GetInfoCmd(blendFile);
 
             await cmd.RunAsync();
 

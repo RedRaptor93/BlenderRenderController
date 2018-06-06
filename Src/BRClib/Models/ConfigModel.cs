@@ -12,7 +12,7 @@ namespace BRClib
     public class ConfigModel
     {
         [JsonProperty("RecentBlends")]
-        public IList<string> RecentProjects { get; set; }
+        public Infra.RecentBlendsCollection RecentProjects { get; set; }
 
         public string BlenderProgram { get; set; }
         public string FFmpegProgram { get; set; }

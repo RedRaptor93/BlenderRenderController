@@ -282,10 +282,28 @@ namespace BRClib.Render
 
         Process CreateRenderProcess(Chunk chunk)
         {
-            var render = new RenderCmd(Settings.BlenderProgram,
-                              _Proj.BlendFilePath,
-                              Path.Combine(_Proj.ChunksDirPath, _Proj.ProjectName + "-#"),
-                              Renderer, chunk).GetProcess();
+            // 0=Blend file, 1=output, 2=Renderer, 3=Frame start, 4=Frame end
+            const string RENDER_FMT = "-b \"{0}\" -o \"{1}\" -E {2} -s {3} -e {4} -a";
+
+            var render = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = Settings.BlenderProgram,
+                    Arguments = string.Format(RENDER_FMT, 
+                        _Proj.BlendFilePath, 
+                        Path.Combine(_Proj.ChunksDirPath, _Proj.ProjectName + "-#"), 
+                        Settings.Renderer, chunk.Start, chunk.End),
+
+                    CreateNoWindow = true,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false
+                },
+                EnableRaisingEvents = true
+            };
+
+            Debug.WriteLine("{0} {1}", Path.GetFileName(Settings.BlenderProgram), render.StartInfo.Arguments);
 
             render.OutputDataReceived += Render_OutputDataReceived;
             render.Exited += Render_Exited;

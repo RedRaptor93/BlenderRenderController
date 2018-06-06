@@ -117,7 +117,7 @@ namespace BRClib
                         curlyStack--;
                         if (curlyStack == 0)
                         {
-                            jsonStarted = false;
+                            break;
                         }
                     }
                 }

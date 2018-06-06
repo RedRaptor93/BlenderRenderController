@@ -65,12 +65,6 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\BlenderRenderController\Infra\ETACalculator.cs">
-      <Link>Infra\ETACalculator.cs</Link>
-    </Compile>
-    <Compile Include="..\BlenderRenderController\Infra\RecentBlendsCollection.cs">
-      <Link>Infra\RecentBlendsCollection.cs</Link>
-    </Compile>
     <Compile Include="BrcMain.Decl.cs" />
     <Compile Include="BrcMain.cs" />
     <Compile Include="Helpers.cs" />
