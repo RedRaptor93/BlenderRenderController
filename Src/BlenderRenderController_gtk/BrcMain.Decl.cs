@@ -125,18 +125,17 @@ namespace BlenderRenderController
             aboutWin.Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
             aboutWin.Close += delegate { aboutWin.Hide(); };
 
-            //prefWin = new Dialog(Builder.GetObject("PrefWin").Handle);
             prefWin = new PreferencesWin();
             prefWin.TransientFor = this;
             prefWin.Hidden += delegate
             {
-                _vm.ConfigOk = Services.Settings.CheckCorrectConfig();
+                _vm.ConfigOk = BRClib.Global.CheckProgramPaths();
             };
         }
 
         void CheckConfigs()
         {
-            _vm.ConfigOk = Services.Settings.CheckCorrectConfig();
+            _vm.ConfigOk = BRClib.Global.CheckProgramPaths();
 
             if (!_vm.ConfigOk)
             {
@@ -158,6 +157,11 @@ namespace BlenderRenderController
             Application.Invoke(delegate {
                 handler(s, args);
             });
+        }
+
+        void Invoke(EventHandler handler, object s, EventArgs args)
+        {
+            Application.Invoke(s, args, handler);
         }
         
         // private properties

@@ -8,9 +8,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Gtk;
-using PathIO = System.IO.Path;
 using System.Threading;
 using System.Collections.Generic;
+using PathIO = System.IO.Path;
+using BRCRes = BRClib.Properties.Resources;
 
 
 namespace BlenderRenderController
@@ -141,43 +142,75 @@ namespace BlenderRenderController
             Status("Loading " + PathIO.GetFileName(blendFile) + " ...");
             workSpinner.Start();
 
-            var result = await _vm.GetBlendInfo(blendFile);
-            int errcode = result.Item1;
-            string msg = result.Item2;
-
             Dialog dlg = null;
 
-            switch (errcode)
+            if (!File.Exists(blendFile))
             {
-                case 1: // File not found
-                    dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, msg);
-                    break;
-                case 2: // No info receved
-                    dlg = new DetailDialog("Error: No Info received.", "Error", msg, this, MessageType.Error);
-                    break;
-                case 3: // Unexpected output
-                    dlg = new DetailDialog("Error: Unexpected output", "Error", msg, this, MessageType.Error);
-                    break;
-                case 0: // Success, check for warnings
-                    Debug.Assert(_vm.ProjectLoaded);
-
-                    _autoStartF = _vm.Project.Start;
-                    _autoEndF = _vm.Project.End;
-
-                    if (msg != string.Empty)
-                    {
-                        string warnMsg = "Warning!\n\n" + msg;
-                        dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, warnMsg);
-                    }
-                    break;
+                ShowDialog("File not found");
+                return;
             }
 
-            if (dlg != null)
+            var getinfo = new GetInfoCmd(blendFile);
+            await getinfo.RunAsync();
+
+            var report = getinfo.GenerateReport();
+
+            if (getinfo.StdOutput.Length == 0)
             {
-                dlg.Run(); dlg.Destroy();
+                ShowDialog(BRCRes.AppErr_NoInfoReceived, report);
+                return;
             }
+
+            var data = BlendData.FromPyOutput(getinfo.StdOutput);
+            if (data == null)
+            {
+                ShowDialog("Read error", report);
+                return;
+            }
+
+            var proj = new Project(data)
+            {
+                BlendFilePath = blendFile
+            };
+
+            _autoStartF = proj.Start;
+            _autoEndF = proj.End;
+
+            if (RenderFormats.IMAGES.Contains(proj.FileFormat))
+            {
+                var eMsg = string.Format(BRCRes.AppErr_RenderFormatIsImage, proj.FileFormat);
+                ShowDialog(eMsg, null, MessageType.Warning);
+            }
+
+            if (string.IsNullOrWhiteSpace(proj.OutputPath))
+            {
+                // use .blend folder path if outputPath is unset, display a warning about it
+                ShowDialog(BRCRes.AppErr_BlendOutputInvalid, null, MessageType.Warning);
+                proj.OutputPath = PathIO.GetDirectoryName(blendFile);
+            }
+            else
+                proj.OutputPath = PathIO.GetDirectoryName(proj.OutputPath);
+
+            _vm.Project = proj;
 
             workSpinner.Stop();
+
+            // ----
+            int ShowDialog(string message, string details = null, MessageType type = MessageType.Error)
+            {
+                if (string.IsNullOrEmpty(details))
+                {
+                    dlg = new MessageDialog(this, DialogFlags.Modal, type, ButtonsType.Ok, message);
+                }
+                else
+                {
+                    dlg = new DetailDialog(message, type.ToString(), details, this, type);
+                }
+
+                int dr = dlg.Run();
+                dlg.Destroy();
+                return dr;
+            }
         }
 
         void Status(string text, Label item = null)

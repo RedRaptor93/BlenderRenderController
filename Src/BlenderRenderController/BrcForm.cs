@@ -251,7 +251,7 @@ namespace BlenderRenderController
             if (string.IsNullOrWhiteSpace(proj.OutputPath))
             {
                 // use .blend folder path if outputPath is unset, display a warning about it
-                MessageBox.Show(Resources.AppErr_BlendOutputInvalid, "Warning",
+                MessageBox.Show(BRCRes.AppErr_BlendOutputInvalid, "Warning",
                                 MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 proj.OutputPath = Path.GetDirectoryName(blendFile);

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Gtk;
 using UI = Gtk.Builder.ObjectAttribute;
 
@@ -126,7 +122,6 @@ namespace BlenderRenderController
 
             var icTheame = IconTheme.GetForScreen(Screen);
             dialogIcon.Pixbuf = icTheame.LoadIcon(iconName, 48, 0);
-            //dialogIcon.Pixbuf = IconTheme.Default.LoadIcon(stock, 48, 0);
         }
 
     }

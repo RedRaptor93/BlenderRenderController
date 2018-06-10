@@ -33,11 +33,6 @@ namespace BRClib
             }
         }
 
-        public bool ProjectLoaded
-        {
-            get { return Project != null; }
-        }
-
         private bool _busy;
 
         public bool IsBusy
@@ -54,6 +49,7 @@ namespace BRClib
             set { SetProperty(ref _configOk, value); }
         }
 
+        public bool ProjectLoaded => Project != null;
 
         public bool CanRender => ConfigOk && ProjectLoaded;
 
@@ -121,72 +117,6 @@ namespace BRClib
             return false;
         }
 
-        /// <summary>
-        /// Loads a blend file
-        /// </summary>
-        /// <returns>
-        /// A tuple containing a code and a string
-        /// Error codes
-        /// 0 = no error, message field might contain warnings
-        /// 1 = Blend file not found
-        /// 2 = No info receved
-        /// 3 = Unexpected output
-        /// </returns>
-        public async Task<Tuple<int, string>> GetBlendInfo(string blendFile)
-        {
-            if (!File.Exists(blendFile))
-            {
-                // error: file does not exist
-                return Tuple.Create(1, "File not found");
-            }
-
-            var cmd = new GetInfoCmd(blendFile);
-
-            await cmd.RunAsync();
-
-            var report = cmd.GenerateReport();
-
-            if (cmd.StdOutput.Length == 0)
-            {
-                // error: no info received
-                return Tuple.Create(2, report);
-            }
-
-            BlendData blendData = BlendData.FromPyOutput(cmd.StdOutput);
-
-            if (blendData == null)
-            {
-                // error: Unexpected output.
-                return Tuple.Create(3, report);
-            }
-
-            var proj = new Project(blendData)
-            {
-                BlendFilePath = blendFile,
-            };
-
-            var warnings = new List<string>();
-
-            if (RenderFormats.IMAGES.Contains(blendData.FileFormat))
-            {
-                // warning: Render format is Img
-                warnings.Add(BRCRes.AppErr_RenderFormatIsImage);
-            }
-
-            if (string.IsNullOrWhiteSpace(proj.OutputPath))
-            {
-                // warning: outputPath is unset, use blend path
-                proj.OutputPath = Path.GetDirectoryName(blendFile);
-                warnings.Add(BRCRes.AppErr_BlendOutputInvalid);
-            }
-            else
-                proj.OutputPath = Path.GetDirectoryName(proj.OutputPath);
-
-            _proj = proj;
-            OnPropertyChanged(nameof(Project));
-
-            return Tuple.Create(0, string.Join("\n", warnings));
-        }
 
         public void UpdateCurrentChunks(IEnumerable<Chunk> chunks)
         {
