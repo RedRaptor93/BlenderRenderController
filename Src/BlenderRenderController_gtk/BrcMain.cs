@@ -530,10 +530,10 @@ namespace BlenderRenderController
         {
             StopWork(true);
 
+            Dialog dlg = null;
+
             if (e == BrcRenderResult.AllOk)
             {
-                MessageDialog dlg;
-
                 if (_renderMngr.Action == AfterRenderAction.NOTHING
                     && Settings.DeleteChunksFolder)
                 {
@@ -559,19 +559,28 @@ namespace BlenderRenderController
                 if (result == ResponseType.Yes)
                     _vm.OpenOutputFolder();
 
-                dlg.Destroy();
             }
             else if (e == BrcRenderResult.Aborted)
             {
                 Status("Operation aborted");
             }
+            else if (e == BrcRenderResult.AfterRenderFailed)
+            {
+                dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok,
+                    BRCRes.RM_AfterRenderFailed);
+                Status("Errors detected");
+            }
             else
             {
-                // ToDo: Share string resources
-                var dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Question, ButtonsType.Close,
+                dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Question, ButtonsType.Close,
                         "An unexpected error ocurred");
-                dlg.Run(); dlg.Destroy();
                 Status("Unexpected error");
+            }
+
+            if (dlg != null)
+            {
+                dlg.Run();
+                dlg.Destroy();
             }
 
         }

@@ -153,4 +153,7 @@ You can render an image sequence with this tool but you will need to make a vide
   <data name="AppErr_UnexpectedOutput" xml:space="preserve">
     <value>Failed to read project info. Unexpected output.</value>
   </data>
+  <data name="RM_AfterRenderFailed" xml:space="preserve">
+    <value>After render actions did not complete sucessfully, check output folder for a log file</value>
+  </data>
 </root>

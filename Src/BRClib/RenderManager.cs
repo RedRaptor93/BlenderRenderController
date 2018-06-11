@@ -365,9 +365,12 @@ namespace BRClib.Render
             .ContinueWith(t =>
             {
                 BrcRenderResult result;
-                if (!t.Result && WasAborted)
+                if (!t.Result)
                 {
-                    result = BrcRenderResult.Aborted;
+                    if (WasAborted)
+                        result = BrcRenderResult.Aborted;
+                    else
+                        result = BrcRenderResult.AfterRenderFailed;
                 }
                 else
                 {

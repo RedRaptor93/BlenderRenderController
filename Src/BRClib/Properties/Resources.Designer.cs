@@ -152,6 +152,15 @@ namespace BRClib.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to After render actions did not complete sucessfully, check output folder for a log file.
+        /// </summary>
+        public static string RM_AfterRenderFailed {
+            get {
+                return ResourceManager.GetString("RM_AfterRenderFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An unexpected error ocurred while rendering, check the output folder for a log file.
         /// </summary>
         public static string RM_unexpected_error {

@@ -363,7 +363,7 @@ namespace BlenderRenderController
             // all slow work is done
             StopWork(true);
 
-            if (e == BrcRenderResult.AllOk) // AfterActions ran Ok
+            if (e == BrcRenderResult.AllOk)
             {
                 if (_renderMngr.Action != AfterRenderAction.NOTHING &&
                     Settings.DeleteChunksFolder)
@@ -390,16 +390,22 @@ namespace BlenderRenderController
                     OpenOutputFolder();
 
             }
-            else if (!_renderMngr.WasAborted) // Erros detected
+            else if (e == BrcRenderResult.AfterRenderFailed)
             {
-                MessageBox.Show(BRCRes.RM_unexpected_error, "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(BRCRes.RM_AfterRenderFailed, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 Status("Errors detected");
             }
-            else // operation aborted
+            else if (e == BrcRenderResult.Aborted)
             {
                 Status("Operation Aborted");
+            }
+            else
+            {
+                MessageBox.Show(BRCRes.RM_unexpected_error, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Status("Unexpected error");
             }
 
         }
@@ -634,7 +640,7 @@ namespace BlenderRenderController
             else
             {
                 MessageBox.Show("Something went wrong, check logs at the output folder...",
-                        Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 mix.SaveReport(_vm.Project.OutputPath);
 
@@ -670,7 +676,7 @@ namespace BlenderRenderController
                 else
                 {
                     MessageBox.Show("Something went wrong, check logs at the output folder...",
-                             Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                             "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                     var outFolder = Path.GetDirectoryName(manConcat.OutputFile);
                     concat.SaveReport(outFolder);
