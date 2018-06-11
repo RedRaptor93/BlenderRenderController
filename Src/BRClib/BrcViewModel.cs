@@ -3,14 +3,12 @@
 // Copyright 2017-present Pedro Oliva Rodrigues
 // This code is released under the MIT licence
 
-using BRClib.Commands;
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using BRClib.Extentions;
 using BRCRes = BRClib.Properties.Resources;
 

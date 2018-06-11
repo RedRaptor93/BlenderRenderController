@@ -40,8 +40,6 @@ namespace BlenderRenderController
 
         const string progId = nameof(BlenderRenderController);
 
-        int _autoStartF, _autoEndF;
-
         RenderManager _renderMngr;
         Stopwatch _chrono;
         ETACalculator _etaCalc;
@@ -238,8 +236,6 @@ namespace BlenderRenderController
                 BlendFilePath = blendFile
             };
 
-            _autoStartF = proj.Start;
-            _autoEndF = proj.End;
 
             if (RenderFormats.IMAGES.Contains(proj.FileFormat))
             {
@@ -344,7 +340,7 @@ namespace BlenderRenderController
                                    _vm.Project.End,
                                    _vm.Project.MaxConcurrency);
 
-            UpdateCurrentChunks(chunks);
+            _vm.UpdateCurrentChunks(chunks);
 
             logger.Info("Chunks: " + string.Join(", ", chunks));
 
@@ -547,27 +543,6 @@ namespace BlenderRenderController
             SafeChangeText(titleProg, this);
         }
 
-        /// <summary>
-        /// Updates the list of chunks that will be rendered
-        /// </summary>
-        /// <param name="newChunks"></param>
-        private void UpdateCurrentChunks(IEnumerable<Chunk> newChunks)
-        {
-            bool ignore = (newChunks.TotalLength() > _vm.Project.TotalFrames)
-                        || newChunks.SequenceEqual(_vm.Project.ChunkList);
-
-            if (ignore) return;
-
-            if (_vm.Project.ChunkList.Count > 0)
-                _vm.Project.ChunkList.Clear();
-
-            foreach (var chnk in newChunks)
-            {
-                _vm.Project.ChunkList.Add(chnk);
-            }
-
-            _vm.Project.ChunkLenght = _vm.Project.ChunkList.First().Length;
-        }
 
         private void UpdateRecentBlendsMenu()
         {
@@ -749,8 +724,7 @@ namespace BlenderRenderController
             if (startEndBlendRadio.Checked)
             {
                 // set to blend values
-                _vm.Project.Start = _autoStartF;
-                _vm.Project.End = _autoEndF;
+                _vm.Project.ResetRange();
             }
         }
 

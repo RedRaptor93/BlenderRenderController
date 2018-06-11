@@ -44,7 +44,7 @@ namespace BRClib
 
             ChunkLenght = _chunkList[0].Length;
 
-            //ChunksDirPath = DefaultChunksDirPath;
+            OriginalRange = new Chunk(blend.Start, blend.End);
         }
 
         public string BlendFilePath
@@ -71,6 +71,14 @@ namespace BRClib
         {
             get => _chunksDir;
             set => _chunksDir = value;
+        }
+
+        public Chunk OriginalRange { get; }
+
+        public void ResetRange()
+        {
+            Start = OriginalRange.Start;
+            End = OriginalRange.End;
         }
 
         public string DefaultChunksDirPath

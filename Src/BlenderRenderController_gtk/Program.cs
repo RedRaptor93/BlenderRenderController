@@ -1,6 +1,6 @@
 ﻿using System;
 using Gtk;
-
+using Global = BRClib.Global;
 
 namespace BlenderRenderController
 {
@@ -9,10 +9,7 @@ namespace BlenderRenderController
         [STAThread]
         static void Main()
         {
-            Services.Settings.Init(true);
-            Services.Scripts.Init();
-
-
+            Global.Init(true);
             Application.Init();
 
             var app = new Application("org.BlenderRenderController", GLib.ApplicationFlags.None);

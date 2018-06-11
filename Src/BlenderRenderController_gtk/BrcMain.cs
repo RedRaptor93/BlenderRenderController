@@ -25,7 +25,6 @@ namespace BlenderRenderController
         ETACalculator _etaCalc;
         CancellationTokenSource _afterRenderCancelSrc;
 
-        int _autoStartF, _autoEndF;
 
         public BrcMain() : base("BrcGtk.glade", "brc_style.css", "BrcMain")
         {
@@ -76,15 +75,10 @@ namespace BlenderRenderController
             catch (IOException)
             {
                 errMsg = "Can't clear output folder, files are in use";
-                //logger.Error(msg);
-                //MessageBox.Show(msg);
                 result = false;
             }
             catch (Exception ex)
             {
-                //logger.Error(ex.Message);
-                //logger.Trace(ex.StackTrace);
-                //MessageBox.Show("An unexpected error ocurred, sorry.\n\n" + ex.Message);
                 errMsg = $"An unexpected error ocurred, sorry.\n\n{ex.Message} ({ex.HResult:X})";
                 result = false;
             }
@@ -172,9 +166,7 @@ namespace BlenderRenderController
             {
                 BlendFilePath = blendFile
             };
-
-            _autoStartF = proj.Start;
-            _autoEndF = proj.End;
+            
 
             if (RenderFormats.IMAGES.Contains(proj.FileFormat))
             {
@@ -354,8 +346,7 @@ namespace BlenderRenderController
 
             if (AutoFrameRange)
             {
-                _vm.Project.Start = _autoStartF;
-                _vm.Project.End = _autoEndF;
+                _vm.Project.ResetRange();
             }
         }
 

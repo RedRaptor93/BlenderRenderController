@@ -127,6 +127,7 @@ You can render an image sequence with this tool but you will need to make a vide
   </data>
   <data name="AppErr_RequiredProgramsNotFound" xml:space="preserve">
     <value>One or more required program(s) were not found (Path invalid OR first time run), set the paths in the Settings window</value>
+    <comment>??? maybe remove?</comment>
   </data>
   <data name="AR_JoinMixdown" xml:space="preserve">
     <value>Join chunks w/ Mixdown audio</value>
