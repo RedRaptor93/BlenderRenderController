@@ -3,10 +3,6 @@
 // Copyright 2017-present Pedro Oliva Rodrigues
 // This code is released under the MIT licence
 
-using System;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace BRClib
 {

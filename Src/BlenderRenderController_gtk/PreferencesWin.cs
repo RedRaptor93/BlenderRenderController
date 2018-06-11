@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.IO;
 using Gtk;
 using UI = Gtk.Builder.ObjectAttribute;
-using Settings = BlenderRenderController.Services.Settings;
+using Global = BRClib.Global;
 
 namespace BlenderRenderController
 {
@@ -20,17 +18,18 @@ namespace BlenderRenderController
             : base(builder.GetObject(root).Handle)
         {
             builder.Autoconnect(this);
-            LoadSettings();
         }
 
         public PreferencesWin()
             : this(Glade.Load("PrefWin.glade"), "PrefWin")
-        {}
+        {
+            LoadSettings();
+        }
 
         void LoadSettings()
         {
-            string blender = Settings.Current.BlenderProgram,
-                   ffmpeg = Settings.Current.FFmpegProgram;
+            string blender = Global.Settings.BlenderProgram,
+                   ffmpeg = Global.Settings.FFmpegProgram;
 
             if (File.Exists(blender))
             {
@@ -42,40 +41,40 @@ namespace BlenderRenderController
                 ffmpegChooser.SetFilename(ffmpeg);
             }
 
-            showTooltipsCk.Active = Settings.Current.DisplayToolTips;
-            delChunksCk.Active = Settings.Current.DeleteChunksFolder;
-            logginLvlCb.Active = Settings.Current.LoggingLevel;
+            showTooltipsCk.Active = Global.Settings.DisplayToolTips;
+            delChunksCk.Active = Global.Settings.DeleteChunksFolder;
+            logginLvlCb.Active = Global.Settings.LoggingLevel;
         }
 
 
         void On_BlenderFileSet(object s, EventArgs e)
         {
             var chooser = (FileChooserButton)s;
-            Settings.Current.BlenderProgram = chooser.Filename;
+            Global.Settings.BlenderProgram = chooser.Filename;
         }
 
         void On_FFmpegFileSet(object s, EventArgs e)
         {
             var chooser = (FileChooserButton)s;
-            Settings.Current.FFmpegProgram = chooser.Filename;
+            Global.Settings.FFmpegProgram = chooser.Filename;
         }
 
         void On_Showtooltips_Toggle(object s, EventArgs e)
         {
             var tgl = (CheckButton)s;
-            Settings.Current.DisplayToolTips = tgl.Active;
+            Global.Settings.DisplayToolTips = tgl.Active;
         }
 
         void On_DeleteChunks_Toggle(object s, EventArgs e)
         {
             var tgl = (CheckButton)s;
-            Settings.Current.DeleteChunksFolder = tgl.Active;
+            Global.Settings.DeleteChunksFolder = tgl.Active;
         }
 
         void On_LoggingLvl_Changed(object s, EventArgs e)
         {
             var cb = (ComboBox)s;
-            Settings.Current.LoggingLevel = cb.Active;
+            Global.Settings.LoggingLevel = cb.Active;
         }
 
         void On_PrefOk_Clicked(object s, EventArgs e)

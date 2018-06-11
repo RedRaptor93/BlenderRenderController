@@ -55,12 +55,18 @@ namespace BlenderRenderController
         FileChooserDialog openBlendDialog, chooseOutputFolderDialog;
         AboutDialog aboutWin;
         Dialog prefWin;
-
         RecentItemsMenu recentBlendsMenu;
-
+        readonly Builder m_builder;
         string _ProjBase;
-
         const string RECENT_ITEM_NAME = "recent";
+
+        private BrcMain(Tuple<Builder, CssProvider> elements, string root)
+            : base(elements.Item1.GetObject(root).Handle)
+        {
+            m_builder = elements.Item1;
+            m_builder.Autoconnect(this);
+            StyleContext.AddProviderForScreen(Screen, elements.Item2, 800);
+        }
 
         void Initialize()
         {
@@ -110,7 +116,7 @@ namespace BlenderRenderController
 
         private void TsOpenRecent_Clicked(object sender, EventArgs e)
         {
-            recentBlendsMenu.PopupAtWidget((MenuToolButton)sender, Gdk.Gravity.SouthWest, Gdk.Gravity.NorthWest, null);
+            recentBlendsMenu.PopupAtWidget((Widget)sender, Gdk.Gravity.SouthWest, Gdk.Gravity.NorthWest, null);
         }
 
         private void NumChunkSizeAdjust_Changed(object sender, EventArgs e)
@@ -121,7 +127,7 @@ namespace BlenderRenderController
 
         void InitDialogs()
         {
-            aboutWin = new AboutDialog(Builder.GetObject("AboutWin").Handle);
+            aboutWin = new AboutDialog(m_builder.GetObject("AboutWin").Handle);
             aboutWin.Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
             aboutWin.Close += delegate { aboutWin.Hide(); };
 

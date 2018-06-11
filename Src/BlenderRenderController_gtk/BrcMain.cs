@@ -18,7 +18,7 @@ namespace BlenderRenderController
 {
     using static BRClib.Global;
 
-    public partial class BrcMain : WindowBase
+    public partial class BrcMain : Window
     {
         BrcViewModel _vm;
         RenderManager _renderMngr;
@@ -26,7 +26,7 @@ namespace BlenderRenderController
         CancellationTokenSource _afterRenderCancelSrc;
 
 
-        public BrcMain() : base("BrcGtk.glade", "brc_style.css", "BrcMain")
+        public BrcMain() : this(Glade.LoadUI("BrcGtk.glade", "brc_style.css"), "BrcMain")
         {
             Initialize();
 
