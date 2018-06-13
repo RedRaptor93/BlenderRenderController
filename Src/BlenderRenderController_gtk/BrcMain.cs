@@ -595,7 +595,7 @@ namespace BlenderRenderController
 
             Status("Rendering mixdown...");
 
-            var mixcmd = new MixdownCmd(Settings.BlenderProgram)
+            var mixcmd = new MixdownCmd()
             {
                 BlendFile = _vm.Project.BlendFilePath,
                 Range = _vm.Project.ChunkList.GetFullRange(),

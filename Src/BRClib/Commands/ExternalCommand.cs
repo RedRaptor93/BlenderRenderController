@@ -3,11 +3,10 @@
 // Copyright 2017-present Pedro Oliva Rodrigues
 // This code is released under the MIT licence
 
-using System.Collections.Generic;
+using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
+using System.Xml;
 using System.Threading;
 using System.Threading.Tasks;
 using BRClib.Extentions;
@@ -25,6 +24,13 @@ namespace BRClib.Commands
             ProgramPath = programPath;
             Log = LogManager.GetLogger(GetType().FullName);
             _procName = Path.GetFileNameWithoutExtension(ProgramPath);
+
+            if (_ArgFmts == null)
+            {
+                var xml = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ARG_FORMATS_DOC);
+                _ArgFmts = new XmlDocument();
+                _ArgFmts.Load(xml);
+            }
         }
 
 
@@ -37,7 +43,6 @@ namespace BRClib.Commands
                 _progPath = Path.GetFullPath(value);
             }
         }
-        public string ArgFormat { get; set; }
         public string StdOutput { get; protected set; }
         public string StdError { get; protected set; }
         public int ExitCode { get; protected set; }
@@ -140,10 +145,22 @@ namespace BRClib.Commands
 
         protected abstract string GetArgs();
 
+        protected static string GetFormat(string formatFor, string textName = "main")
+        {
+            var xpath = string.Format("format[@for='{0}']/text[@name='{1}']", formatFor, textName);
+            var node = _ArgFmts.DocumentElement.SelectSingleNode(xpath);
+            Trace.Assert(node != null && !string.IsNullOrEmpty(node.InnerText), "Invalid node");
+            return node.InnerText;
+        }
+
+        static XmlDocument _ArgFmts;
+
         // 0=Process name, 1=Exit Code, 2=Std Error, 3=Std Output
         protected const string REPORT_FMT = "{0} exited w/ code {1}\n\n" +
                                             "Std Error:\n{2}\n\n" +
                                             "Std Output:\n{3}\n";
+
+        const string ARG_FORMATS_DOC = "ArgFormats.xml";
 
         string _procName, _rfn, _progPath;
 

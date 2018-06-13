@@ -11,7 +11,6 @@ namespace BRClib.Commands
     {
         public MixdownCmd() : base(Global.Settings.BlenderProgram)
         {
-            ArgFormat = MIXDOWN_FMT;
         }
 
 
@@ -23,16 +22,14 @@ namespace BRClib.Commands
 
         protected override string GetArgs()
         {
-            return String.Format(ArgFormat, 
+            var fmt = GetFormat("mixdown");
+            return String.Format(fmt, 
                                     BlendFile,
                                     Range.Start,
                                     Range.End,
                                     MixdownScript,
                                     OutputFolder);
         }
-
-        // 0=Blend file, 1=start frame, 2=end frame, 3=mixdown_audio.py, 4=Output Folder
-        const string MIXDOWN_FMT = "-b \"{0}\" -s {1} -e {2} -P \"{3}\" -- \"{4}\"";
 
     }
 }

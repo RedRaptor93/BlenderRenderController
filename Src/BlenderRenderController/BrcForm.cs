@@ -259,7 +259,7 @@ namespace BlenderRenderController
 
             projectBindingSrc.DataSource = _vm.Project;
 
-            Settings.RecentProjects.Add(blendFile);
+            AddRecentItem(blendFile);
             
             UpdateRecentBlendsMenu();
             UpdateProgressBars();
@@ -279,6 +279,27 @@ namespace BlenderRenderController
                     UpdateProgressBars();
                 }
             }
+        }
+
+        void AddRecentItem(string item)
+        {
+            int eIdx = Settings.RecentProjects.IndexOf(item);
+            if (eIdx == 0) return;
+            if (eIdx > 0)
+            {
+                Settings.RecentProjects.RemoveAt(eIdx);
+                Settings.RecentProjects.Insert(0, item);
+                return;
+            }
+
+            // remove items that excede capacity
+            int count = Settings.RecentProjects.Count;
+            while (--count >= 10)
+            {
+                Settings.RecentProjects.RemoveAt(count);
+            }
+
+            Settings.RecentProjects.Insert(0, item);
         }
 
         private void OpenBlend_Click(object sender, EventArgs e)

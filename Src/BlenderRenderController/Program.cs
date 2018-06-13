@@ -6,6 +6,9 @@
 using NLog;
 using System;
 using System.Windows.Forms;
+using System.Xml;
+using System.Collections.Generic;
+
 
 namespace BlenderRenderController
 {
@@ -20,7 +23,6 @@ namespace BlenderRenderController
         static void Main(string[] args)
         {
             string cmdFile = null;
-
             if (args.Length > 0) cmdFile = args[0];
 
             string portableStr = System.Configuration.ConfigurationManager.AppSettings["portable"];
@@ -63,6 +65,6 @@ namespace BlenderRenderController
 
             LogManager.ReconfigExistingLoggers();
         }
-
+        
     }
 }

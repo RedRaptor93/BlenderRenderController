@@ -17,7 +17,6 @@ namespace BRClib.Commands
 
         public GetInfoCmd() : base(Global.Settings.BlenderProgram)
         {
-            ArgFormat = GETINFO_FMT;
         }
 
 
@@ -27,13 +26,9 @@ namespace BRClib.Commands
 
         protected override string GetArgs()
         {
-            return String.Format(ArgFormat,
-                                    BlendFile, 
-                                    ProjInfoScript);
+            var fmt = GetFormat("getinfo");
+            return String.Format(fmt, BlendFile, ProjInfoScript);
         }
-
-        // 0=Blend file, 1=get_project_info.py
-        const string GETINFO_FMT = "-b \"{0}\" -P \"{1}\"";
 
     }
 }

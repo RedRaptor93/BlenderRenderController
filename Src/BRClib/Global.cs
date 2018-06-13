@@ -15,7 +15,7 @@ namespace BRClib
     {
         public static void Init(bool portableMode)
         {
-            _baseDir = portableMode ? Env.CurrentDirectory :
+            _baseDir = portableMode ? AppDomain.CurrentDomain.BaseDirectory :
                 Path.Combine(Env.GetFolderPath(Env.SpecialFolder.ApplicationData),
                              "BlenderRenderController");
 
@@ -107,7 +107,7 @@ namespace BRClib
                 DisplayToolTips = true,
                 AfterRender = AfterRenderAction.MIX_JOIN,
                 Renderer = Renderer.BLENDER_RENDER,
-                RecentProjects = new Infra.RecentBlendsCollection(),
+                RecentProjects = new List<string>(),
                 DeleteChunksFolder = false
             };
         }
