@@ -254,7 +254,6 @@ namespace BlenderRenderController
 
             if (aboutWin != null) aboutWin.Destroy();
             if (prefWin != null) prefWin.Destroy();
-            //recentBlendsMenu.Destroy();
 
             Application.Quit();
         }
@@ -554,7 +553,10 @@ namespace BlenderRenderController
                 dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Question, ButtonsType.YesNo,
                         "Open destination folder?");
 
+                dlg.Run();
+
                 var result = (ResponseType)dlg.Run();
+                dlg.Destroy(); dlg = null;
 
                 if (result == ResponseType.Yes)
                     _vm.OpenOutputFolder();
@@ -573,7 +575,7 @@ namespace BlenderRenderController
             else
             {
                 dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Question, ButtonsType.Close,
-                        "An unexpected error ocurred");
+                        BRCRes.RM_unexpected_error);
                 Status("Unexpected error");
             }
 
@@ -608,14 +610,12 @@ namespace BlenderRenderController
             }
             else
             {
-                var msgBox = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok,
-                    "Something went wrong, check logs at the output folder...");
-
-                mixcmd.SaveReport(_vm.Project.OutputPath);
+                var report = mixcmd.GenerateReport();
+                var dlg = new DetailDialog("Mixdown failed", "Error", report, this, MessageType.Error);
 
                 Status("Something went wrong...");
 
-                msgBox.Run(); msgBox.Destroy();
+                dlg.Run(); dlg.Destroy();
             }
 
             _vm.IsBusy =

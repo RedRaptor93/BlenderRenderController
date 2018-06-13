@@ -9,20 +9,10 @@ namespace BRClib.Commands
 {
     public class ConcatCmd : ExternalCommand
     {
-
-        public ConcatCmd(string program, string concatTextFile, string outputFile, 
-                      string mixdownFile = null, TimeSpan? duration = null)
-            : base(program)
+        public ConcatCmd() : base(Global.Settings.FFmpegProgram)
         {
-            ConcatTextFile = concatTextFile;
-            OutputFile = outputFile;
-            MixdownFile = mixdownFile;
-            Duration = duration;
+            ArgFormat = CONCAT_FMT;
         }
-
-        public ConcatCmd(string program) : base(program) { }
-
-        public ConcatCmd() : base(Global.Settings.FFmpegProgram) { }
 
 
         public string ConcatTextFile { get; set; }
@@ -33,10 +23,6 @@ namespace BRClib.Commands
 
         protected override string GetArgs()
         {
-            // ref: https://ffmpeg.org/ffmpeg-all.html#concat-1
-            // 0=ChunkTxtPath, 1=codec specs, 2=Optional duration, 3=Final file path + .EXT
-            const string CONCAT_FMT = "-f concat -safe 0 -i \"{0}\" {1} {2} \"{3}\" -y";
-
             string codecText;
 
             if (string.IsNullOrWhiteSpace(MixdownFile))
@@ -51,12 +37,16 @@ namespace BRClib.Commands
             var durText = Duration.HasValue
                 ? "-t " + Duration.Value.ToString(@"hh\:mm\:ss") : string.Empty;
 
-            return string.Format(CONCAT_FMT, 
+            return string.Format(ArgFormat, 
                                     ConcatTextFile, 
                                     codecText, 
                                     durText, 
                                     OutputFile);
         }
-        
+
+        // ref: https://ffmpeg.org/ffmpeg-all.html#concat-1
+        // 0=ChunkTxtPath, 1=codec specs, 2=Optional duration, 3=Final file path + .EXT
+        const string CONCAT_FMT = "-f concat -safe 0 -i \"{0}\" {1} {2} \"{3}\" -y";
+
     }
 }

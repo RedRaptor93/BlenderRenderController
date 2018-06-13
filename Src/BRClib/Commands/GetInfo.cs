@@ -15,21 +15,25 @@ namespace BRClib.Commands
             BlendFile = blendFile;
         }
 
-        public GetInfoCmd() : base(Global.Settings.BlenderProgram) { }
+        public GetInfoCmd() : base(Global.Settings.BlenderProgram)
+        {
+            ArgFormat = GETINFO_FMT;
+        }
 
 
         public string BlendFile { get; set; }
         public string ProjInfoScript { get; set; } = Global.GetProjInfoScript;
 
 
-        // 0=Blend file, 1=get_project_info.py
-        const string GETINFO_FMT = "-b \"{0}\" -P \"{1}\"";
-
         protected override string GetArgs()
         {
-            return String.Format(GETINFO_FMT,
+            return String.Format(ArgFormat,
                                     BlendFile, 
                                     ProjInfoScript);
         }
+
+        // 0=Blend file, 1=get_project_info.py
+        const string GETINFO_FMT = "-b \"{0}\" -P \"{1}\"";
+
     }
 }

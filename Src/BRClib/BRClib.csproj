@@ -63,7 +63,6 @@
     <Compile Include="Commands\ExternalCommand.cs" />
     <Compile Include="Commands\GetInfo.cs" />
     <Compile Include="Commands\Mixdown.cs" />
-    <Compile Include="Commands\Render.cs" />
     <Compile Include="ConcurrentHashSet.cs" />
     <Compile Include="Extentions.cs" />
     <Compile Include="Models\ConfigModel.cs" />
@@ -90,6 +89,5 @@
     <EmbeddedResource Include="Scripts\get_project_info.py" />
     <EmbeddedResource Include="Scripts\mixdown_audio.py" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

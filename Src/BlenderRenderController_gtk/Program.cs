@@ -9,7 +9,10 @@ namespace BlenderRenderController
         [STAThread]
         static void Main()
         {
-            Global.Init(true);
+            string pstr = System.Configuration.ConfigurationManager.AppSettings["portable"];
+            bool portable = bool.TryParse(pstr, out bool r) ? r : false;
+
+            Global.Init(portable);
             Application.Init();
 
             var app = new Application("org.BlenderRenderController", GLib.ApplicationFlags.None);

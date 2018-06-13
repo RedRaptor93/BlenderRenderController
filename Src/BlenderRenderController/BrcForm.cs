@@ -624,12 +624,12 @@ namespace BlenderRenderController
 
             Status("Rendering mixdown...");
 
-            var mix = new MixdownCmd(Settings.BlenderProgram,
-                                    _vm.Project.BlendFilePath,
-                                    _vm.Project.Start,
-                                    _vm.Project.End,
-                                    MixdownScript,
-                                    _vm.Project.OutputPath);
+            var mix = new MixdownCmd
+            {
+                BlendFile = _vm.Project.BlendFilePath,
+                Range = new Chunk(_vm.Project.Start, _vm.Project.End),
+                OutputFolder = _vm.Project.OutputPath
+            };
 
             var result = await mix.RunAsync(_afterRenderCancelSrc.Token);
 
@@ -639,12 +639,12 @@ namespace BlenderRenderController
             }
             else
             {
-                MessageBox.Show("Something went wrong, check logs at the output folder...",
-                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                mix.SaveReport(_vm.Project.OutputPath);
+                var report = mix.GenerateReport();
+                var dlg = new Ui.DetailedMessageBox("Mixdown failed", "Error", report);
 
                 Status("Something went wrong...");
+
+                dlg.ShowDialog();
             }
 
             UpdateProgressBars();
@@ -657,15 +657,17 @@ namespace BlenderRenderController
             ResetCTS();
             UpdateProgressBars(-1);
 
-            var manConcat = new ConcatForm();
-            var dResult = manConcat.ShowDialog();
+            var mc = new ConcatForm();
+            var dResult = mc.ShowDialog();
 
             if (dResult == DialogResult.OK)
             {
-                var concat = new ConcatCmd(Settings.FFmpegProgram,
-                                        manConcat.ChunksTextFile,
-                                        manConcat.OutputFile,
-                                        manConcat.MixdownAudioFile);
+                var concat = new ConcatCmd
+                {
+                    ConcatTextFile = mc.ChunksTextFile,
+                    MixdownFile = mc.MixdownAudioFile,
+                    OutputFile = mc.OutputFile
+                };
 
                 var result = await concat.RunAsync(_afterRenderCancelSrc.Token);
 
@@ -675,13 +677,11 @@ namespace BlenderRenderController
                 }
                 else
                 {
-                    MessageBox.Show("Something went wrong, check logs at the output folder...",
-                             "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                    var outFolder = Path.GetDirectoryName(manConcat.OutputFile);
-                    concat.SaveReport(outFolder);
-
+                    var report = concat.GenerateReport();
+                    var dlg = new Ui.DetailedMessageBox("Failed to concatenate chunks", "Error", report);
                     Status("Something went wrong...");
+
+                    dlg.ShowDialog();
                 }
             }
 
