@@ -69,7 +69,7 @@
             // 
             this.logoPictureBox.BackColor = System.Drawing.Color.GhostWhite;
             this.logoPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.logoPictureBox.Image = global::BlenderRenderController.Properties.Resources.brc_icon;
+            this.logoPictureBox.Image = global::BlenderRenderController.Properties.Resources.brc;
             this.logoPictureBox.Location = new System.Drawing.Point(4, 4);
             this.logoPictureBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.logoPictureBox.Name = "logoPictureBox";
