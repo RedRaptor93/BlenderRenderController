@@ -88,7 +88,11 @@ namespace BRClib
                     var vName = Env.Is64BitOperatingSystem ? "ProgramW6432" : "ProgramFiles";
                     var pf = Env.GetEnvironmentVariable(vName);
 
+                    blender += ".exe";
+                    ffmpeg += ".exe";
+
                     defBlenderDir = Path.Combine(pf, "Blender Foundation", "Blender");
+                    defFFmpegDir = AppDomain.CurrentDomain.BaseDirectory;
                     break;
                 case PlatformID.Unix:
                 case PlatformID.MacOSX:
