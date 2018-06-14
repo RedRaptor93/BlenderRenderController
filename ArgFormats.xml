@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
-  Warning: Don't mess w/ these if you don't know what you're doing!
+  Warning: Don't mess w/ these unless you know what you're doing!
   
   This file controls the arguments BRC sends to blender and ffmpeg, the "{ N# }" fields will be filled by the 
   program and should not be changed.  

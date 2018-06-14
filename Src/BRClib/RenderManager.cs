@@ -1,4 +1,8 @@
-﻿// WIP: Common RenderMngr Impl
+﻿// Part of the Blender Render Controller project
+// https://github.com/RedRaptor93/BlenderRenderController
+// Copyright 2017-present Pedro Oliva Rodrigues
+// This code is released under the MIT licence
+
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -41,7 +45,7 @@ namespace BRClib.Render
         RenderState _State;
 
         Timer _Timer;
-        object _syncLock = new object();
+        readonly object _syncLock = new object();
 
 
         public RenderManager()
