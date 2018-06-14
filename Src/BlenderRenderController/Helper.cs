@@ -69,52 +69,6 @@ namespace BlenderRenderController
                 }
             }
         }
-
-        public static void SetChildsToolTip(this ToolTip toolTip, Control control)
-        {
-            var caption = toolTip.GetToolTip(control);
-
-            if (string.IsNullOrEmpty(caption))
-                return;
-
-            foreach (Control subItem in control.Controls)
-            {
-                toolTip.SetToolTip(subItem, caption);
-            }
-        }
-
-        static public IEnumerable<Control> FindControlsByTag(Control.ControlCollection controls, string key)
-        {
-            List<Control> controlsWithTags = new List<Control>();
-
-            foreach (Control c in controls)
-            {
-                if (c.Tag != null)
-                {
-                    // splits tag content into string array
-                    string[] tags = c.Tag.ToString().Split(';');
-
-                    // if key maches, add to list
-                    if (tags.Contains(key))
-                        controlsWithTags.Add(c);
-                }
-
-                if (c.HasChildren)
-                {
-                    //Recursively check all children controls as well; ie groupboxes or tabpages
-                    controlsWithTags.AddRange(FindControlsByTag(c.Controls, key));
-                }
-            }
-
-            return controlsWithTags;
-        }
-
-        //    static public readonly Dictionary<AfterRenderAction, string> AfterRenderResources =
-        //        new Dictionary<AfterRenderAction, string>
-        //        {
-        //            [AfterRenderAction.MIX_JOIN] = Resources.AR_JoinMixdown,
-        //            [AfterRenderAction.JOIN] = Resources.AR_JoinOnly,
-        //            [AfterRenderAction.NOTHING] = Resources.AR_NoAction
-        //        };
+        
     }
 }

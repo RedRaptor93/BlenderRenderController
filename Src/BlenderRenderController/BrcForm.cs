@@ -97,8 +97,6 @@ namespace BlenderRenderController
             // load recent blends from file
             UpdateRecentBlendsMenu();
 
-            //Settings.RecentProjects.CollectionChanged += delegate { UpdateRecentBlendsMenu(); };
-
             processCountNumericUpDown.Maximum = Environment.ProcessorCount;
 
             // Time duration format
@@ -120,9 +118,14 @@ namespace BlenderRenderController
             exitToolStripMenuItem.Click += delegate { Close(); };
 
             // set tooltip text to infoItems childs
-            foreach (Control info in infoBox.Controls)
+            foreach (Control ctrl in infoBox.Controls)
             {
-                toolTipInfo.SetChildsToolTip(info);
+                var caption = toolTipInfo.GetToolTip(ctrl);
+                if (string.IsNullOrEmpty(caption)) continue;
+                foreach (Control subItem in ctrl.Controls)
+                {
+                    toolTipInfo.SetToolTip(subItem, caption);
+                }
             }
 
         }
