@@ -57,8 +57,7 @@ namespace BlenderRenderController
         Dialog prefWin;
         RecentItemsMenu recentBlendsMenu;
         readonly Builder m_builder;
-        string _ProjBase;
-        const string RECENT_ITEM_NAME = "recent";
+        readonly string _ProjBase; // for holding a copy of lblProjectName.Text
 
         private BrcMain(Tuple<Builder, CssProvider> elements, string root)
             : base(elements.Item1.GetObject(root).Handle)
@@ -81,7 +80,6 @@ namespace BlenderRenderController
             recentBlendsFilter.Name = blendFilter.Name;
             recentBlendsFilter.AddPattern(blend);
 
-            _ProjBase = lblProjectName.Text;
 
             openBlendDialog = new FileChooserDialog("Open blend file", this, FileChooserAction.Open,
                 "Cancel", ResponseType.Cancel, "Open", ResponseType.Accept);
@@ -110,8 +108,17 @@ namespace BlenderRenderController
             this.numChunkSizeAdjust.Changed += NumChunkSizeAdjust_Changed;
             this.tsOpenRecent.Clicked += TsOpenRecent_Clicked;
 
-            InitDialogs();
+            // Init dialogs
+            aboutWin = new AboutDialog(m_builder.GetObject("AboutWin").Handle);
+            aboutWin.Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            aboutWin.Close += delegate { aboutWin.Hide(); };
 
+            prefWin = new PreferencesWin();
+            prefWin.TransientFor = this;
+            prefWin.Hidden += delegate
+            {
+                _vm.ConfigOk = BRClib.Global.CheckProgramPaths();
+            };
         }
 
         private void TsOpenRecent_Clicked(object sender, EventArgs e)
@@ -123,20 +130,6 @@ namespace BlenderRenderController
         {
             var adjust = (Adjustment)sender;
             _vm.Project.ChunkLenght = (int)adjust.Value;
-        }
-
-        void InitDialogs()
-        {
-            aboutWin = new AboutDialog(m_builder.GetObject("AboutWin").Handle);
-            aboutWin.Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            aboutWin.Close += delegate { aboutWin.Hide(); };
-
-            prefWin = new PreferencesWin();
-            prefWin.TransientFor = this;
-            prefWin.Hidden += delegate
-            {
-                _vm.ConfigOk = BRClib.Global.CheckProgramPaths();
-            };
         }
 
         void CheckConfigs()

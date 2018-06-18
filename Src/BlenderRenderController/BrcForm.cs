@@ -52,7 +52,11 @@ namespace BlenderRenderController
         {
             InitializeComponent();
 
-            _vm = new BrcViewModel();
+            _vm = new BrcViewModel()
+            {
+                ShowDialogCb = VMShowDialog,
+                StatusCb = Status
+            };
             _vm.PropertyChanged += ViewModel_PropertyChanged;
 
 
@@ -68,13 +72,14 @@ namespace BlenderRenderController
             _etaCalc = new ETACalculator(10, 5);
         }
 
+
+
         public BrcForm(string blendFile) : this()
         {
             if (CheckProgramPaths())
             {
                 // window must be visible
                 Show();
-
                 GetBlendInfo(blendFile);
             }
         }
@@ -203,86 +208,50 @@ namespace BlenderRenderController
         }
 
 
-        #region BlendFileInfo
-        private async void GetBlendInfo(string blendFile)
+        private void VMShowDialog(string title, string message, string details, bool retry)
         {
-            logger.Info("Loading .blend");
-            Status("Reading .blend file...");
-            UpdateProgressBars(-1);
+            var btns = retry ? MessageBoxButtons.RetryCancel : MessageBoxButtons.OK;
+            var icon = title.ToLower().StartsWith("w") ? MessageBoxIcon.Warning : MessageBoxIcon.Error;
 
-            if (!File.Exists(blendFile))
+            if (details != null)
             {
-                ShowErrorDialog("Error", "File not found");
-                return;
-            }
+                var dlg = new Ui.DetailedMessageBox(message, title, details, btns);
+                var d = dlg.ShowDialog();
 
-            var getinfo = new GetInfoCmd(blendFile);
-
-            await getinfo.RunAsync();
-
-            var report = getinfo.GenerateReport();
-
-            if (getinfo.StdOutput.Length == 0)
-            {
-                ShowErrorDialog("Error", BRCRes.AppErr_NoInfoReceived, report);
-                return;
-            }
-
-            var data = BlendData.FromPyOutput(getinfo.StdOutput);
-            if (data == null)
-            {
-                ShowErrorDialog("Read error", BRCRes.AppErr_UnexpectedOutput, report);
-                return;
-            }
-
-            var proj = new Project(data) {
-                BlendFilePath = blendFile
-            };
-
-
-            if (RenderFormats.IMAGES.Contains(proj.FileFormat))
-            {
-                var eMsg = string.Format(BRCRes.AppErr_RenderFormatIsImage, proj.FileFormat);
-                MessageBox.Show(BRCRes.AppErr_RenderFormatIsImage, "Warning",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-
-            if (string.IsNullOrWhiteSpace(proj.OutputPath))
-            {
-                // use .blend folder path if outputPath is unset, display a warning about it
-                MessageBox.Show(BRCRes.AppErr_BlendOutputInvalid, "Warning",
-                                MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                proj.OutputPath = Path.GetDirectoryName(blendFile);
+                if (d == DialogResult.Retry) GetBlendInfo(__lastBlend);
             }
             else
-                proj.OutputPath = Path.GetDirectoryName(proj.OutputPath);
-
-            _vm.Project = proj;
-
-            projectBindingSrc.DataSource = _vm.Project;
-
-            AddRecentItem(blendFile);
-            
-            UpdateRecentBlendsMenu();
-            UpdateProgressBars();
-            // ---
-
-            void ShowErrorDialog(string title, string message, string details = "No details")
             {
-                var dialog = new Ui.DetailedMessageBox(message, title, details, MessageBoxButtons.RetryCancel);
-                var d = dialog.ShowDialog();
-
-                if (d == DialogResult.Retry)
-                    GetBlendInfo(blendFile);
-                else
-                {
-                    logger.Error(".blend was NOT loaded");
-                    Status("Error loading blend file");
-                    UpdateProgressBars();
-                }
+                MessageBox.Show(message, title, btns, icon);
             }
         }
+
+
+        #region BlendFileInfo
+        string __lastBlend;
+
+        private async void GetBlendInfo(string blendFile)
+        {
+            UpdateProgressBars(-1);
+            __lastBlend = blendFile;
+
+            bool loaded = await _vm.OpenBlendFile(blendFile);
+            if (loaded)
+            {
+                projectBindingSrc.DataSource = _vm.Project;
+                AddRecentItem(blendFile);
+            }
+            else
+            {
+                logger.Error(".blend was NOT loaded");
+                Status("Error loading blend file");
+            }
+
+            UpdateRecentBlendsMenu();
+            UpdateProgressBars();
+        }
+
+
 
         void AddRecentItem(string item)
         {
@@ -631,11 +600,13 @@ namespace BlenderRenderController
             }
         }
 
-        private void Status(string msg, ToolStripItem tsItem = null)
+        private void Status(string msg, ToolStripItem tsItem)
         {
             if (tsItem == null) tsItem = statusMessage;
             tsItem.Text = msg;
         }
+
+        void Status(string msg) => Status(msg, null);
 
         #endregion
 

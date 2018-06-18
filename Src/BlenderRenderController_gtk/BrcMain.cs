@@ -30,7 +30,12 @@ namespace BlenderRenderController
         {
             Initialize();
 
-            _vm = new BrcViewModel();
+            _ProjBase = lblProjectName.Text;
+
+            _vm = new BrcViewModel() {
+                StatusCb = Status,
+                ShowDialogCb = VMShowDialog
+            };
             _vm.PropertyChanged += ViewModel_PropertyChanged;
             CheckConfigs();
 
@@ -46,6 +51,32 @@ namespace BlenderRenderController
             ShowAll();
         }
 
+        private void VMShowDialog(string title, string message, string details, bool retry)
+        {
+            ButtonsType btns = ButtonsType.Ok;
+            if (retry)
+            {
+                btns = ButtonsType.YesNo;
+                message += "\n\n" + "Try again?";
+            }
+            var type = title.ToLower().StartsWith("w") ? MessageType.Warning : MessageType.Error;
+            Dialog dlg = null;
+
+            if (details != null)
+            {
+                dlg = new DetailDialog(message, title, details, this, type, btns);
+            }
+            else
+            {
+                dlg = new MessageDialog(this, DialogFlags.Modal, type, btns, message);
+            }
+
+            var result = (ResponseType)dlg.Run(); dlg.Destroy();
+            if (result == ResponseType.Yes)
+            {
+                OpenBlendFile(__lastBlend);
+            }
+        }
 
         static bool ClearOutputFolder(string path)
         {
@@ -130,82 +161,19 @@ namespace BlenderRenderController
 
             entryOutputPath.Text = project.OutputPath;
         }
-        
+
+        string __lastBlend;
         async void OpenBlendFile(string blendFile)
         {
-            Status("Loading " + PathIO.GetFileName(blendFile) + " ...");
             workSpinner.Start();
+            __lastBlend = blendFile;
 
-            Dialog dlg = null;
-
-            if (!File.Exists(blendFile))
-            {
-                ShowDialog("File not found");
-                return;
-            }
-
-            var getinfo = new GetInfoCmd(blendFile);
-            await getinfo.RunAsync();
-
-            var report = getinfo.GenerateReport();
-
-            if (getinfo.StdOutput.Length == 0)
-            {
-                ShowDialog(BRCRes.AppErr_NoInfoReceived, report);
-                return;
-            }
-
-            var data = BlendData.FromPyOutput(getinfo.StdOutput);
-            if (data == null)
-            {
-                ShowDialog("Read error", report);
-                return;
-            }
-
-            var proj = new Project(data)
-            {
-                BlendFilePath = blendFile
-            };
+            await _vm.OpenBlendFile(blendFile);
             
-
-            if (RenderFormats.IMAGES.Contains(proj.FileFormat))
-            {
-                var eMsg = string.Format(BRCRes.AppErr_RenderFormatIsImage, proj.FileFormat);
-                ShowDialog(eMsg, null, MessageType.Warning);
-            }
-
-            if (string.IsNullOrWhiteSpace(proj.OutputPath))
-            {
-                // use .blend folder path if outputPath is unset, display a warning about it
-                ShowDialog(BRCRes.AppErr_BlendOutputInvalid, null, MessageType.Warning);
-                proj.OutputPath = PathIO.GetDirectoryName(blendFile);
-            }
-            else
-                proj.OutputPath = PathIO.GetDirectoryName(proj.OutputPath);
-
-            _vm.Project = proj;
-
             workSpinner.Stop();
-
-            // ----
-            int ShowDialog(string message, string details = null, MessageType type = MessageType.Error)
-            {
-                if (string.IsNullOrEmpty(details))
-                {
-                    dlg = new MessageDialog(this, DialogFlags.Modal, type, ButtonsType.Ok, message);
-                }
-                else
-                {
-                    dlg = new DetailDialog(message, type.ToString(), details, this, type);
-                }
-
-                int dr = dlg.Run();
-                dlg.Destroy();
-                return dr;
-            }
         }
 
-        void Status(string text, Label item = null)
+        void Status(string text, Label item)
         {
             if (item == null) item = lblStatus;
 
@@ -215,6 +183,8 @@ namespace BlenderRenderController
             //});
 
         }
+
+        void Status(string text) => Status(text, null);
 
         void ResetCTS()
         {
@@ -266,7 +236,6 @@ namespace BlenderRenderController
             if (result == ResponseType.Accept)
             {
                 var blendFile = openBlendDialog.Filename;
-
                 OpenBlendFile(blendFile);
             }
 
