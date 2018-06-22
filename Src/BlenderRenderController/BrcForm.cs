@@ -52,13 +52,8 @@ namespace BlenderRenderController
         {
             InitializeComponent();
 
-            _vm = new BrcViewModel()
-            {
-                ShowDialogCb = VMShowDialog,
-                StatusCb = Status
-            };
+            _vm = new BrcViewModel(GetType().FullName, Helper.ShowVMDialog, Status);
             _vm.PropertyChanged += ViewModel_PropertyChanged;
-
 
             TaskbarManager.Instance.ApplicationId = progId;
 
@@ -208,34 +203,13 @@ namespace BlenderRenderController
         }
 
 
-        private void VMShowDialog(string title, string message, string details, bool retry)
-        {
-            var btns = retry ? MessageBoxButtons.RetryCancel : MessageBoxButtons.OK;
-            var icon = title.ToLower().StartsWith("w") ? MessageBoxIcon.Warning : MessageBoxIcon.Error;
-
-            if (details != null)
-            {
-                var dlg = new Ui.DetailedMessageBox(message, title, details, btns);
-                var d = dlg.ShowDialog();
-
-                if (d == DialogResult.Retry) GetBlendInfo(__lastBlend);
-            }
-            else
-            {
-                MessageBox.Show(message, title, btns, icon);
-            }
-        }
-
-
         #region BlendFileInfo
-        string __lastBlend;
 
         private async void GetBlendInfo(string blendFile)
         {
             UpdateProgressBars(-1);
-            __lastBlend = blendFile;
 
-            bool loaded = await _vm.OpenBlendFile(blendFile);
+            var(loaded, dlr) = await _vm.OpenBlendFile(blendFile);
             if (loaded)
             {
                 projectBindingSrc.DataSource = _vm.Project;
@@ -243,6 +217,11 @@ namespace BlenderRenderController
             }
             else
             {
+                if (dlr == VMDialogResult.Retry)
+                {
+                    GetBlendInfo(blendFile);
+                    return;
+                }
                 logger.Error(".blend was NOT loaded");
                 Status("Error loading blend file");
             }

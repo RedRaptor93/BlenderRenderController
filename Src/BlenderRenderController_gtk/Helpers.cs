@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using BRClib;
 using Gtk;
 
 namespace BlenderRenderController
@@ -44,35 +45,34 @@ namespace BlenderRenderController
 
     }
 
-    static class Extentions
+    static class Helpers
     {
-        public static int Px(this IconSize iconSize)
-        {
-            int size;
+        
 
-            switch (iconSize)
+        public static VMDialogResult VMDR(int response)
+        {
+            switch (response)
             {
-                case IconSize.Menu:
-                case IconSize.SmallToolbar:
-                case IconSize.Button:
-                    size = 16;
-                    break;
-                case IconSize.LargeToolbar:
-                    size = 24;
-                    break;
-                case IconSize.Dnd:
-                    size = 32;
-                    break;
-                case IconSize.Dialog:
-                    size = 48;
-                    break;
-                case IconSize.Invalid:
-                default:
-                    size = -1;
-                    break;
+                // Special cases
+                case 1:
+                    return VMDialogResult.Retry;
+                case 2:
+                    return VMDialogResult.Cancel;
             }
 
-            return size;
+            switch ((ResponseType)response)
+            {
+                case ResponseType.Ok:
+                    return VMDialogResult.Ok;
+                case ResponseType.Cancel:
+                    return VMDialogResult.Cancel;
+                case ResponseType.Yes:
+                    return VMDialogResult.Yes;
+                case ResponseType.No:
+                    return VMDialogResult.No;
+            }
+
+            throw new ArgumentException("value not mapped to ResponseType", nameof(response));
         }
     }
 }

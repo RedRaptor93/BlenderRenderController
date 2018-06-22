@@ -20,7 +20,14 @@ namespace BRClib
     public class BrcViewModel : BindingBase
     {
 
-        public delegate void ShowDialogCB(string title, string message, string details, bool retry);
+        public BrcViewModel(string viewName, ShowDialogCB dialogCB, Action<string> statusCB)
+        {
+            logger = LogManager.GetLogger(viewName);
+            StatusCb = statusCB;
+            ShowDialogCb = dialogCB;
+        }
+
+        public delegate VMDialogResult ShowDialogCB(string title, string message, string details, VMDialogButtons buttons);
 
         private Project _proj;
 
@@ -53,8 +60,8 @@ namespace BRClib
             set { SetProperty(ref _configOk, value); }
         }
 
-        public Action<string> StatusCb { get; set; }
-        public ShowDialogCB ShowDialogCb { get; set; }
+        public Action<string> StatusCb { get; }
+        public ShowDialogCB ShowDialogCb { get; }
 
         public bool ProjectLoaded => Project != null;
         public bool CanRender => ConfigOk && ProjectLoaded;
@@ -142,15 +149,15 @@ namespace BRClib
             Project.ChunkLenght = chunks.First().Length;
         }
 
-        public async Task<bool> OpenBlendFile(string blendFile)
+        public async Task<(bool loaded, VMDialogResult dlr)> OpenBlendFile(string blendFile)
         {
             logger.Info("Loading " + Path.GetFileName(blendFile) + " ...");
             StatusCb("Reading .blend file...");
 
             if (!File.Exists(blendFile))
             {
-                ShowDialogCb("Error", "File not found", null, false);
-                return false;
+                var r = ShowDialogCb("Error", "File not found", null, VMDialogButtons.OK);
+                return (false, r);
             }
 
             var getinfo = new GetInfoCmd(blendFile);
@@ -159,15 +166,15 @@ namespace BRClib
 
             if (getinfo.StdOutput.Length == 0)
             {
-                ShowDialogCb("Error", BRCRes.AppErr_NoInfoReceived, report, true);
-                return false;
+                var r = ShowDialogCb("Error", BRCRes.AppErr_NoInfoReceived, report, VMDialogButtons.RetryCancel);
+                return (false, r);
             }
 
             var data = BlendData.FromPyOutput(getinfo.StdOutput);
             if (data == null)
             {
-                ShowDialogCb("Error", BRCRes.AppErr_UnexpectedOutput, report, true);
-                return false;
+                var r = ShowDialogCb("Error", BRCRes.AppErr_UnexpectedOutput, report, VMDialogButtons.RetryCancel);
+                return (false, r);
             }
 
             var proj = new Project(data)
@@ -178,13 +185,13 @@ namespace BRClib
             if (RenderFormats.IMAGES.Contains(proj.FileFormat))
             {
                 var eMsg = string.Format(BRCRes.AppErr_RenderFormatIsImage, proj.FileFormat);
-                ShowDialogCb("Warning", eMsg, null, false);
+                ShowDialogCb("Warning", eMsg, null, VMDialogButtons.OK);
             }
 
             if (string.IsNullOrWhiteSpace(proj.OutputPath))
             {
                 // use .blend folder path if outputPath is unset, display a warning about it
-                ShowDialogCb("Warning", BRCRes.AppErr_BlendOutputInvalid, null, false);
+                ShowDialogCb("Warning", BRCRes.AppErr_BlendOutputInvalid, null, VMDialogButtons.OK);
                 proj.OutputPath = Path.GetDirectoryName(blendFile);
             }
             else
@@ -195,8 +202,10 @@ namespace BRClib
             Debug.Assert(!string.IsNullOrEmpty(proj.ChunksDirPath));
 
             Project = proj;
-            return true;
+            return (true, VMDialogResult.Ok);
         }
+
+
 
         public override string ToString()
         {
@@ -211,8 +220,6 @@ namespace BRClib
         }
 
 
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-
-
+        private readonly Logger logger;
     }
 }

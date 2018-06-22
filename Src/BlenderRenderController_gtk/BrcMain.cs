@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Gtk;
+using NLog;
 using System.Threading;
 using System.Collections.Generic;
 using PathIO = System.IO.Path;
@@ -25,6 +26,8 @@ namespace BlenderRenderController
         ETACalculator _etaCalc;
         CancellationTokenSource _afterRenderCancelSrc;
 
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
 
         public BrcMain() : this(Glade.LoadUI("BrcGtk.glade", "brc_style.css"), "BrcMain")
         {
@@ -32,10 +35,7 @@ namespace BlenderRenderController
 
             _ProjBase = lblProjectName.Text;
 
-            _vm = new BrcViewModel() {
-                StatusCb = Status,
-                ShowDialogCb = VMShowDialog
-            };
+            _vm = new BrcViewModel(GetType().FullName, ShowVMDialog, Status);
             _vm.PropertyChanged += ViewModel_PropertyChanged;
             CheckConfigs();
 
@@ -51,31 +51,50 @@ namespace BlenderRenderController
             ShowAll();
         }
 
-        private void VMShowDialog(string title, string message, string details, bool retry)
+        public VMDialogResult ShowVMDialog(string title, string message, string details, VMDialogButtons buttons)
         {
             ButtonsType btns = ButtonsType.Ok;
-            if (retry)
-            {
-                btns = ButtonsType.YesNo;
-                message += "\n\n" + "Try again?";
-            }
             var type = title.ToLower().StartsWith("w") ? MessageType.Warning : MessageType.Error;
+            bool retryCancel = false;
+            switch (buttons)
+            {
+                case VMDialogButtons.OK:
+                    btns = ButtonsType.Ok;
+                    break;
+                case VMDialogButtons.OKCancel:
+                    btns = ButtonsType.OkCancel;
+                    break;
+                case VMDialogButtons.YesNo:
+                    btns = ButtonsType.YesNo;
+                    break;
+                case VMDialogButtons.RetryCancel:
+                    retryCancel = true;
+                    break;
+            }
+
             Dialog dlg = null;
 
             if (details != null)
             {
-                dlg = new DetailDialog(message, title, details, this, type, btns);
+                if (retryCancel)
+                {
+                    dlg = new DetailDialog(message, title, details, this, type);
+                    // the lack of a ResponseType.Retry and Cancel makes me sad D:
+                    dlg.AddButton("Retry", 1);
+                    dlg.AddButton(Stock.Lookup(Stock.Cancel).Label, 2);
+                }
+                else
+                {
+                    dlg = new DetailDialog(message, title, details, this, type, btns);
+                }
             }
             else
             {
-                dlg = new MessageDialog(this, DialogFlags.Modal, type, btns, message);
+                dlg = new MessageDialog(null, DialogFlags.Modal, type, btns, message);
             }
 
-            var result = (ResponseType)dlg.Run(); dlg.Destroy();
-            if (result == ResponseType.Yes)
-            {
-                OpenBlendFile(__lastBlend);
-            }
+            var r = dlg.Run(); dlg.Destroy();
+            return Helpers.VMDR(r);
         }
 
         static bool ClearOutputFolder(string path)
@@ -162,15 +181,22 @@ namespace BlenderRenderController
             entryOutputPath.Text = project.OutputPath;
         }
 
-        string __lastBlend;
         async void OpenBlendFile(string blendFile)
         {
-            workSpinner.Start();
-            __lastBlend = blendFile;
+            _vm.IsBusy = true;
 
-            await _vm.OpenBlendFile(blendFile);
-            
-            workSpinner.Stop();
+            var(loaded, result) = await _vm.OpenBlendFile(blendFile);
+            if (!loaded)
+            {
+                if (result == VMDialogResult.Retry)
+                {
+                    OpenBlendFile(blendFile);
+                    return;
+                }
+                
+            }
+
+            _vm.IsBusy = false;
         }
 
         void Status(string text, Label item)
@@ -478,7 +504,6 @@ namespace BlenderRenderController
         private void RenderMngr_AfterRenderStarted(object sender, AfterRenderAction e)
         {
             workProgress.Fraction = 0;
-            workSpinner.Start();
 
             switch (e)
             {
@@ -558,8 +583,7 @@ namespace BlenderRenderController
 
         async void On_RenderMixdown_Clicked(object s, EventArgs e)
         {
-            _vm.IsBusy = 
-            workSpinner.Active = true;
+            _vm.IsBusy = true;
             ResetCTS();
 
             Status("Rendering mixdown...");
@@ -587,22 +611,19 @@ namespace BlenderRenderController
                 dlg.Run(); dlg.Destroy();
             }
 
-            _vm.IsBusy =
-            workSpinner.Active = false;
+            _vm.IsBusy = false;
         }
 
         void On_JoinChunks_Clicked(object s, EventArgs e)
         {
             return;
 
-            _vm.IsBusy =
-            workSpinner.Active = true;
+            _vm.IsBusy = true;
             ResetCTS();
 
             // TODO: Manual concat dialog
 
-            _vm.IsBusy =
-            workSpinner.Active = false;
+            _vm.IsBusy = false;
 
         }
 
@@ -644,8 +665,7 @@ namespace BlenderRenderController
         {
             var vm = (BrcViewModel)sender;
 
-            Console.WriteLine("Propchanged invoked, Name = {0}", e.PropertyName);
-            //Console.WriteLine(vm);
+            workSpinner.Active = vm.IsBusy;
 
             startStopStack.Sensitive = vm.CanRender;
             miUnload.Sensitive = vm.CanEditCurrentProject;

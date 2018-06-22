@@ -10,6 +10,7 @@ namespace BlenderRenderController
 #pragma warning disable 649
         [UI] Image dialogIcon;
         [UI] TextBuffer detailsBuffer;
+        [UI] Label dialogMsgLbl;
 #pragma warning restore 649
 
         private DetailDialog(Tuple<Builder, CssProvider> elements, string root) 
@@ -21,14 +22,20 @@ namespace BlenderRenderController
 
         public DetailDialog(string message, string title, string details, Window parent, MessageType type, 
                             ButtonsType buttons = ButtonsType.Ok)
-            : this(Glade.LoadUI("DetailDialog.glade", "brc_style.css"), "DetailedDialog")
+            : this(message, title, details, parent, type)
         {
             SetupButtons(buttons);
-            SetDialogIcon(type);
-            detailsBuffer.Text = details;
-            this.TransientFor = parent;
         }
 
+        public DetailDialog(string message, string title, string details, Window parent, MessageType type)
+            : this(Glade.LoadUI("DetailDialog.glade", "brc_style.css"), "DetailDialog")
+        {
+            this.TransientFor = parent;
+            detailsBuffer.Text = details;
+            dialogMsgLbl.Text = message;
+            this.Title = title;
+            SetDialogIcon(type);
+        }
 
 
         void SetupButtons(ButtonsType type)

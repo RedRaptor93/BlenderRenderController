@@ -42,4 +42,17 @@ namespace BRClib
         AfterRenderFailed,
         ChunkRenderFailed
     }
+
+    public enum VMDialogButtons
+    {
+        OK,
+        OKCancel,
+        YesNo,
+        RetryCancel
+    }
+
+    public enum VMDialogResult
+    {
+        Ok, Cancel, Yes, No, Retry
+    }
 }
