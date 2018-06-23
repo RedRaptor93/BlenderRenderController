@@ -214,12 +214,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BRClib\BRClib.csproj">
-      <Project>{f102c740-b7b9-4f46-bb6e-579e23947391}</Project>
-      <Name>BRClib</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4.5.2 %28x86 and x64%29</ProductName>
@@ -238,6 +232,12 @@
     </Content>
     <None Include="Resources\brc_icon.png" />
     <None Include="Resources\brc_icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BRClib\BRClib.csproj">
+      <Project>{0292b253-4b98-42ec-8b74-e989d425967c}</Project>
+      <Name>BRClib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

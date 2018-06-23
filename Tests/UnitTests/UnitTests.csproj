@@ -65,10 +65,6 @@
       <Project>{cd475a2a-67d6-47f3-a776-d03d7fdb29ea}</Project>
       <Name>BlenderRenderController</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Src\BRClib\BRClib.csproj">
-      <Project>{f102c740-b7b9-4f46-bb6e-579e23947391}</Project>
-      <Name>BRClib</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
