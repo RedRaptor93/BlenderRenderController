@@ -29,7 +29,6 @@ namespace BlenderRenderController
             bool portable = bool.TryParse(portableStr, out bool ptb) ? ptb : false;
 
             Init(portable);
-            NlogSetup(portable);
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -44,26 +43,6 @@ namespace BlenderRenderController
             Application.Run(form);
 
             SaveSettings();
-        }
-
-        static void NlogSetup(bool portableMode)
-        {
-            LogLevel lLvl;
-
-            switch (Settings.LoggingLevel)
-            {
-                case 1: lLvl = LogLevel.Info; break;
-                case 2: lLvl = LogLevel.Trace; break;
-                default: return;
-            }
-
-            string fileTgt = "brclogfile";
-            if (portableMode) fileTgt += "_p";
-
-            var target = LogManager.Configuration.FindTargetByName(fileTgt);
-            LogManager.Configuration.AddRule(lLvl, LogLevel.Fatal, target, "*");
-
-            LogManager.ReconfigExistingLoggers();
         }
         
     }

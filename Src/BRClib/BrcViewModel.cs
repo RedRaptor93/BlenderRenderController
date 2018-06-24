@@ -118,13 +118,12 @@ namespace BRClib
         {
             if (Directory.Exists(Project.OutputPath))
             {
-                Process.Start(Project.OutputPath);
+                Global.ShellOpen(Project.OutputPath);
                 return true;
             }
 
             return false;
         }
-
 
         public void UpdateCurrentChunks(IEnumerable<Chunk> chunks)
         {

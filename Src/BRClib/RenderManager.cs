@@ -307,8 +307,6 @@ namespace BRClib.Render
                 EnableRaisingEvents = true
             };
 
-            Debug.WriteLine("{0} {1}", Path.GetFileName(Settings.BlenderProgram), render.StartInfo.Arguments);
-
             render.OutputDataReceived += Render_OutputDataReceived;
             render.Exited += Render_Exited;
 

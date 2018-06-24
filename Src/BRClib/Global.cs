@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
+using NLog;
 
 namespace BRClib
 {
@@ -31,6 +32,7 @@ namespace BRClib
             Trace.WriteLine(fw + " scripts written to disk");
 
             Settings = Load(_configFilePath);
+            NlogSetup(portableMode);
         }
 
         public static ConfigModel Settings { get; private set; }
@@ -66,7 +68,15 @@ namespace BRClib
 
             return blenderFound && ffmpegFound;
         }
-        
+
+        // workaround Process.Start not working on .NET core
+        public static void ShellOpen(string file_uri)
+        {
+            var stInfo = new ProcessStartInfo(file_uri) {
+                UseShellExecute = true
+            };
+            Process.Start(stInfo);
+        }
 
 
         static string _baseDir, _scriptsDir, _configFilePath;
@@ -187,5 +197,26 @@ namespace BRClib
             var json = JsonConvert.SerializeObject(def, Formatting.Indented);
             File.WriteAllText(filepath, json);
         }
+
+        static void NlogSetup(bool portableMode)
+        {
+            LogLevel lLvl;
+
+            switch (Settings.LoggingLevel)
+            {
+                case 1: lLvl = LogLevel.Info; break;
+                case 2: lLvl = LogLevel.Trace; break;
+                default: return;
+            }
+
+            string fileTgt = "brclogfile";
+            if (portableMode) fileTgt += "_p";
+
+            var target = LogManager.Configuration.FindTargetByName(fileTgt);
+            LogManager.Configuration.AddRule(lLvl, LogLevel.Fatal, target, "*");
+
+            LogManager.ReconfigExistingLoggers();
+        }
+
     }
 }

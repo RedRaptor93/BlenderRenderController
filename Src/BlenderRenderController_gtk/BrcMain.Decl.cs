@@ -2,6 +2,7 @@
 using System;
 using Gtk;
 using UI = Gtk.Builder.ObjectAttribute;
+using NLog;
 
 namespace BlenderRenderController
 {
@@ -59,6 +60,8 @@ namespace BlenderRenderController
         readonly Builder m_builder;
         readonly string _ProjBase; // for holding a copy of lblProjectName.Text
 
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         private BrcMain(Tuple<Builder, CssProvider> elements, string root)
             : base(elements.Item1.GetObject(root).Handle)
         {
@@ -69,6 +72,7 @@ namespace BlenderRenderController
 
         void Initialize()
         {
+            logger.Info("Initializing main window...");
             // setup filters
             const string blend = "*.blend";
 
@@ -105,8 +109,9 @@ namespace BlenderRenderController
             AutoFrameRange = AutoChunkDiv = true;
 
             this.DeleteEvent += BrcMain_DeleteEvent;
-            this.numChunkSizeAdjust.Changed += NumChunkSizeAdjust_Changed;
             this.tsOpenRecent.Clicked += TsOpenRecent_Clicked;
+            numProcMaxAdjust.ValueChanged += On_numProcessMax_ValueChanged;
+            numChunkSizeAdjust.ValueChanged += On_numChunkSize_ValueChanged;
 
             // Init dialogs
             aboutWin = new AboutDialog(m_builder.GetObject("AboutWin").Handle);
@@ -124,12 +129,6 @@ namespace BlenderRenderController
         private void TsOpenRecent_Clicked(object sender, EventArgs e)
         {
             recentBlendsMenu.PopupAtWidget((Widget)sender, Gdk.Gravity.SouthWest, Gdk.Gravity.NorthWest, null);
-        }
-
-        private void NumChunkSizeAdjust_Changed(object sender, EventArgs e)
-        {
-            var adjust = (Adjustment)sender;
-            _vm.Project.ChunkLenght = (int)adjust.Value;
         }
 
         void CheckConfigs()

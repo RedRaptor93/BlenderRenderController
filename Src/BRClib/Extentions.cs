@@ -45,6 +45,11 @@ namespace BRClib.Extentions
         /// <param name="args">The TArgs for this event.</param>
         public static void Raise<TArgs>(this MulticastDelegate thisEvent, object sender, TArgs args)
         {
+            // HACKHACK
+#if NETSTANDARD2_0
+            thisEvent.DynamicInvoke(sender, args);
+#else
+
             var localMCD = thisEvent;
             void callback(IAsyncResult ar) => ((EventHandler<TArgs>)ar.AsyncState).EndInvoke(ar);
 
@@ -62,6 +67,7 @@ namespace BRClib.Extentions
                     }
                 }
             }
+#endif
         }
 
         /// <summary>

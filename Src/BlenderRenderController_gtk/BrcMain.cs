@@ -296,7 +296,7 @@ namespace BlenderRenderController
 
         void On_miGithub_Clicked(object s, EventArgs e)
         {
-            Process.Start("https://github.com/RedRaptor93/BlenderRenderController");
+            ShellOpen("https://github.com/RedRaptor93/BlenderRenderController");
         }
 
         void On_miDonate_Clicked(object s, EventArgs e)
@@ -306,7 +306,7 @@ namespace BlenderRenderController
 
         void On_miReportABug_Clicked(object s, EventArgs e)
         {
-            Process.Start("https://github.com/RedRaptor93/BlenderRenderController/wiki/Reporting-an-issue");
+            ShellOpen("https://github.com/RedRaptor93/BlenderRenderController/wiki/Reporting-an-issue");
         }
 
         private void On_Quit(object s, EventArgs e)
@@ -374,6 +374,18 @@ namespace BlenderRenderController
 
             _vm.Project.Start = (int)startFrame;
             _vm.Project.End = (int)endFrame;
+        }
+
+        void On_numChunkSize_ValueChanged(object s, EventArgs e)
+        {
+            var adj = (Adjustment)s;
+            _vm.Project.ChunkLenght = (int)adj.Value;
+        }
+
+        void On_numProcessMax_ValueChanged(object s, EventArgs e)
+        {
+            var adj = (Adjustment)s;
+            _vm.Project.MaxConcurrency = (int)adj.Value;
         }
 
         void StartRender_Clicked(object s, EventArgs e)
