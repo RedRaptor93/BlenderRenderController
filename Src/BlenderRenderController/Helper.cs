@@ -31,7 +31,7 @@ namespace BlenderRenderController
                 }
 
                 // clear files in the 'chunks' subdir
-                var chunkSDir = subDirs.FirstOrDefault(di => di.Name == Constants.ChunksSubfolder);
+                var chunkSDir = subDirs.FirstOrDefault(di => di.Name == "chunks");
                 if (chunkSDir != null)
                 {
                     Directory.Delete(chunkSDir.FullName, true);
@@ -140,11 +140,11 @@ namespace BlenderRenderController
         }
     }
 
-    class Constants
-    {
-        public const string ChunksSubfolder = "chunks";
-        public const string APP_TITLE = "Blender Render Controller";
-        public const string ChunksTxtFileName = "chunklist.txt";
-    }
+    //class Constants
+    //{
+    //    public const string ChunksSubfolder = "chunks";
+    //    public const string APP_TITLE = "Blender Render Controller";
+    //    public const string ChunksTxtFileName = "chunklist.txt";
+    //}
 
 }

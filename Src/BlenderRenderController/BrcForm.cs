@@ -52,7 +52,7 @@ namespace BlenderRenderController
         {
             InitializeComponent();
 
-            _vm = new BrcViewModel(GetType().FullName, Helper.ShowVMDialog, Status);
+            _vm = new BrcViewModel(Helper.ShowVMDialog, Status);
             _vm.PropertyChanged += ViewModel_PropertyChanged;
 
             TaskbarManager.Instance.ApplicationId = progId;
@@ -208,8 +208,9 @@ namespace BlenderRenderController
         private async void GetBlendInfo(string blendFile)
         {
             UpdateProgressBars(-1);
+            logger.Info("Loading " + Path.GetFileName(blendFile) + " ...");
 
-            var(loaded, dlr) = await _vm.OpenBlendFile(blendFile);
+            var (loaded, dlr) = await _vm.OpenBlendFile(blendFile);
             if (loaded)
             {
                 projectBindingSrc.DataSource = _vm.Project;
@@ -423,7 +424,7 @@ namespace BlenderRenderController
             statusETR.Text = ETR_Prefix + TimeSpan.Zero.ToString(TimeFmt);
             statusTime.Text = TimePassedPrefix + TimeSpan.Zero.ToString(TimeFmt);
 
-            Text = Constants.APP_TITLE;
+            Text = "Blender Render Controller";
         }
 
         private void renderAllButton_Click(object sender, EventArgs e)
@@ -497,7 +498,7 @@ namespace BlenderRenderController
 
         void UpdateProgressBars(int progressPercent = 0)
         {
-            string titleProg = Constants.APP_TITLE;
+            string titleProg = "Blender Render Controller";
 
             if (progressPercent < 0)
             {
@@ -511,7 +512,7 @@ namespace BlenderRenderController
 
                 if (progressPercent != 0)
                 {
-                    titleProg = $"{progressPercent}% complete - {Constants.APP_TITLE}";
+                    titleProg = $"{progressPercent}% complete - Blender Render Controller";
                     TaskbarManager.Instance.SetProgressValue(progressPercent, 100);
                 }
                 else

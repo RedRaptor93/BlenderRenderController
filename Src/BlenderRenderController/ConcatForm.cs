@@ -4,16 +4,11 @@
 // This code is released under the MIT licence
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
-using BRClib;
 using static BRClib.RenderFormats;
 
 namespace BlenderRenderController
@@ -38,11 +33,11 @@ namespace BlenderRenderController
         {
             _dialogBasePath = outputPath;
 
-            var chunksFolder = Path.Combine(_dialogBasePath, Constants.ChunksSubfolder);
+            var chunksFolder = Path.Combine(_dialogBasePath, "chunks");
             var chunkFiles = Directory.GetFiles(chunksFolder);
             var ext = Path.GetExtension(chunkFiles.FirstOrDefault() ?? "");
 
-            ChunksTextFile = Path.Combine(chunksFolder, Constants.ChunksTxtFileName);
+            ChunksTextFile = Path.Combine(chunksFolder, "chunklist.txt");
             OutputFile = Path.Combine(_dialogBasePath, projName + ext);
         }
 
@@ -214,7 +209,7 @@ namespace BlenderRenderController
 
             var idx = afe.FindIndex(f => cFileExts.Contains(f));
 
-            // +2 to compensate for 'all files' entry and beeing 1 based
+            // +2 to compensate for 'all files' entry and being 1 based
             return idx + 2;
         }
 

@@ -20,9 +20,8 @@ namespace BRClib
     public class BrcViewModel : BindingBase
     {
 
-        public BrcViewModel(string viewName, ShowDialogCB dialogCB, Action<string> statusCB)
+        public BrcViewModel(ShowDialogCB dialogCB, Action<string> statusCB)
         {
-            logger = LogManager.GetLogger(viewName);
             StatusCb = statusCB;
             ShowDialogCb = dialogCB;
         }
@@ -96,7 +95,6 @@ namespace BRClib
             }
         }
 
-
         public void OpenDonationPage()
         {
             string business = "9SGQVK6TK2UJG";
@@ -151,7 +149,6 @@ namespace BRClib
 
         public async Task<(bool loaded, VMDialogResult dlr)> OpenBlendFile(string blendFile)
         {
-            logger.Info("Loading " + Path.GetFileName(blendFile) + " ...");
             StatusCb("Reading .blend file...");
 
             if (!File.Exists(blendFile))
@@ -218,8 +215,5 @@ namespace BRClib
 
             return sb.ToString();
         }
-
-
-        private readonly Logger logger;
     }
 }

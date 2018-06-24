@@ -156,4 +156,10 @@ You can render an image sequence with this tool but you will need to make a vide
   <data name="RM_AfterRenderFailed" xml:space="preserve">
     <value>After render actions did not complete sucessfully, check output folder for a log file</value>
   </data>
+  <data name="AppTitle" xml:space="preserve">
+    <value>Blender Render Controller</value>
+  </data>
+  <data name="ChunksConcatFile" xml:space="preserve">
+    <value>chunklist.txt</value>
+  </data>
 </root>

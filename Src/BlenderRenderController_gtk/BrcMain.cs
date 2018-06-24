@@ -26,8 +26,6 @@ namespace BlenderRenderController
         ETACalculator _etaCalc;
         CancellationTokenSource _afterRenderCancelSrc;
 
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-
 
         public BrcMain() : this(Glade.LoadUI("BrcGtk.glade", "brc_style.css"), "BrcMain")
         {
@@ -35,7 +33,7 @@ namespace BlenderRenderController
 
             _ProjBase = lblProjectName.Text;
 
-            _vm = new BrcViewModel(GetType().FullName, ShowVMDialog, Status);
+            _vm = new BrcViewModel(ShowVMDialog, Status);
             _vm.PropertyChanged += ViewModel_PropertyChanged;
             CheckConfigs();
 
