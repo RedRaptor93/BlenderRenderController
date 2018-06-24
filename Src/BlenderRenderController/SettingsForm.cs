@@ -3,36 +3,32 @@
 // Copyright 2017-present Pedro Oliva Rodrigues
 // This code is released under the MIT licence
 
-using NLog;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
+using static BRClib.Global;
 
 
 namespace BlenderRenderController
 {
+
     public partial class SettingsForm : Form
     {
-        private BrcSettings _setts;
 
         public SettingsForm()
         {
             InitializeComponent();
-            _setts = Services.Settings.Current;
-            settingsBindingSrc.Add(_setts);
+            settingsBindingSrc.Add(Settings);
         }
 
         private void onFormLoad(object sender, EventArgs e)
         {
             // load settings
-            cbLoggingLvl.SelectedIndex = _setts.LoggingLevel;
+            cbLoggingLvl.SelectedIndex = Settings.LoggingLevel;
             cbLoggingLvl.SelectedIndexChanged += CbLoggingLvl_SelectedIndexChanged;
 
-            var blenderExe = Path.GetFileName(_setts.BlenderProgram);
-            var ffmpegExe = Path.GetFileName(_setts.FFmpegProgram);
+            var blenderExe = Path.GetFileName(Settings.BlenderProgram);
+            var ffmpegExe = Path.GetFileName(Settings.FFmpegProgram);
 
             findBlenderDialog.Filter = "Blender|" + blenderExe;
             findBlenderDialog.Title += blenderExe;
@@ -40,11 +36,11 @@ namespace BlenderRenderController
             findFFmpegDialog.Filter = "FFmpeg|" + ffmpegExe;
             findFFmpegDialog.Title += ffmpegExe;
 
-            if (!File.Exists(_setts.BlenderProgram))
+            if (!File.Exists(Settings.BlenderProgram))
             {
                 blenderPathTextBox.Text = string.Empty;
             }
-            if (!File.Exists(_setts.FFmpegProgram))
+            if (!File.Exists(Settings.FFmpegProgram))
             {
                 ffmpegPathTextBox.Text = string.Empty;
             }
@@ -52,7 +48,7 @@ namespace BlenderRenderController
 
         private void CbLoggingLvl_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _setts.LoggingLevel = cbLoggingLvl.SelectedIndex;
+            Settings.LoggingLevel = cbLoggingLvl.SelectedIndex;
         }
 
         private void blenderChangePathButton_Click(object sender, EventArgs e)
@@ -84,7 +80,7 @@ namespace BlenderRenderController
 
         private void SettingsForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if (!Services.Settings.CheckCorrectConfig())
+            if (!CheckProgramPaths())
             {
                 this.DialogResult = DialogResult.Abort;
             }

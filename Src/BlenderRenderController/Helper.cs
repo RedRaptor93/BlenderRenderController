@@ -3,6 +3,7 @@
 // Copyright 2017-present Pedro Oliva Rodrigues
 // This code is released under the MIT licence
 
+using BRClib;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -30,7 +31,7 @@ namespace BlenderRenderController
                 }
 
                 // clear files in the 'chunks' subdir
-                var chunkSDir = subDirs.FirstOrDefault(di => di.Name == Constants.ChunksSubfolder);
+                var chunkSDir = subDirs.FirstOrDefault(di => di.Name == "chunks");
                 if (chunkSDir != null)
                 {
                     Directory.Delete(chunkSDir.FullName, true);
@@ -69,52 +70,81 @@ namespace BlenderRenderController
                 }
             }
         }
-
-        public static void SetChildsToolTip(this ToolTip toolTip, Control control)
+        
+        public static MessageBoxButtons ToMsgBoxBtns(this VMDialogButtons dialogButtons)
         {
-            var caption = toolTip.GetToolTip(control);
-
-            if (string.IsNullOrEmpty(caption))
-                return;
-
-            foreach (Control subItem in control.Controls)
+            MessageBoxButtons retval;
+            switch (dialogButtons)
             {
-                toolTip.SetToolTip(subItem, caption);
+                case VMDialogButtons.OK:
+                    retval = MessageBoxButtons.OK;
+                    break;
+                case VMDialogButtons.OKCancel:
+                    retval = MessageBoxButtons.OKCancel;
+                    break;
+                case VMDialogButtons.YesNo:
+                    retval = MessageBoxButtons.YesNo;
+                    break;
+                case VMDialogButtons.RetryCancel:
+                    retval = MessageBoxButtons.RetryCancel;
+                    break;
+                default:
+                    goto case VMDialogButtons.OK;
             }
+            return retval;
         }
 
-        static public IEnumerable<Control> FindControlsByTag(Control.ControlCollection controls, string key)
+        static VMDialogResult ToDR(this DialogResult result)
         {
-            List<Control> controlsWithTags = new List<Control>();
-
-            foreach (Control c in controls)
+            VMDialogResult retval;
+            switch (result)
             {
-                if (c.Tag != null)
-                {
-                    // splits tag content into string array
-                    string[] tags = c.Tag.ToString().Split(';');
-
-                    // if key maches, add to list
-                    if (tags.Contains(key))
-                        controlsWithTags.Add(c);
-                }
-
-                if (c.HasChildren)
-                {
-                    //Recursively check all children controls as well; ie groupboxes or tabpages
-                    controlsWithTags.AddRange(FindControlsByTag(c.Controls, key));
-                }
+                case DialogResult.OK:
+                    retval = VMDialogResult.Ok;
+                    break;
+                case DialogResult.Cancel:
+                    retval = VMDialogResult.Cancel;
+                    break;
+                case DialogResult.Yes:
+                    retval = VMDialogResult.Yes;
+                    break;
+                case DialogResult.No:
+                    retval = VMDialogResult.No;
+                    break;
+                case DialogResult.Retry:
+                    retval = VMDialogResult.Retry;
+                    break;
+                default:
+                    goto case DialogResult.OK;
             }
-
-            return controlsWithTags;
+            return retval;
         }
 
-        //    static public readonly Dictionary<AfterRenderAction, string> AfterRenderResources =
-        //        new Dictionary<AfterRenderAction, string>
-        //        {
-        //            [AfterRenderAction.MIX_JOIN] = Resources.AR_JoinMixdown,
-        //            [AfterRenderAction.JOIN] = Resources.AR_JoinOnly,
-        //            [AfterRenderAction.NOTHING] = Resources.AR_NoAction
-        //        };
+        public static VMDialogResult ShowVMDialog(string title, string message, string details, VMDialogButtons buttons)
+        {
+            var btns = buttons.ToMsgBoxBtns();
+            var icon = title.ToLower().StartsWith("w") ? MessageBoxIcon.Warning : MessageBoxIcon.Error;
+            VMDialogResult retval;
+
+            if (details != null)
+            {
+                var dlg = new Ui.DetailedMessageBox(message, title, details, btns, icon);
+                retval = dlg.ShowDialog().ToDR();
+            }
+            else
+            {
+                retval = MessageBox.Show(message, title, btns, icon).ToDR();
+            }
+
+            return retval;
+        }
     }
+
+    //class Constants
+    //{
+    //    public const string ChunksSubfolder = "chunks";
+    //    public const string APP_TITLE = "Blender Render Controller";
+    //    public const string ChunksTxtFileName = "chunklist.txt";
+    //}
+
 }

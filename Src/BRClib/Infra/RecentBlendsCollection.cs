@@ -6,12 +6,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Linq;
 
-namespace BlenderRenderController.Infra
+namespace BRClib.Infra
 {
-    public class RecentBlendsCollection : ObservableCollection<string>
+    public class RecentBlendsCollection : Collection<string>
     {
         int _capacity = 10;
 
@@ -31,17 +29,18 @@ namespace BlenderRenderController.Infra
 
         public RecentBlendsCollection() { }
 
-        public RecentBlendsCollection(IEnumerable<string> collection) : base(collection)
+        public RecentBlendsCollection(IList<string> collection) : base(collection)
         { }
 
 
         protected override void InsertItem(int index, string item)
         {
             // check if item is already present
-            if (Contains(item))
+            int exIdx = IndexOf(item);
+            if (exIdx != -1)
             {
-                index = IndexOf(item);
-                MoveItem(index, 0);
+                Items.RemoveAt(exIdx);
+                Items.Insert(0, item);
                 return;
             }
 
@@ -53,6 +52,8 @@ namespace BlenderRenderController.Infra
 
             // elements are inserted at the front
             base.InsertItem(0, item);
+
+            System.Diagnostics.Debug.Assert(Count <= MaxElements);
         }
 
     }

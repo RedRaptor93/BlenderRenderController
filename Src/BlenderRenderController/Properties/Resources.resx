@@ -117,12 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="RM_unexpected_error" xml:space="preserve">
-    <value>An unexpected error ocurred while rendering, check the output folder for a log file</value>
-  </data>
-  <data name="AR_NoAction" xml:space="preserve">
-    <value>No extra action</value>
-  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="CleanData_16x" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\CleanData_16x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -139,16 +133,8 @@
   <data name="bug_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\bug-icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="AppErr_RenderFormatIsImage" xml:space="preserve">
-    <value>The render format is a {0} image.
-You can render an image sequence with this tool but you will need to make a video with other SW.</value>
-    <comment>0=image file format</comment>
-  </data>
   <data name="settings_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\settings-icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="AR_JoinMixdown" xml:space="preserve">
-    <value>Join chunks w/ Mixdown audio</value>
   </data>
   <data name="donate_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\donate-icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -159,9 +145,6 @@ You can render an image sequence with this tool but you will need to make a vide
   <data name="render_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\render-icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="brc_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\brc_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="Refresh_grey_16x" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Refresh_grey_16x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -171,23 +154,14 @@ You can render an image sequence with this tool but you will need to make a vide
   <data name="Join_16x" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Join_16x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Error" xml:space="preserve">
-    <value>Error</value>
-  </data>
   <data name="SoundFile_16x" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\SoundFile_16x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="History_16x" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\History_16x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="AppErr_BlendOutputInvalid" xml:space="preserve">
-    <value>Unable to read output path, using project location.</value>
-  </data>
   <data name="Time_16x" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Time_16x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="AR_JoinOnly" xml:space="preserve">
-    <value>Join chunks</value>
   </data>
   <data name="FindinFiles_16x" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\FindinFiles_16x.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -204,13 +178,10 @@ You can render an image sequence with this tool but you will need to make a vide
   <data name="cgb_plus" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\plus.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Renderer_Blender" xml:space="preserve">
-    <value>Blender Renderer</value>
+  <data name="brc_icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\brc_icon.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Renderer_Cycles" xml:space="preserve">
-    <value>Cycles Renderer</value>
-  </data>
-  <data name="AppErr_RequiredProgramsNotFound" xml:space="preserve">
-    <value>One or more required program(s) were not found (Path invalid OR first time run), set the paths in the Settings window</value>
+  <data name="brc" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\brc_icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

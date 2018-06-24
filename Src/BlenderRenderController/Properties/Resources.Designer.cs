@@ -61,61 +61,6 @@ namespace BlenderRenderController.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to read output path, using project location..
-        /// </summary>
-        internal static string AppErr_BlendOutputInvalid {
-            get {
-                return ResourceManager.GetString("AppErr_BlendOutputInvalid", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The render format is a {0} image.
-        ///You can render an image sequence with this tool but you will need to make a video with other SW..
-        /// </summary>
-        internal static string AppErr_RenderFormatIsImage {
-            get {
-                return ResourceManager.GetString("AppErr_RenderFormatIsImage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to One or more required program(s) were not found (Path invalid OR first time run), set the paths in the Settings window.
-        /// </summary>
-        internal static string AppErr_RequiredProgramsNotFound {
-            get {
-                return ResourceManager.GetString("AppErr_RequiredProgramsNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Join chunks w/ Mixdown audio.
-        /// </summary>
-        internal static string AR_JoinMixdown {
-            get {
-                return ResourceManager.GetString("AR_JoinMixdown", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Join chunks.
-        /// </summary>
-        internal static string AR_JoinOnly {
-            get {
-                return ResourceManager.GetString("AR_JoinOnly", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No extra action.
-        /// </summary>
-        internal static string AR_NoAction {
-            get {
-                return ResourceManager.GetString("AR_NoAction", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap blender_icon {
@@ -138,10 +83,20 @@ namespace BlenderRenderController.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap brc_icon {
+        internal static System.Drawing.Bitmap brc {
+            get {
+                object obj = ResourceManager.GetObject("brc", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon brc_icon {
             get {
                 object obj = ResourceManager.GetObject("brc_icon", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((System.Drawing.Icon)(obj));
             }
         }
         
@@ -192,15 +147,6 @@ namespace BlenderRenderController.Properties {
             get {
                 object obj = ResourceManager.GetObject("donate_icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Error.
-        /// </summary>
-        internal static string Error {
-            get {
-                return ResourceManager.GetString("Error", resourceCulture);
             }
         }
         
@@ -281,33 +227,6 @@ namespace BlenderRenderController.Properties {
             get {
                 object obj = ResourceManager.GetObject("render_icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Blender Renderer.
-        /// </summary>
-        internal static string Renderer_Blender {
-            get {
-                return ResourceManager.GetString("Renderer_Blender", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Cycles Renderer.
-        /// </summary>
-        internal static string Renderer_Cycles {
-            get {
-                return ResourceManager.GetString("Renderer_Cycles", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An unexpected error ocurred while rendering, check the output folder for a log file.
-        /// </summary>
-        internal static string RM_unexpected_error {
-            get {
-                return ResourceManager.GetString("RM_unexpected_error", resourceCulture);
             }
         }
         

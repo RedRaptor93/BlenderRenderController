@@ -10,29 +10,25 @@ namespace BRClib.Commands
     public class GetInfoCmd : ExternalCommand
     {
 
-        public GetInfoCmd(string programPath) : base(programPath)
-        {
-        }
-
-        public GetInfoCmd(string program, string blendFile, string projInfoScript)
-            : base(program)
+        public GetInfoCmd(string blendFile) : this()
         {
             BlendFile = blendFile;
-            ProjInfoScript = projInfoScript;
         }
 
+        public GetInfoCmd() : base(Global.Settings.BlenderProgram)
+        {
+        }
+
+
         public string BlendFile { get; set; }
-        public string ProjInfoScript { get; set; }
+        public string ProjInfoScript { get; set; } = Global.GetProjInfoScript;
 
-
-        // 0=Blend file, 1=get_project_info.py
-        const string GETINFO_FMT = "-b \"{0}\" -P \"{1}\"";
 
         protected override string GetArgs()
         {
-            return String.Format(GETINFO_FMT,
-                                    BlendFile, 
-                                    ProjInfoScript);
+            var fmt = GetFormat("getinfo");
+            return String.Format(fmt, BlendFile, ProjInfoScript);
         }
+
     }
 }

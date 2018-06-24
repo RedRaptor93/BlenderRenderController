@@ -9,18 +9,9 @@ namespace BRClib.Commands
 {
     public class ConcatCmd : ExternalCommand
     {
-
-        public ConcatCmd(string program, string concatTextFile, string outputFile, 
-                      string mixdownFile = null, TimeSpan? duration = null)
-            : base(program)
+        public ConcatCmd() : base(Global.Settings.FFmpegProgram)
         {
-            ConcatTextFile = concatTextFile;
-            OutputFile = outputFile;
-            MixdownFile = mixdownFile;
-            Duration = duration;
         }
-
-        public ConcatCmd(string program) : base(program) { }
 
 
         public string ConcatTextFile { get; set; }
@@ -31,30 +22,23 @@ namespace BRClib.Commands
 
         protected override string GetArgs()
         {
-            // ref: https://ffmpeg.org/ffmpeg-all.html#concat-1
-            // 0=ChunkTxtPath, 1=codec specs, 2=Optional duration, 3=Final file path + .EXT
-            const string CONCAT_FMT = "-f concat -safe 0 -i \"{0}\" {1} {2} \"{3}\" -y";
+            string args;
+            string durText = Duration.HasValue
+                     ? "-t " + Duration.Value.ToString(@"hh\:mm\:ss") : string.Empty;
 
-            string codecText;
-
-            if (string.IsNullOrWhiteSpace(MixdownFile))
+            if (System.IO.File.Exists(MixdownFile))
             {
-                codecText = "-c copy";
+                var fmt = GetFormat("concat", "withMixdown");
+                args = string.Format(fmt, ConcatTextFile, MixdownFile, durText, OutputFile);
             }
             else
             {
-                codecText = string.Format("-i \"{0}\" -c copy -map 0:v:0 -map 1:a:0", MixdownFile);
+                var fmt = GetFormat("concat", "noMixdown");
+                args = string.Format(fmt, ConcatTextFile, durText, OutputFile);
             }
 
-            var durText = Duration.HasValue
-                ? "-t " + Duration.Value.ToString(@"hh\:mm\:ss") : string.Empty;
-
-            return string.Format(CONCAT_FMT, 
-                                    ConcatTextFile, 
-                                    codecText, 
-                                    durText, 
-                                    OutputFile);
+            return args;
         }
-        
+
     }
 }

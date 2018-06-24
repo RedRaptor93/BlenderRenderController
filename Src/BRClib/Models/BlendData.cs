@@ -4,10 +4,7 @@
 // This code is released under the MIT licence
 
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
 using System.Text;
 
 namespace BRClib
@@ -93,7 +90,7 @@ namespace BRClib
         /// <remarks>
         /// When executing get_project_info script, Blender may also print errors
         /// alongside the project info (a commun case if there're custom plugins installed) 
-        /// this method will filter out those errors.
+        /// this method will ignore out those errors.
         /// </remarks>
         public static BlendData FromPyOutput(IEnumerable<string> outputLines)
         {
@@ -120,7 +117,7 @@ namespace BRClib
                         curlyStack--;
                         if (curlyStack == 0)
                         {
-                            jsonStarted = false;
+                            break;
                         }
                     }
                 }
@@ -138,7 +135,7 @@ namespace BRClib
         /// <remarks>
         /// When executing get_project_info script, Blender may also print errors
         /// alongside the Json containig the project info (a commun case if there're
-        /// custom plugins installed) this method will filter out those errors.
+        /// custom plugins installed) this method will ignore out those errors.
         /// </remarks>
         public static BlendData FromPyOutput(string stdOutput)
         {
@@ -165,41 +162,5 @@ namespace BRClib
         //        }
         //    }
         //}
-    }
-
-
-    public class RenderProgressInfo
-    {
-        public int FramesRendered { get; }
-        public int PartsCompleted { get; }
-
-        public RenderProgressInfo(int framesRendered, int partsCompleted)
-        {
-            FramesRendered = framesRendered;
-            PartsCompleted = partsCompleted;
-        }
-    }
-
-
-    public enum Renderer
-    {
-        BLENDER_RENDER, CYCLES
-    }
-
-    [Flags]
-    public enum AfterRenderAction
-    {
-        NOTHING = 0,
-        MIXDOWN = 1,
-        JOIN = 2,
-        MIX_JOIN = MIXDOWN | JOIN
-    }
-
-    public enum BrcRenderResult
-    {
-        AllOk,
-        Aborted,
-        AfterRenderFailed,
-        ChunkRenderFailed
     }
 }

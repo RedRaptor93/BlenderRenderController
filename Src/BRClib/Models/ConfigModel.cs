@@ -3,18 +3,16 @@
 // Copyright 2017-present Pedro Oliva Rodrigues
 // This code is released under the MIT licence
 
-using BlenderRenderController.Infra;
-using BRClib;
-using System;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
-namespace BlenderRenderController
+namespace BRClib
 {
     [JsonObject(Description = "Brc settings")]
-    public class BrcSettings
+    public class ConfigModel
     {
         [JsonProperty("RecentBlends")]
-        public RecentBlendsCollection RecentProjects { get; set; }
+        public IList<string> RecentProjects { get; set; }
 
         public string BlenderProgram { get; set; }
         public string FFmpegProgram { get; set; }
@@ -23,6 +21,5 @@ namespace BlenderRenderController
         public Renderer Renderer { get; set; }
         public bool DeleteChunksFolder { get; set; }
         public int LoggingLevel { get; set; }
-
     }
 }

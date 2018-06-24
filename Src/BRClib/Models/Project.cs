@@ -18,11 +18,11 @@ namespace BRClib
     {
         string _blendPath, _chunksDir;
         int _maxC, _chunkLen = 50;
-        private ObservableCollection<Chunk> _chunkList =
-            new ObservableCollection<Chunk>();
+        private ObservableCollection<Chunk> _chunkList;
 
         public Project()
         {
+            _chunkList = new ObservableCollection<Chunk>();
         }
 
         public Project(BlendData blend)
@@ -37,6 +37,14 @@ namespace BRClib
             FileFormat = blend.FileFormat;
             FFmpegVideoFormat = blend.FFmpegVideoFormat;
             FFmpegAudioCodec = blend.FFmpegAudioCodec;
+
+            MaxConcurrency = Environment.ProcessorCount;
+
+            _chunkList = new ObservableCollection<Chunk>(Chunk.CalcChunks(Start, End, MaxConcurrency));
+
+            ChunkLenght = _chunkList[0].Length;
+
+            OriginalRange = new Chunk(blend.Start, blend.End);
         }
 
         public string BlendFilePath
@@ -63,6 +71,14 @@ namespace BRClib
         {
             get => _chunksDir;
             set => _chunksDir = value;
+        }
+
+        public Chunk OriginalRange { get; }
+
+        public void ResetRange()
+        {
+            Start = OriginalRange.Start;
+            End = OriginalRange.End;
         }
 
         public string DefaultChunksDirPath

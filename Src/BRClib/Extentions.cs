@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 
 namespace BRClib.Extentions
@@ -33,6 +34,9 @@ namespace BRClib.Extentions
 
             return len;
         }
+
+        public static Chunk GetFullRange(this IEnumerable<Chunk> chunks)
+            => new Chunk(chunks.First().Start, chunks.Last().End);
 
         /// <summary>
         /// Safely raises any EventHandler event asynchronously.
