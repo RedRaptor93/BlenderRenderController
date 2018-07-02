@@ -182,8 +182,9 @@ namespace BlenderRenderController
         async void OpenBlendFile(string blendFile)
         {
             _vm.IsBusy = true;
+            logger.Info("Loading " + PathIO.GetFileName(blendFile) + " ...");
 
-            var(loaded, result) = await _vm.OpenBlendFile(blendFile);
+            var (loaded, result) = await _vm.OpenBlendFile(blendFile);
             if (!loaded)
             {
                 if (result == VMDialogResult.Retry)
@@ -191,7 +192,9 @@ namespace BlenderRenderController
                     OpenBlendFile(blendFile);
                     return;
                 }
-                
+                logger.Error(".blend was NOT loaded");
+                Status("Error loading blend file");
+
             }
 
             _vm.IsBusy = false;
@@ -250,6 +253,7 @@ namespace BlenderRenderController
             if (prefWin != null) prefWin.Destroy();
 
             Application.Quit();
+            logger.Info("Program closing");
         }
 
         private void On_OpenFile(object sender, EventArgs e)

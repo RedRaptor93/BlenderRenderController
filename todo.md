@@ -1,6 +1,8 @@
 ## To do list
 
-- Make an ACTUAL Linux port (IN PROGRESS!)
+- Linux port (IN PROGRESS!)
+	- Manual concat dialog
+
 
 ### Maybes
 

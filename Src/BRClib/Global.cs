@@ -159,17 +159,22 @@ namespace BRClib
                 var filePath = pair.Key;
                 var resPath = pair.Value;
 
-                using (var stream = assembly.GetManifestResourceStream(resPath))
+                using (Stream assmbStream = assembly.GetManifestResourceStream(resPath), memStream = new MemoryStream())
                 using (var fs = File.Open(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
                 {
-                    bool eq = md5.ComputeHash(fs).SequenceEqual(md5.ComputeHash(stream));
+                    // write header to embedded stream
+                    memStream.Write(header, 0, header.Length);
+                    assmbStream.CopyTo(memStream);
+                    memStream.Seek(0, SeekOrigin.Begin);
+
+                    bool eq = md5.ComputeHash(fs).SequenceEqual(md5.ComputeHash(memStream));
                     if (!eq)
                     {
-                        fs.Write(header, 0, header.Length);
+                        // Seek both streams to begining
+                        memStream.Seek(0, SeekOrigin.Begin);
+                        fs.Seek(0, SeekOrigin.Begin);
 
-                        stream.Seek(0, SeekOrigin.Begin);
-                        stream.CopyTo(fs);
-
+                        memStream.CopyTo(fs);
                         filesWritten++;
                     }
                 }
