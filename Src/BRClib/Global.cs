@@ -165,14 +165,13 @@ namespace BRClib
                     // write header to embedded stream
                     memStream.Write(header, 0, header.Length);
                     assmbStream.CopyTo(memStream);
-                    memStream.Seek(0, SeekOrigin.Begin);
+                    memStream.Position = 0;
 
                     bool eq = md5.ComputeHash(fs).SequenceEqual(md5.ComputeHash(memStream));
                     if (!eq)
                     {
-                        // Seek both streams to begining
-                        memStream.Seek(0, SeekOrigin.Begin);
-                        fs.Seek(0, SeekOrigin.Begin);
+                        memStream.Position = 0;
+                        fs.Position = 0;
 
                         memStream.CopyTo(fs);
                         filesWritten++;

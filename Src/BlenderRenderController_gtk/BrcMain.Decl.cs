@@ -1,4 +1,4 @@
-﻿using BRClib;
+﻿using BRCRes = BRClib.Properties.Resources;
 using System;
 using Gtk;
 using UI = Gtk.Builder.ObjectAttribute;
@@ -138,7 +138,7 @@ namespace BlenderRenderController
             if (!_vm.ConfigOk)
             {
                 var msgBox = new MessageDialog(this, DialogFlags.Modal, MessageType.Warning, ButtonsType.OkCancel,
-                    "One or more required programs were not found, click 'Ok' to go to preferences...");
+                    BRCRes.AppErr_RequiredProgramsNotFound);
 
                 var resp = (ResponseType)msgBox.Run(); msgBox.Destroy();
 

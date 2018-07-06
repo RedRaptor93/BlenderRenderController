@@ -294,6 +294,7 @@ namespace BlenderRenderController
 
         private void On_UnloadFile(object sender, EventArgs e)
         {
+            _vm.Project.PropertyChanged -= VMProject_PropChanged;
             _vm.Project = null;
         }
 
@@ -491,16 +492,17 @@ namespace BlenderRenderController
             workProgress.Fraction = 0;
 
             Status("ETR: " + TimeSpan.Zero.ToString(@"hh\:mm\:ss"), lblETR);
+
+            btnStartRender.Show();
+            startStopStack.VisibleChild = btnStartRender;
         }
 
         private void RenderMngr_ProgressChanged(object sender, RenderProgressInfo e)
         {
-            // BUG: Progress reporting does not update main UI
-
             lblStatus.Text = $"Completed {e.PartsCompleted} / {_vm.Project.ChunkList.Count} chunks, " +
                 $"{e.FramesRendered} frames rendered";
 
-            float porcentageDone = e.PartsCompleted / (float)_vm.Project.ChunkList.Count;
+            float porcentageDone = e.FramesRendered / (float)_vm.Project.TotalFrames;
 
             workProgress.Fraction = porcentageDone;
 
@@ -633,8 +635,8 @@ namespace BlenderRenderController
             _vm.IsBusy = true;
             ResetCTS();
 
-            // TODO: Manual concat dialog
             var dlg = new ConcatDialog();
+            dlg.TransientFor = this;
             var response = (ResponseType)dlg.Run(); dlg.Destroy();
 
             if (response == ResponseType.Accept)
@@ -665,6 +667,7 @@ namespace BlenderRenderController
             {
                 _vm.Project.OutputPath =
                 entryOutputPath.Text = chooseOutputFolderDialog.Filename;
+                _vm.Project.ChunksDirPath = _vm.Project.DefaultChunksDirPath;
             }
 
             chooseOutputFolderDialog.Hide();
@@ -702,8 +705,7 @@ namespace BlenderRenderController
             miUnload.Sensitive = vm.CanEditCurrentProject;
 
             miRenderMixdown.Sensitive = vm.CanRender && !vm.IsBusy;
-            //miJoinChunks.Sensitive = !vm.IsBusy;
-            miJoinChunks.Sensitive = false; // TODO: manual concat UI
+            miJoinChunks.Sensitive = !vm.IsBusy;
 
             miPref.Sensitive = !vm.IsBusy;
 
