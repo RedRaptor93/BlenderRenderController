@@ -628,17 +628,34 @@ namespace BlenderRenderController
             _vm.IsBusy = false;
         }
 
-        void On_JoinChunks_Clicked(object s, EventArgs e)
+        async void On_JoinChunks_Clicked(object s, EventArgs e)
         {
-            return;
-
             _vm.IsBusy = true;
             ResetCTS();
 
             // TODO: Manual concat dialog
+            var dlg = new ConcatDialog();
+            var response = (ResponseType)dlg.Run(); dlg.Destroy();
+
+            if (response == ResponseType.Accept)
+            {
+                var concat = dlg.Concat;
+                var res = await concat.RunAsync();
+                if (res == 0)
+                {
+                    Status("Concatenation complete");
+                }
+                else
+                {
+                    var report = concat.GenerateReport();
+                    var ddlg = new DetailDialog("Failed to concatenate chunks", "Error", report, this, MessageType.Error);
+                    Status("Something went wrong...");
+
+                    ddlg.Run(); ddlg.Destroy();
+                }
+            }
 
             _vm.IsBusy = false;
-
         }
 
         void BtnChangeFolder_Clicked(object s, EventArgs e)

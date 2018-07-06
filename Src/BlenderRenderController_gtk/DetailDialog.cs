@@ -28,7 +28,7 @@ namespace BlenderRenderController
         }
 
         public DetailDialog(string message, string title, string details, Window parent, MessageType type)
-            : this(Glade.LoadUI("DetailDialog.glade", "brc_style.css"), "DetailDialog")
+            : this(Glade.LoadUI("Dialogs.glade", "brc_style.css"), "DetailDialog")
         {
             this.TransientFor = parent;
             detailsBuffer.Text = details;
