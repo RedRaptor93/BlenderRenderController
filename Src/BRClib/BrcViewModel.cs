@@ -19,15 +19,6 @@ namespace BRClib
 {
     public class BrcViewModel : BindingBase
     {
-
-        public BrcViewModel(ShowDialogCB dialogCB, Action<string> statusCB)
-        {
-            StatusCb = statusCB;
-            ShowDialogCb = dialogCB;
-        }
-
-        public delegate VMDialogResult ShowDialogCB(string title, string message, string details, VMDialogButtons buttons);
-
         private Project _proj;
 
         public Project Project

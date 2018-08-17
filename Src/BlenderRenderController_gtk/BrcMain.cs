@@ -33,7 +33,7 @@ namespace BlenderRenderController
 
             _ProjBase = lblProjectName.Text;
 
-            _vm = new BrcViewModel(ShowVMDialog, Status);
+            _vm = new BrcViewModel();
             _vm.PropertyChanged += ViewModel_PropertyChanged;
             CheckConfigs();
 
@@ -135,26 +135,79 @@ namespace BlenderRenderController
 
         async void OpenBlendFile(string blendFile)
         {
-            _vm.IsBusy = true;
-            logger.Info("Loading " + PathIO.GetFileName(blendFile) + " ...");
+            Status("Loading " + PathIO.GetFileName(blendFile) + " ...");
+            workSpinner.Start();
 
-            var (loaded, result) = await _vm.OpenBlendFile(blendFile);
-            if (!loaded)
+            Dialog dlg = null;
+
+            if (!File.Exists(blendFile))
             {
-                if (result == VMDialogResult.Retry)
-                {
-                    OpenBlendFile(blendFile);
-                    return;
-                }
-                logger.Error(".blend was NOT loaded");
-                Status("Error loading blend file");
-
+                ShowDialog("File not found");
+                return;
             }
 
-            _vm.IsBusy = false;
+            var getinfo = new GetInfoCmd(blendFile);
+            await getinfo.RunAsync();
+
+            var report = getinfo.GenerateReport();
+
+            if (getinfo.StdOutput.Length == 0)
+            {
+                ShowDialog(BRCRes.AppErr_NoInfoReceived, report);
+                return;
+            }
+
+            var data = BlendData.FromPyOutput(getinfo.StdOutput);
+            if (data == null)
+            {
+                ShowDialog("Read error", report);
+                return;
+            }
+
+            var proj = new Project(data)
+            {
+                BlendFilePath = blendFile
+            };
+            
+
+            if (RenderFormats.IMAGES.Contains(proj.FileFormat))
+            {
+                var eMsg = string.Format(BRCRes.AppErr_RenderFormatIsImage, proj.FileFormat);
+                ShowDialog(eMsg, null, MessageType.Warning);
+            }
+
+            if (string.IsNullOrWhiteSpace(proj.OutputPath))
+            {
+                // use .blend folder path if outputPath is unset, display a warning about it
+                ShowDialog(BRCRes.AppErr_BlendOutputInvalid, null, MessageType.Warning);
+                proj.OutputPath = PathIO.GetDirectoryName(blendFile);
+            }
+            else
+                proj.OutputPath = PathIO.GetDirectoryName(proj.OutputPath);
+
+            _vm.Project = proj;
+
+            workSpinner.Stop();
+
+            // ----
+            int ShowDialog(string message, string details = null, MessageType type = MessageType.Error)
+            {
+                if (string.IsNullOrEmpty(details))
+                {
+                    dlg = new MessageDialog(this, DialogFlags.Modal, type, ButtonsType.Ok, message);
+                }
+                else
+                {
+                    dlg = new DetailDialog(message, type.ToString(), details, this, type);
+                }
+
+                int dr = dlg.Run();
+                dlg.Destroy();
+                return dr;
+            }
         }
 
-        void Status(string text, Label item)
+        void Status(string text, Label item = null)
         {
             if (item == null) item = lblStatus;
 

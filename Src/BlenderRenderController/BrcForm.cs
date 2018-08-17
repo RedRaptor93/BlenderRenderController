@@ -207,28 +207,82 @@ namespace BlenderRenderController
 
         private async void GetBlendInfo(string blendFile)
         {
+            logger.Info("Loading .blend");
+            Status("Reading .blend file...");
             UpdateProgressBars(-1);
-            logger.Info("Loading " + Path.GetFileName(blendFile) + " ...");
 
-            var (loaded, dlr) = await _vm.OpenBlendFile(blendFile);
-            if (loaded)
+            if (!File.Exists(blendFile))
             {
-                projectBindingSrc.DataSource = _vm.Project;
-                AddRecentItem(blendFile);
+                ShowErrorDialog("Error", "File not found");
+                return;
+            }
+
+            var getinfo = new GetInfoCmd(blendFile);
+
+            await getinfo.RunAsync();
+
+            var report = getinfo.GenerateReport();
+
+            if (getinfo.StdOutput.Length == 0)
+            {
+                ShowErrorDialog("Error", BRCRes.AppErr_NoInfoReceived, report);
+                return;
+            }
+
+            var data = BlendData.FromPyOutput(getinfo.StdOutput);
+            if (data == null)
+            {
+                ShowErrorDialog("Read error", BRCRes.AppErr_UnexpectedOutput, report);
+                return;
+            }
+
+            var proj = new Project(data) {
+                BlendFilePath = blendFile
+            };
+
+
+            if (RenderFormats.IMAGES.Contains(proj.FileFormat))
+            {
+                var eMsg = string.Format(BRCRes.AppErr_RenderFormatIsImage, proj.FileFormat);
+                MessageBox.Show(BRCRes.AppErr_RenderFormatIsImage, "Warning",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            if (string.IsNullOrWhiteSpace(proj.OutputPath))
+            {
+                // use .blend folder path if outputPath is unset, display a warning about it
+                MessageBox.Show(BRCRes.AppErr_BlendOutputInvalid, "Warning",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                proj.OutputPath = Path.GetDirectoryName(blendFile);
             }
             else
-            {
-                if (dlr == VMDialogResult.Retry)
-                {
-                    GetBlendInfo(blendFile);
-                    return;
-                }
-                logger.Error(".blend was NOT loaded");
-                Status("Error loading blend file");
-            }
+                proj.OutputPath = Path.GetDirectoryName(proj.OutputPath);
 
+            _vm.Project = proj;
+
+            projectBindingSrc.DataSource = _vm.Project;
+
+            AddRecentItem(blendFile);
+            
             UpdateRecentBlendsMenu();
             UpdateProgressBars();
+            // ---
+
+            void ShowErrorDialog(string title, string message, string details = "No details")
+            {
+                var dialog = new Ui.DetailedMessageBox(message, title, details, MessageBoxButtons.RetryCancel);
+                var d = dialog.ShowDialog();
+
+                if (d == DialogResult.Retry)
+                    GetBlendInfo(blendFile);
+                else
+                {
+                    logger.Error(".blend was NOT loaded");
+                    Status("Error loading blend file");
+                    UpdateProgressBars();
+                }
+            }
         }
 
 
