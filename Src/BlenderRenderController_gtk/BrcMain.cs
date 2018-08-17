@@ -49,52 +49,6 @@ namespace BlenderRenderController
             ShowAll();
         }
 
-        public VMDialogResult ShowVMDialog(string title, string message, string details, VMDialogButtons buttons)
-        {
-            ButtonsType btns = ButtonsType.Ok;
-            var type = title.ToLower().StartsWith("w") ? MessageType.Warning : MessageType.Error;
-            bool retryCancel = false;
-            switch (buttons)
-            {
-                case VMDialogButtons.OK:
-                    btns = ButtonsType.Ok;
-                    break;
-                case VMDialogButtons.OKCancel:
-                    btns = ButtonsType.OkCancel;
-                    break;
-                case VMDialogButtons.YesNo:
-                    btns = ButtonsType.YesNo;
-                    break;
-                case VMDialogButtons.RetryCancel:
-                    retryCancel = true;
-                    break;
-            }
-
-            Dialog dlg = null;
-
-            if (details != null)
-            {
-                if (retryCancel)
-                {
-                    dlg = new DetailDialog(message, title, details, this, type);
-                    // the lack of a ResponseType.Retry and Cancel makes me sad D:
-                    dlg.AddButton("Retry", 1);
-                    dlg.AddButton(Stock.Lookup(Stock.Cancel).Label, 2);
-                }
-                else
-                {
-                    dlg = new DetailDialog(message, title, details, this, type, btns);
-                }
-            }
-            else
-            {
-                dlg = new MessageDialog(null, DialogFlags.Modal, type, btns, message);
-            }
-
-            var r = dlg.Run(); dlg.Destroy();
-            return Helpers.VMDR(r);
-        }
-
         static bool ClearOutputFolder(string path)
         {
             bool result;
@@ -204,11 +158,9 @@ namespace BlenderRenderController
         {
             if (item == null) item = lblStatus;
 
-            //Application.Invoke(delegate
-            //{
+            Application.Invoke(delegate {
                 item.Text = text;
-            //});
-
+            });
         }
 
         void Status(string text) => Status(text, null);
@@ -639,6 +591,7 @@ namespace BlenderRenderController
             dlg.TransientFor = this;
             var response = (ResponseType)dlg.Run(); dlg.Destroy();
 
+
             if (response == ResponseType.Accept)
             {
                 var concat = dlg.Concat;
@@ -652,7 +605,6 @@ namespace BlenderRenderController
                     var report = concat.GenerateReport();
                     var ddlg = new DetailDialog("Failed to concatenate chunks", "Error", report, this, MessageType.Error);
                     Status("Something went wrong...");
-
                     ddlg.Run(); ddlg.Destroy();
                 }
             }

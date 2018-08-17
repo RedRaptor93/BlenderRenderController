@@ -45,34 +45,4 @@ namespace BlenderRenderController
 
     }
 
-    static class Helpers
-    {
-        
-
-        public static VMDialogResult VMDR(int response)
-        {
-            switch (response)
-            {
-                // Special cases
-                case 1:
-                    return VMDialogResult.Retry;
-                case 2:
-                    return VMDialogResult.Cancel;
-            }
-
-            switch ((ResponseType)response)
-            {
-                case ResponseType.Ok:
-                    return VMDialogResult.Ok;
-                case ResponseType.Cancel:
-                    return VMDialogResult.Cancel;
-                case ResponseType.Yes:
-                    return VMDialogResult.Yes;
-                case ResponseType.No:
-                    return VMDialogResult.No;
-            }
-
-            throw new ArgumentException("value not mapped to ResponseType", nameof(response));
-        }
-    }
 }

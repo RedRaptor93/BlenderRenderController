@@ -59,9 +59,6 @@ namespace BRClib
             set { SetProperty(ref _configOk, value); }
         }
 
-        public Action<string> StatusCb { get; }
-        public ShowDialogCB ShowDialogCb { get; }
-
         public bool ProjectLoaded => Project != null;
         public bool CanRender => ConfigOk && ProjectLoaded;
         public bool CanLoadNewProject => ConfigOk && !IsBusy;
@@ -144,61 +141,6 @@ namespace BRClib
             }
 
             Project.ChunkLenght = chunks.First().Length;
-        }
-
-        public async Task<(bool loaded, VMDialogResult dlr)> OpenBlendFile(string blendFile)
-        {
-            StatusCb("Reading .blend file...");
-
-            if (!File.Exists(blendFile))
-            {
-                var r = ShowDialogCb("Error", "File not found", null, VMDialogButtons.OK);
-                return (false, r);
-            }
-
-            var getinfo = new GetInfoCmd(blendFile);
-            await getinfo.RunAsync();
-            var report = getinfo.GenerateReport();
-
-            if (getinfo.StdOutput.Length == 0)
-            {
-                var r = ShowDialogCb("Error", BRCRes.AppErr_NoInfoReceived, report, VMDialogButtons.RetryCancel);
-                return (false, r);
-            }
-
-            var data = BlendData.FromPyOutput(getinfo.StdOutput);
-            if (data == null)
-            {
-                var r = ShowDialogCb("Error", BRCRes.AppErr_UnexpectedOutput, report, VMDialogButtons.RetryCancel);
-                return (false, r);
-            }
-
-            var proj = new Project(data)
-            {
-                BlendFilePath = blendFile
-            };
-
-            if (RenderFormats.IMAGES.Contains(proj.FileFormat))
-            {
-                var eMsg = string.Format(BRCRes.AppErr_RenderFormatIsImage, proj.FileFormat);
-                ShowDialogCb("Warning", eMsg, null, VMDialogButtons.OK);
-            }
-
-            if (string.IsNullOrWhiteSpace(proj.OutputPath))
-            {
-                // use .blend folder path if outputPath is unset, display a warning about it
-                ShowDialogCb("Warning", BRCRes.AppErr_BlendOutputInvalid, null, VMDialogButtons.OK);
-                proj.OutputPath = Path.GetDirectoryName(blendFile);
-            }
-            else
-                proj.OutputPath = Path.GetDirectoryName(proj.OutputPath);
-
-            proj.ChunksDirPath = proj.DefaultChunksDirPath;
-
-            Debug.Assert(!string.IsNullOrEmpty(proj.ChunksDirPath));
-
-            Project = proj;
-            return (true, VMDialogResult.Ok);
         }
 
 
