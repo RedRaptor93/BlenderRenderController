@@ -6,68 +6,35 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Text;
+using MvvmHelpers;
 
 namespace BRClib
 {
     /// <summary>
     /// Represents the settings from a Blender project file
     /// </summary>
-    public class BlendData : BindingBase
+    public class BlendData : ObservableObject
     {
-        private int _start, _end;
-        private double _fps;
-        private string _outPath, _projName, 
-            _activeScene, _res;
-
-
         [JsonProperty("start")]
-        public int Start
-        {
-            get => _start;
-            set => SetProperty(ref _start, value);
-        }
+        public int Start { get; set; }
 
         [JsonProperty("end")]
-        public int End
-        {
-            get => _end;
-            set => SetProperty(ref _end, value);
-        }
+        public int End { get; set; }
 
         [JsonProperty("fps")]
-        public double Fps
-        {
-            get => _fps;
-            set => SetProperty(ref _fps, value);
-        }
+        public double Fps { get; set; }
 
         [JsonProperty("resolution")]
-        public string Resolution
-        {
-            get => _res;
-            set => SetProperty(ref _res, value);
-        }
+        public string Resolution { get; set; }
 
         [JsonProperty("outputPath")]
-        public string OutputPath
-        {
-            get => _outPath;
-            set => SetProperty(ref _outPath, value);
-        }
+        public string OutputPath { get; set; }
 
         [JsonProperty("projectName")]
-        public string ProjectName
-        {
-            get => _projName;
-            set => SetProperty(ref _projName, value);
-        }
+        public string ProjectName { get; set; }
 
         [JsonProperty("sceneActive")]
-        public string ActiveScene
-        {
-            get => _activeScene;
-            set => SetProperty(ref _activeScene, value);
-        }
+        public string ActiveScene { get; set; }
 
         // scene.render.image_settings.file_format
         [JsonProperty("fileFormat")]
@@ -75,11 +42,11 @@ namespace BRClib
 
         // scene.render.ffmpeg.format
         [JsonProperty("ffmpegFmt")]
-        public string FFmpegVideoFormat { get; set; }
+        public string VideoFormat { get; set; }
 
         // scene.render.ffmpeg.audio_codec
         [JsonProperty("ffmpegAudio")]
-        public string FFmpegAudioCodec { get; set; }
+        public string AudioCodec { get; set; }
 
 
         /// <summary>
@@ -141,6 +108,13 @@ namespace BRClib
         {
             return FromPyOutput(stdOutput.Split('\n'));
         }
+
+
+        private int _start, _end;
+        private double _fps;
+        private string _outPath, _projName,
+            _activeScene, _res;
+
 
         //public string AudioFileFormat
         //{

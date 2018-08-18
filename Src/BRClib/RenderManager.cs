@@ -72,7 +72,7 @@ namespace BRClib.Render
             {
                 if (_Proj == null) return null;
 
-                var mixdownFmt = _Proj.FFmpegAudioCodec;
+                var mixdownFmt = _Proj.AudioCodec;
                 var projName = _Proj.ProjectName;
 
                 if (projName == null) return null;

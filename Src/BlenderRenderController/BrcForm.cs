@@ -52,7 +52,7 @@ namespace BlenderRenderController
         {
             InitializeComponent();
 
-            _vm = new BrcViewModel(Helper.ShowVMDialog, Status);
+            _vm = new BrcViewModel();
             _vm.PropertyChanged += ViewModel_PropertyChanged;
 
             TaskbarManager.Instance.ApplicationId = progId;

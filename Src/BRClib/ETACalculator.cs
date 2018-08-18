@@ -11,7 +11,7 @@ using System.Text;
 using ProgressItem = System.Collections.Generic.KeyValuePair<long, float>;
 
 
-namespace BlenderRenderController
+namespace BRClib
 {
     public interface IETACalculator
     {

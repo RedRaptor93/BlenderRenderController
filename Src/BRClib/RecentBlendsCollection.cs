@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace BRClib.Infra
+namespace BRClib
 {
     public class RecentBlendsCollection : Collection<string>
     {
