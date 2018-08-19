@@ -28,12 +28,12 @@ namespace BRClib.Commands
 
             if (System.IO.File.Exists(MixdownFile))
             {
-                var fmt = GetFormat("concat", "withMixdown");
+                var fmt = Global.Settings.ArgFormats["concatmix"];
                 args = string.Format(fmt, ConcatTextFile, MixdownFile, durText, OutputFile);
             }
             else
             {
-                var fmt = GetFormat("concat", "noMixdown");
+                var fmt = Global.Settings.ArgFormats["concat"];
                 args = string.Format(fmt, ConcatTextFile, durText, OutputFile);
             }
 

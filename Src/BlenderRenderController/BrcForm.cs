@@ -5,10 +5,9 @@
 
 using BRCRes = BRClib.Properties.Resources;
 using BlenderRenderController.Properties;
-using BRClib.Render;
 using BRClib;
 using BRClib.Commands;
-using BRClib.Extentions;
+using BRClib.ViewModels;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Microsoft.WindowsAPICodePack.Taskbar;
 using NLog;
@@ -45,14 +44,14 @@ namespace BlenderRenderController
         ETACalculator _etaCalc;
         CancellationTokenSource _afterRenderCancelSrc;
 
-        BrcViewModel _vm;
+        BrcMainViewModel _vm;
 
 
         public BrcForm()
         {
             InitializeComponent();
 
-            _vm = new BrcViewModel();
+            _vm = new BrcMainViewModel();
             _vm.PropertyChanged += ViewModel_PropertyChanged;
 
             TaskbarManager.Instance.ApplicationId = progId;
@@ -357,19 +356,16 @@ namespace BlenderRenderController
         private void RenderAll()
         {
             // Calculate chunks
-            bool customLen = chunkOptionsCustomRadio.Checked;
-            var chunks = customLen
-                ? Chunk.CalcChunksByLength(_vm.Project.Start,
-                                           _vm.Project.End,
-                                           _vm.Project.ChunkLenght)
+            if (_vm.AutoChunkSize)
+            {
+                _vm.Chunks = Chunk.CalcChunks(_vm.StartFrame, _vm.EndFrame, _vm.MaxProcessors).ToList();
+            }
+            else
+            {
+                _vm.Chunks = Chunk.CalcChunksByLength(_vm.StartFrame, _vm.EndFrame, _vm.ChunkSize).ToList();
+            }
 
-                : Chunk.CalcChunks(_vm.Project.Start,
-                                   _vm.Project.End,
-                                   _vm.Project.MaxConcurrency);
-
-            _vm.UpdateCurrentChunks(chunks);
-
-            logger.Info("Chunks: " + string.Join(", ", chunks));
+            logger.Info("Chunks: " + string.Join(", ", _vm.Chunks));
 
             _vm.IsBusy = true;
 

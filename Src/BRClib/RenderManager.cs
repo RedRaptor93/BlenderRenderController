@@ -17,14 +17,14 @@ using FrameSet = System.Collections.Concurrent.ConcurrentHashSet<int>;
 using Timer = System.Timers.Timer;
 using static BRClib.Global;
 
-namespace BRClib.Render
+namespace BRClib
 {
     public class RenderManager
     {
         IReadOnlyList<Chunk> _ChunkList;
         List<Process> _Processes;
         FrameSet _FramesRendered;
-        Project _Proj;
+        RenderJob _Job;
         CancellationTokenSource _arCts;
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -50,7 +50,6 @@ namespace BRClib.Render
 
         public RenderManager()
         {
-
             _Timer = new Timer
             {
                 Interval = 250,
@@ -70,10 +69,8 @@ namespace BRClib.Render
         {
             get
             {
-                if (_Proj == null) return null;
-
-                var mixdownFmt = _Proj.AudioCodec;
-                var projName = _Proj.ProjectName;
+                var mixdownFmt = _Job.AudioCodec;
+                var projName = _Job.ProjectName;
 
                 if (projName == null) return null;
 
@@ -97,9 +94,9 @@ namespace BRClib.Render
 
         public bool WasAborted { get; private set; }
 
-        public AfterRenderAction Action { get; private set; }
+        public AfterRenderAction Action => Settings.AfterRender;
 
-        public Renderer Renderer { get; private set; }
+        public Renderer Renderer => Settings.Renderer;
 
         public event EventHandler<RenderProgressInfo> ProgressChanged;
         public event EventHandler<AfterRenderAction> AfterRenderStarted;
@@ -119,7 +116,7 @@ namespace BRClib.Render
             }
         }
 
-        public void Setup(Project project, AfterRenderAction action, Renderer renderer)
+        public void Setup(RenderJob job)
         {
             if (InProgress)
             {
@@ -127,9 +124,7 @@ namespace BRClib.Render
                 throw new InvalidOperationException("Cannot change settings while a render is in progress!");
             }
 
-            _Proj = project;
-            Action = action;
-            Renderer = renderer;
+            _Job = job;
         }
 
         public void StartAsync()
@@ -160,29 +155,21 @@ namespace BRClib.Render
                 throw new Exception("Required programs missing");
             }
 
-            if (_Proj == null)
-            {
-                throw new Exception("Invalid project");
-            }
-
-            if (_Proj.ChunkList.Count == 0)
+            if (_Job.Chunks.Count == 0)
             {
                 throw new Exception("Chunk list is empty");
             }
 
-            if (!File.Exists(_Proj.BlendFilePath))
+            if (!File.Exists(_Job.BlendFile))
             {
-                throw new FileNotFoundException("Could not find 'blend' file", _Proj.BlendFilePath);
+                throw new FileNotFoundException("Could not find 'blend' file", _Job.BlendFile);
             }
 
-            if (_Proj.ChunksDirPath == null)
-                _Proj.ChunksDirPath = _Proj.DefaultChunksDirPath;
-
-            if (!Directory.Exists(_Proj.ChunksDirPath))
+            if (!Directory.Exists(_Job.ChunksDir))
             {
                 try
                 {
-                    Directory.CreateDirectory(_Proj.ChunksDirPath);
+                    Directory.CreateDirectory(_Job.ChunksDir);
                 }
                 catch (Exception inner)
                 {
@@ -193,7 +180,7 @@ namespace BRClib.Render
 
         void ResetFields()
         {
-            _ChunkList = _Proj.ChunkList.ToList();
+            _ChunkList = _Job.Chunks;
             _Processes = _ChunkList.Select(CreateRenderProcess).ToList();
 
             _FramesRendered = new FrameSet();
@@ -202,7 +189,7 @@ namespace BRClib.Render
             {
                 TotalChunks = _ChunkList.Count,
                 ChunksToDo = _ChunkList.Count,
-                MaxConcurrency = _Proj.MaxConcurrency
+                MaxConcurrency = _Job.MaxProcessors
             };
 
             _arCts = new CancellationTokenSource();
@@ -286,17 +273,14 @@ namespace BRClib.Render
 
         Process CreateRenderProcess(Chunk chunk)
         {
-            // 0=Blend file, 1=output, 2=Renderer, 3=Frame start, 4=Frame end
-            const string RENDER_FMT = "-b \"{0}\" -o \"{1}\" -E {2} -s {3} -e {4} -a";
-
             var render = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = Settings.BlenderProgram,
-                    Arguments = string.Format(RENDER_FMT, 
-                        _Proj.BlendFilePath, 
-                        Path.Combine(_Proj.ChunksDirPath, _Proj.ProjectName + "-#"), 
+                    Arguments = string.Format(Settings.ArgFormats["render"], 
+                        _Job.BlendFile, 
+                        Path.Combine(_Job.ChunksDir, _Job.ProjectName + "-#"), 
                         Settings.Renderer, chunk.Start, chunk.End),
 
                     CreateNoWindow = true,
@@ -396,7 +380,7 @@ namespace BRClib.Render
 
             logger.Info("AfterRender started. Action: {0}", action);
 
-            var chunkFiles = GetChunkFiles(_Proj.ChunksDirPath);
+            var chunkFiles = GetChunkFiles(_Job.ChunksDir);
             string concatFile = null;
 
             if (action.HasFlag(AfterRenderAction.JOIN))
@@ -406,7 +390,7 @@ namespace BRClib.Render
                     throw new Exception("Failed to query chunk files");
                 }
 
-                concatFile = CreateConcatFile(chunkFiles, _Proj.ChunksDirPath);
+                concatFile = CreateConcatFile(chunkFiles, _Job.ChunksDir);
 
                 Debug.Assert(File.Exists(concatFile),
                     "concatFile was not created, but chunkFiles is not empty");
@@ -415,21 +399,21 @@ namespace BRClib.Render
             var fullrange = _ChunkList.GetFullRange();
 
             var videoExt = Path.GetExtension(chunkFiles.First());
-            var projFinalPath = Path.Combine(_Proj.OutputPath, _Proj.ProjectName + videoExt);
-            var mixdownPath = Path.Combine(_Proj.OutputPath, MixdownFile);
+            var projFinalPath = Path.Combine(_Job.OutputPath, _Job.ProjectName + videoExt);
+            var mixdownPath = Path.Combine(_Job.OutputPath, MixdownFile);
 
             var mixdowncmd = new MixdownCmd()
             {
-                BlendFile = _Proj.BlendFilePath,
+                BlendFile = _Job.BlendFile,
                 Range = fullrange,
-                OutputFolder = _Proj.OutputPath
+                OutputFolder = _Job.OutputPath
             };
 
             var concatcmd = new ConcatCmd()
             {
                 ConcatTextFile = concatFile,
                 OutputFile = projFinalPath,
-                Duration = _Proj.Duration,
+                Duration = _Job.Duration,
                 MixdownFile = mixdownPath
             };
 
@@ -481,7 +465,7 @@ namespace BRClib.Render
 
             if (badProcResults.Length > 0)
             {
-                string arReportFile = Path.Combine(_Proj.OutputPath, "AfterRenderReport_" + 
+                string arReportFile = Path.Combine(_Job.OutputPath, "AfterRenderReport_" + 
                                         Path.ChangeExtension(Path.GetRandomFileName(), "txt"));
 
                 using (var sw = File.AppendText(arReportFile))
@@ -566,4 +550,26 @@ namespace BRClib.Render
         }
 
     }
+
+    public class RenderProgressInfo : EventArgs
+    {
+        public int FramesRendered { get; }
+        public int PartsCompleted { get; }
+
+        public RenderProgressInfo(int framesRendered, int partsCompleted)
+        {
+            FramesRendered = framesRendered;
+            PartsCompleted = partsCompleted;
+        }
+    }
+
+    public struct RenderJob
+    {
+        public string BlendFile, AudioCodec, ProjectName, ChunksDir, OutputPath;
+        public TimeSpan Duration;
+        public int MaxProcessors;
+
+        public List<Chunk> Chunks;
+    }
+
 }

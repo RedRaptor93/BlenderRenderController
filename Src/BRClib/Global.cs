@@ -35,6 +35,7 @@ namespace BRClib
             NlogSetup(portableMode);
         }
 
+
         public static ConfigModel Settings { get; private set; }
 
         public static string GetProjInfoScript { get; private set; }
@@ -85,56 +86,21 @@ namespace BRClib
         const string PyGetProjInfo = "get_project_info.py";
         const string PyMixdownAudio = "mixdown_audio.py";
 
-        static ConfigModel GetDefaults()
-        {
-            string blender = "blender", ffmpeg = "ffmpeg";
-            var defBlenderDir = string.Empty;
-            var defFFmpegDir = string.Empty;
 
-            switch (Env.OSVersion.Platform)
-            {
-                case PlatformID.Win32NT:
-                    // GetFolderPath only returns the 32bit ProgramFiles, cause we're a 32bit program
-                    var vName = Env.Is64BitOperatingSystem ? "ProgramW6432" : "ProgramFiles";
-                    var pf = Env.GetEnvironmentVariable(vName);
-
-                    blender += ".exe";
-                    ffmpeg += ".exe";
-
-                    defBlenderDir = Path.Combine(pf, "Blender Foundation", "Blender");
-                    defFFmpegDir = AppDomain.CurrentDomain.BaseDirectory;
-                    break;
-                case PlatformID.Unix:
-                case PlatformID.MacOSX:
-                // TODO: Mac specific guess?
-                // remember: Platform == Unix on both Linux and MacOSX
-                default:
-                    defBlenderDir = defFFmpegDir = "/usr/bin";
-                    break;
-            }
-
-            return new ConfigModel
-            {
-                BlenderProgram = Path.Combine(defBlenderDir, blender),
-                FFmpegProgram = Path.Combine(defFFmpegDir, ffmpeg),
-                LoggingLevel = 0,
-                DisplayToolTips = true,
-                AfterRender = AfterRenderAction.MIX_JOIN,
-                Renderer = Renderer.BLENDER_RENDER,
-                RecentProjects = new List<string>(),
-                DeleteChunksFolder = false
-            };
-        }
-
-        static string FindProgram(string name)
+        public static string FindProgram(string name, params string[] morePaths)
         {
             if (Env.OSVersion.Platform == PlatformID.Win32NT)
             {
                 name += ".exe";
             }
 
-            var PATH = Env.GetEnvironmentVariable("PATH").Split(Path.PathSeparator);
-            var found = PATH.Select(x => Path.Combine(x, name)).FirstOrDefault(File.Exists);
+            var EnvPATH = Env.GetEnvironmentVariable("PATH").Split(Path.PathSeparator);
+            var searchPath = new List<string>(EnvPATH.Length + 1);
+            searchPath.Add(AppDomain.CurrentDomain.BaseDirectory);
+            searchPath.AddRange(EnvPATH);
+            searchPath.AddRange(morePaths);
+
+            var found = searchPath.Select(p => Path.Combine(p, name)).FirstOrDefault(File.Exists);
 
             return found;
         }
@@ -182,6 +148,11 @@ namespace BRClib
             return filesWritten;
         }
 
+        static string GetTempName()
+        {
+            return Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".py");
+        }
+
         static ConfigModel Load(string configFile)
         {
             if (File.Exists(configFile))
@@ -190,7 +161,7 @@ namespace BRClib
             }
 
             // create file w/ default settings
-            var def = GetDefaults();
+            var def = new ConfigModel();
             SaveInternal(def, configFile);
 
             return def;

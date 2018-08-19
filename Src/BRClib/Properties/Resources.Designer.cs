@@ -107,6 +107,15 @@ namespace BRClib.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Blender Render Controller.
+        /// </summary>
+        public static string AppTitle {
+            get {
+                return ResourceManager.GetString("AppTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Join chunks w/ Mixdown audio.
         /// </summary>
         public static string AR_JoinMixdown {
@@ -130,6 +139,15 @@ namespace BRClib.Properties {
         public static string AR_NoAction {
             get {
                 return ResourceManager.GetString("AR_NoAction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to chunklist.txt.
+        /// </summary>
+        public static string ChunksConcatFile {
+            get {
+                return ResourceManager.GetString("ChunksConcatFile", resourceCulture);
             }
         }
         

@@ -170,7 +170,7 @@ namespace BlenderRenderController
             // 
             // projectBindingSrc
             // 
-            this.projectBindingSrc.DataSource = typeof(BRClib.Project);
+            this.projectBindingSrc.DataSource = typeof(BRClib.ViewModels.BrcMainViewModel);
             // 
             // startFrameLabel
             // 

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
-using BRClib.Render;
 using BRClib.Extentions;
 using MvvmHelpers;
 using static BRClib.Global;
+using BRCRes = BRClib.Properties.Resources;
 
 namespace BRClib.ViewModels
 {
@@ -13,7 +14,7 @@ namespace BRClib.ViewModels
     {
         public BrcMainViewModel()
         {
-            Title = "Blender Render Controller";
+            Title = BRCRes.AppTitle;
             Header = "blend name"; // project name
             Footer = "Ready"; // Status
             CanLoadMore = false; // Can load blend
@@ -197,10 +198,11 @@ namespace BRClib.ViewModels
 
         public int TotalFrames => Data.End - Data.Start + 1;
 
-        public float RenderProgress
+        // -1 == Indeterminate state
+        public float Progress
         {
-            get => _renderProgress;
-            set => SetProperty(ref _renderProgress, value);
+            get => _progress;
+            set => SetProperty(ref _progress, value);
         }
 
         public string StatusTime
@@ -210,6 +212,7 @@ namespace BRClib.ViewModels
         }
 
         public bool StatusTimeVisible => IsBusy && StatusTime != null;
+
 
 
 
@@ -249,6 +252,55 @@ namespace BRClib.ViewModels
             Data = data;
         }
 
+        public void StartRender()
+        {
+            if (AutoChunkSize)
+            {
+                Chunks = Chunk.CalcChunks(StartFrame, EndFrame, MaxProcessors).ToList();
+            }
+            else
+            {
+                Chunks = Chunk.CalcChunksByLength(StartFrame, EndFrame, ChunkSize).ToList();
+            }
+
+            // logger.Info("Chunks: " + string.Join(", ", _vm.Chunks));
+
+            IsBusy = true;
+
+            // render manager setup...
+            var rj = new RenderJob
+            {
+                BlendFile = this.BlendFile,
+                AudioCodec = this.Data.AudioCodec,
+                ProjectName = this.Data.ProjectName,
+                ChunksDir = DefaultChunksDirPath,
+                OutputPath = this.OutputPath,
+                MaxProcessors = this.MaxProcessors,
+                Chunks = this.Chunks,
+                Duration = this.Duration
+            };
+
+            _renderMngr.Setup(rj);
+
+            Progress = 0;
+            Footer = "Starting Render...";
+            _renderMngr.StartAsync();
+        }
+
+        public void StopRender()
+        {
+            if (_renderMngr.InProgress)
+            {
+                _renderMngr.Abort();
+            }
+
+            _etaCalc.Reset();
+            IsBusy = false;
+            Progress = 0;
+            Title = BRCRes.AppTitle;
+        }
+
+
         void OnDataUpdated()
         {
             _bkpRange = new Chunk(Data.Start, Data.End);
@@ -260,16 +312,31 @@ namespace BRClib.ViewModels
 
         private void RenderManager_AfterRenderStarted(object sender, AfterRenderAction e)
         {
-            throw new NotImplementedException();
+            Progress = -1;
+
+            switch (e)
+            {
+                case AfterRenderAction.MIX_JOIN:
+                    Footer = "Joining chunks w/ custom mixdown";
+                    break;
+                case AfterRenderAction.JOIN:
+                    Footer = "Joining chunks";
+                    break;
+                case AfterRenderAction.MIXDOWN:
+                    Footer = "Rendering mixdown";
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void RenderManager_ProgressChanged(object sender, RenderProgressInfo e)
         {
-            RenderProgress = e.FramesRendered / (float)Chunks.TotalLength();
+            Progress = e.FramesRendered / (float)TotalFrames;
             Footer = $"Completed {e.PartsCompleted} / {Chunks.Count} chunks, " +
                 $"{e.FramesRendered} frames rendered";
 
-            _etaCalc.Update(RenderProgress);
+            _etaCalc.Update(Progress);
 
             if (_etaCalc.ETAIsAvailable)
             {
@@ -283,6 +350,7 @@ namespace BRClib.ViewModels
             throw new NotImplementedException();
         }
 
+
         RenderManager _renderMngr;
         ETACalculator _etaCalc;
 
@@ -294,6 +362,6 @@ namespace BRClib.ViewModels
         string _output, _statusTime;
         BlendData _data;
         Chunk _bkpRange;
-        private float _renderProgress;
+        float _progress;
     }
 }

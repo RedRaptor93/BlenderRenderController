@@ -9,18 +9,6 @@ using System.IO;
 
 namespace BRClib
 {
-    public class RenderProgressInfo
-    {
-        public int FramesRendered { get; }
-        public int PartsCompleted { get; }
-
-        public RenderProgressInfo(int framesRendered, int partsCompleted)
-        {
-            FramesRendered = framesRendered;
-            PartsCompleted = partsCompleted;
-        }
-    }
-
     public enum Renderer
     {
         BLENDER_RENDER, CYCLES

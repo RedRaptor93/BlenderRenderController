@@ -22,7 +22,7 @@ namespace BRClib.Commands
 
         protected override string GetArgs()
         {
-            var fmt = GetFormat("mixdown");
+            var fmt = Global.Settings.ArgFormats["mixdown"];
             return String.Format(fmt, 
                                     BlendFile,
                                     Range.Start,

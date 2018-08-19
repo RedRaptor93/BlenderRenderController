@@ -26,7 +26,7 @@ namespace BRClib.Commands
 
         protected override string GetArgs()
         {
-            var fmt = GetFormat("getinfo");
+            var fmt = Global.Settings.ArgFormats["getinfo"];
             return String.Format(fmt, BlendFile, ProjInfoScript);
         }
 
