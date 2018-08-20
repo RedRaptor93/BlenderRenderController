@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using BRClib.Extentions;
+using System.Threading.Tasks;
+using System.Threading;
+using BRClib.Commands;
 using MvvmHelpers;
 using static BRClib.Global;
 using BRCRes = BRClib.Properties.Resources;
@@ -246,10 +247,26 @@ namespace BRClib.ViewModels
             return false;
         }
 
-        public void SetBlendData(string filepath, BlendData data)
+        public async Task<MixdownCmd> RunMixdown()
         {
-            BlendFile = filepath;
-            Data = data;
+            IsBusy = true;
+            Footer = "Rendering mixdown...";
+
+            var tcs = new CancellationTokenSource();
+            var mix = new MixdownCmd
+            {
+                BlendFile = BlendFile,
+                Range = new Chunk(StartFrame, EndFrame),
+                OutputFolder = OutputPath
+            };
+
+            var rc = await mix.RunAsync(tcs.Token);
+
+            IsBusy = false;
+
+            Footer = rc == 0 ? "Mixdown complete" : "Mixdown failed";
+
+            return mix;
         }
 
         public void StartRender()
@@ -300,10 +317,62 @@ namespace BRClib.ViewModels
             Title = BRCRes.AppTitle;
         }
 
+        public Action<BrcRenderResult> OnRenderFinished { get; set; }
+
+        public async Task<(int, GetInfoCmd)> OpenBlend(string filepath)
+        {
+            Footer = "Loading .blend file";
+            Progress = -1;
+            IsBusy = true;
+
+            if (!File.Exists(filepath))
+            {
+                return (-1, null);
+            }
+
+            var getinfocmd = new GetInfoCmd(filepath);
+            await getinfocmd.RunAsync();
+
+            if (getinfocmd.StdOutput.Length == 0)
+            {
+                return (-2, getinfocmd);
+            }
+
+            var data = BlendData.FromPyOutput(getinfocmd.StdOutput);
+
+            short retCode = 0;
+
+            if (RenderFormats.IMAGES.Contains(data.FileFormat))
+            {
+                retCode = 1;
+            }
+
+            if (string.IsNullOrWhiteSpace(data.OutputPath))
+            {
+                retCode = 2;
+                data.OutputPath = Path.GetDirectoryName(filepath);
+            }
+            else
+            {
+                data.OutputPath = Path.GetDirectoryName(data.OutputPath);
+            }
+
+            Data = data;
+            BlendFile = filepath;
+
+            Progress = 0;
+            IsBusy = false;
+            Footer = "Ready";
+
+            return (retCode, getinfocmd);
+        }
+
 
         void OnDataUpdated()
         {
             _bkpRange = new Chunk(Data.Start, Data.End);
+
+            OutputPath = Data.OutputPath;
 
             AutoFrameRange =
             AutoChunkSize =
@@ -347,7 +416,8 @@ namespace BRClib.ViewModels
 
         private void RenderManager_Finished(object sender, BrcRenderResult e)
         {
-            throw new NotImplementedException();
+            StopRender();
+            OnRenderFinished(e);
         }
 
 
