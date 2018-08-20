@@ -196,7 +196,6 @@ namespace BlenderRenderController
         private async void GetBlendInfo(string blendFile)
         {
             logger.Info("Loading .blend");
-            //UpdateProgressBars(-1);
 
             var (retcode, cmd) = await _vm.OpenBlend(blendFile);
             // success = retcode >= 0;
@@ -221,7 +220,7 @@ namespace BlenderRenderController
                     MessageBox.Show(BRCRes.AppErr_RenderFormatIsImage, "Warning",
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     break;
-                case 2: // Invalid output path
+                case 2: // WARN Invalid output path
                         // use .blend folder path if outputPath is unset, display a warning about it
                     MessageBox.Show(BRCRes.AppErr_BlendOutputInvalid, "Warning",
                                     MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -515,70 +514,34 @@ namespace BlenderRenderController
 
         private async void mixDownButton_Click(object sender, EventArgs e)
         {
-            _vm.IsBusy = true;
-            ResetCTS();
-            UpdateProgressBars(-1);
+            var mix = await _vm.RunMixdown();
 
-            Status("Rendering mixdown...");
-
-
-
-            var result = await mix.RunAsync(_afterRenderCancelSrc.Token);
-
-            if (result == 0)
-            {
-                Status("Mixdown complete");
-            }
-            else
+            if (mix.ExitCode != 0)
             {
                 var report = mix.GenerateReport();
-                var dlg = new Ui.DetailedMessageBox("Mixdown failed", "Error", report);
-
-                Status("Something went wrong...");
+                var dlg = new DetailedMessageBox("Mixdown failed", "Error", report);
 
                 dlg.ShowDialog();
             }
-
-            UpdateProgressBars();
-            _vm.IsBusy = false;
         }
 
         private async void concatenatePartsButton_Click(object sender, EventArgs e)
         {
-            _vm.IsBusy = true;
-            ResetCTS();
-            UpdateProgressBars(-1);
-
             var mc = new ConcatForm();
             var dResult = mc.ShowDialog();
 
             if (dResult == DialogResult.OK)
             {
-                var concat = new ConcatCmd
-                {
-                    ConcatTextFile = mc.ChunksTextFile,
-                    MixdownFile = mc.MixdownAudioFile,
-                    OutputFile = mc.OutputFile
-                };
+                var cct = await _vm.RunConcat(mc.ConcatTextFile, mc.OutputFile, mc.MixdownFile);
 
-                var result = await concat.RunAsync(_afterRenderCancelSrc.Token);
-
-                if (result == 0)
-                {
-                    Status("Concatenation complete");
-                }
-                else
+                if (cct.ExitCode != 0)
                 {
                     var report = concat.GenerateReport();
                     var dlg = new Ui.DetailedMessageBox("Failed to concatenate chunks", "Error", report);
-                    Status("Something went wrong...");
 
                     dlg.ShowDialog();
                 }
             }
-
-            UpdateProgressBars();
-            _vm.IsBusy = false;
         }
 
 

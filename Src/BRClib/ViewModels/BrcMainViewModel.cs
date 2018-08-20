@@ -251,8 +251,10 @@ namespace BRClib.ViewModels
         {
             IsBusy = true;
             Footer = "Rendering mixdown...";
+            Progress = -1;
 
-            var tcs = new CancellationTokenSource();
+            ResetCTS();
+
             var mix = new MixdownCmd
             {
                 BlendFile = BlendFile,
@@ -260,13 +262,29 @@ namespace BRClib.ViewModels
                 OutputFolder = OutputPath
             };
 
-            var rc = await mix.RunAsync(tcs.Token);
+            var rc = await mix.RunAsync(_sharedCTS.Token);
 
             IsBusy = false;
-
             Footer = rc == 0 ? "Mixdown complete" : "Mixdown failed";
+            Progress = 0;
 
             return mix;
+        }
+
+        public async Task<ConcatCmd> RunConcat(string concatFile, string outputPath, string mixdownFile = null)
+        {
+            IsBusy = true;
+            Footer = "Concatenating...";
+            Progress = -1;
+            
+            var c = new ConcatCmd
+            {
+                ConcatTextFile = concatFile,
+                MixdownFile = mixdownFile,
+                OutputFile = outputPath
+            };
+
+            var rc = await c.RunAsync();
         }
 
         public void StartRender()
@@ -367,6 +385,13 @@ namespace BRClib.ViewModels
             return (retCode, getinfocmd);
         }
 
+        public void CancelExtraTasks()
+        {
+            if (_sharedCTS != null)
+            {
+                _sharedCTS.Cancel();
+            }
+        }
 
         void OnDataUpdated()
         {
@@ -377,6 +402,16 @@ namespace BRClib.ViewModels
             AutoFrameRange =
             AutoChunkSize =
             AutoMaxProcessors = true;
+        }
+
+        void ResetCTS()
+        {
+            if (_sharedCTS != null)
+            {
+                _sharedCTS.Dispose();
+                _sharedCTS = null;
+            }
+            _sharedCTS = new CancellationTokenSource();
         }
 
         private void RenderManager_AfterRenderStarted(object sender, AfterRenderAction e)
@@ -433,5 +468,8 @@ namespace BRClib.ViewModels
         BlendData _data;
         Chunk _bkpRange;
         float _progress;
+        
+        CancellationTokenSource _sharedCTS;
+
     }
 }
