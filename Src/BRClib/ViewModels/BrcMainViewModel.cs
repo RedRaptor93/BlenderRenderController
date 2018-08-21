@@ -67,13 +67,17 @@ namespace BRClib.ViewModels
 
         public List<Chunk> Chunks { get; set; }
 
-        public string ActiveScene { get; set; }
+        public string ActiveScene 
+        { 
+            get => Data.ActiveScene;
+            set => Data.ActiveScene = value;
+        }
 
         public TimeSpan Duration
         {
             get
             {
-                double d = (StartFrame - EndFrame + 1) / FPS;
+                double d = (StartFrame - EndFrame + 1) / Fps;
                 if (!double.IsNaN(d) && !double.IsInfinity(d))
                     return TimeSpan.FromSeconds(d);
 
@@ -82,8 +86,18 @@ namespace BRClib.ViewModels
         }
 
 
-        public double FPS { get; set; }
-        public string Resolution { get; set; }
+        public double Fps         
+        { 
+            get => Data.Fps;
+            set => Data.Fps = value;
+        }
+
+        public string Resolution 
+        { 
+            get => Data.Resolution;
+            set => Data.Resolution = value;
+        }
+
 
         public int StartFrame
         {
@@ -215,7 +229,11 @@ namespace BRClib.ViewModels
         public bool StatusTimeVisible => IsBusy && StatusTime != null;
 
 
-
+        public void ResetFrameRange()
+        {
+            StartFrame = _bkpRange.Start;
+            EndFrame = _bkpRange.End;
+        }
 
         public void OpenDonationPage()
         {
@@ -285,6 +303,12 @@ namespace BRClib.ViewModels
             };
 
             var rc = await c.RunAsync();
+
+            IsBusy = false;
+            Footer = rc == 0 ? "Concatenation complete" : "Concatenation failed";
+            Progress = 0;
+
+            return c;
         }
 
         public void StartRender()

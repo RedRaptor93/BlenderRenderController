@@ -1,5 +1,5 @@
 ﻿using BRClib;
-using BRClib.Render;
+using BRClib.ViewModels;
 using BRClib.Commands;
 using BRClib.Extentions;
 using System;
@@ -21,7 +21,7 @@ namespace BlenderRenderController
 
     public partial class BrcMain : Window
     {
-        BrcViewModel _vm;
+        BrcMainViewModel _vm;
         RenderManager _renderMngr;
         ETACalculator _etaCalc;
         CancellationTokenSource _afterRenderCancelSrc;
@@ -33,7 +33,7 @@ namespace BlenderRenderController
 
             _ProjBase = lblProjectName.Text;
 
-            _vm = new BrcViewModel();
+            _vm = new BrcMainViewModel();
             _vm.PropertyChanged += ViewModel_PropertyChanged;
             CheckConfigs();
 
@@ -98,33 +98,18 @@ namespace BlenderRenderController
             return result;
         }
 
-        void UpdateInfoBoxItems(Project project)
+        void UpdateInfoBoxItems()
         {
-            if (project == null)
-            {
-                activeSceneInfoValue.Text = 
-                durationInfoValue.Text = 
-                fpsInfoValue.Text =
-                resolutionInfoValue.Text = "...";
-                lblProjectName.Text = _ProjBase;
-            }
-            else
-            {
-                activeSceneInfoValue.Text = project.ActiveScene;
-                durationInfoValue.Text = project.Duration.HasValue 
-                    ? string.Format("{0:%h}h {0:%m}m {0:%s}s {0:%f}ms", project.Duration.Value)
-                    : null;
-                fpsInfoValue.Text = project.Fps.ToString("F2");
-                resolutionInfoValue.Text = project.Resolution;
+            activeSceneInfoValue.Text = _vm.Data.ActiveScene;
+            durationInfoValue.Text = string.Format("{0:%h}h {0:%m}m {0:%s}s {0:%f}ms", _vm.Duration);
+            fpsInfoValue.Text = _vm.Fps.ToString("F2");
+            resolutionInfoValue.Text = _vm.Resolution;
 
-                lblProjectName.Text = _ProjBase + " - " + project.ProjectName;
-            }
+            lblProjectName.Text = _ProjBase + " - " + _vm.Data.ProjectName;
         }
 
-        void UpdateOptions(Project project)
+        void UpdateOptions()
         {
-            if (project == null) return;
-
             numStartFrameAdjust.Value = project.Start;
             numEndFrameAdjust.Value = project.End;
             numChunkSizeAdjust.Value = project.ChunkLenght;
@@ -292,7 +277,7 @@ namespace BlenderRenderController
 
         private void On_ReloadFile(object sender, EventArgs e)
         {
-            var bpath = _vm.Project.BlendFilePath;
+            var bpath = _vm.BlendFile;
             _vm.Project = null;
             OpenBlendFile(bpath);
         }
@@ -451,55 +436,6 @@ namespace BlenderRenderController
             btnStartRender.Show();
             startStopStack.VisibleChild = btnStartRender;
             btnStartRender.GrabFocus();
-        }
-
-        void StartRender()
-        {
-            IEnumerable<Chunk> chunks;
-            if (AutoChunkDiv)
-            {
-                chunks = Chunk.CalcChunks(_vm.Project.Start, _vm.Project.End,
-                    _vm.Project.MaxConcurrency);
-            }
-            else
-            {
-                chunks = Chunk.CalcChunksByLength(_vm.Project.Start, _vm.Project.End,
-                    _vm.Project.ChunkLenght);
-            }
-
-            _vm.UpdateCurrentChunks(chunks);
-
-            _vm.IsBusy = true;
-
-            _renderMngr.Setup(_vm.Project, Settings.AfterRender, Settings.Renderer);
-
-            Status("Starting render...");
-
-            _renderMngr.StartAsync();
-        }
-
-        void StopWork(bool completed)
-        {
-            if (!completed)
-            {
-                if (_renderMngr.InProgress)
-                {
-                    _renderMngr.Abort();
-                }
-
-                if (_afterRenderCancelSrc != null)
-                    _afterRenderCancelSrc.Cancel();
-            }
-
-            _etaCalc.Reset();
-            _vm.IsBusy = false;
-
-            workProgress.Fraction = 0;
-
-            Status("ETR: " + TimeSpan.Zero.ToString(@"hh\:mm\:ss"), lblETR);
-
-            btnStartRender.Show();
-            startStopStack.VisibleChild = btnStartRender;
         }
 
         private void RenderMngr_ProgressChanged(object sender, RenderProgressInfo e)
@@ -702,7 +638,7 @@ namespace BlenderRenderController
 
         private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            var vm = (BrcViewModel)sender;
+            var vm = (BrcMainViewModel)sender;
 
             workSpinner.Active = vm.IsBusy;
 
@@ -712,7 +648,7 @@ namespace BlenderRenderController
             miRenderMixdown.Sensitive = vm.CanRender && !vm.IsBusy;
             miJoinChunks.Sensitive = !vm.IsBusy;
 
-            miPref.Sensitive = !vm.IsBusy;
+            miPref.Sensitive = vm.IsNotBusy;
 
             miReloadFile.Sensitive = tsReloadFile.Sensitive = vm.CanReloadCurrentProject;
 
