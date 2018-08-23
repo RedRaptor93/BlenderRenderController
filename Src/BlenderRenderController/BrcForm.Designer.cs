@@ -46,7 +46,9 @@ namespace BlenderRenderController
             this.chunkLengthLabel = new System.Windows.Forms.Label();
             this.chunkLengthNumericUpDown = new System.Windows.Forms.NumericUpDown();
             this.renderInfoLabel = new System.Windows.Forms.Label();
-            this.renderAllButton = new System.Windows.Forms.Button();
+            //this.renderAllButton = new System.Windows.Forms.Button();
+			this.btnStartWork = new System.Windows.Forms.Button();
+			this.btnStopWork = new System.Windows.Forms.Button();
             this.cbRenderer = new System.Windows.Forms.ComboBox();
             this.cbAfterRenderAction = new System.Windows.Forms.ComboBox();
             this.startEndBlendRadio = new System.Windows.Forms.RadioButton();
@@ -351,23 +353,42 @@ namespace BlenderRenderController
             this.renderInfoLabel.TabIndex = 35;
             this.toolTipInfo.SetToolTip(this.renderInfoLabel, resources.GetString("renderInfoLabel.ToolTip"));
             // 
-            // renderAllButton
+            // btnStartWork
             // 
-            this.renderAllButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.renderAllButton.Image = global::BlenderRenderController.Properties.Resources.render_icon;
-            this.renderAllButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.renderAllButton.Location = new System.Drawing.Point(194, 551);
-            this.renderAllButton.Margin = new System.Windows.Forms.Padding(4);
-            this.renderAllButton.Name = "renderAllButton";
-            this.renderAllButton.Padding = new System.Windows.Forms.Padding(12, 0, 15, 0);
-            this.renderAllButton.Size = new System.Drawing.Size(184, 42);
-            this.renderAllButton.TabIndex = 13;
-            this.renderAllButton.Tag = "";
-            this.renderAllButton.Text = "Start Render";
-            this.renderAllButton.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.toolTipInfo.SetToolTip(this.renderAllButton, "Saves a lot of your time.");
-            this.renderAllButton.UseVisualStyleBackColor = true;
-            this.renderAllButton.Click += new System.EventHandler(this.renderAllButton_Click);
+            this.btnStartWork.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnStartWork.Image = global::BlenderRenderController.Properties.Resources.render_icon;
+            this.btnStartWork.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnStartWork.Location = new System.Drawing.Point(194, 551);
+            this.btnStartWork.Margin = new System.Windows.Forms.Padding(4);
+			this.btnStartWork.Name = "btnStartWork";
+            this.btnStartWork.Padding = new System.Windows.Forms.Padding(12, 0, 15, 0);
+            this.btnStartWork.Size = new System.Drawing.Size(184, 42);
+            this.btnStartWork.TabIndex = 13;
+            this.btnStartWork.Tag = "";
+            this.btnStartWork.Text = "Start Render";
+            this.btnStartWork.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.toolTipInfo.SetToolTip(this.btnStartWork, "Saves a lot of your time.");
+            this.btnStartWork.UseVisualStyleBackColor = true;
+            this.btnStartWork.Click += new System.EventHandler(this.BtnStartWork_Click);
+			//
+			// btnStopWork
+			//
+			this.btnStopWork.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnStopWork.Image = global::BlenderRenderController.Properties.Resources.stop_icon;
+            this.btnStopWork.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnStopWork.Location = new System.Drawing.Point(194, 551);
+            this.btnStopWork.Margin = new System.Windows.Forms.Padding(4);
+			this.btnStopWork.Name = "btnStopWork";
+            this.btnStopWork.Padding = new System.Windows.Forms.Padding(12, 0, 15, 0);
+            this.btnStopWork.Size = new System.Drawing.Size(184, 42);
+            this.btnStopWork.TabIndex = 13;
+            this.btnStopWork.Tag = "";
+            this.btnStopWork.Text = "Stop Render";
+            this.btnStopWork.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.btnStopWork.UseVisualStyleBackColor = true;
+            this.btnStopWork.Click += new System.EventHandler(this.BtnStopWork_Click);            
+			this.toolTipInfo.SetToolTip(this.btnStopWork, "Cancel work");
+			btnStopWork.Visible = false;
             // 
             // cbRenderer
             // 
@@ -1050,7 +1071,9 @@ namespace BlenderRenderController
             this.Controls.Add(this.blendNameLabel);
             this.Controls.Add(this.renderInfoLabel);
             this.Controls.Add(this.blendFileLabel);
-            this.Controls.Add(this.renderAllButton);
+			//this.Controls.Add(this.renderAllButton);
+			this.Controls.Add(this.btnStopWork);
+            this.Controls.Add(this.btnStartWork);
             this.Controls.Add(this.optionsLabel);
             this.Controls.Add(this.outputFolderLabel);
             this.Controls.Add(this.renderProgressBar);
@@ -1110,7 +1133,9 @@ namespace BlenderRenderController
         private System.Windows.Forms.NumericUpDown totalEndNumericUpDown;
         private System.Windows.Forms.NumericUpDown processCountNumericUpDown;
         private System.Windows.Forms.Label processCountLabel;
-        private System.Windows.Forms.Button renderAllButton;
+		//private System.Windows.Forms.Button renderAllButton;
+		private System.Windows.Forms.Button btnStartWork;
+        private System.Windows.Forms.Button btnStopWork;
         private System.Windows.Forms.ToolTip toolTipInfo;
         private System.Windows.Forms.Label blendFileLabel;
         private System.Windows.Forms.NumericUpDown chunkLengthNumericUpDown;

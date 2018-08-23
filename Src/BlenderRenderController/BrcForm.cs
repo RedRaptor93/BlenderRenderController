@@ -168,7 +168,8 @@ namespace BlenderRenderController
                 }
                 else
                 {
-                    StopWork(false);
+					_vm.StopRender();
+					_vm.CancelExtraTasks();
                 }
             }
 
@@ -230,8 +231,6 @@ namespace BlenderRenderController
             AddRecentItem(blendFile);
             // reset binding source?
         }
-
-
 
         void AddRecentItem(string item)
         {
@@ -351,72 +350,51 @@ namespace BlenderRenderController
 
         }
 
-        private void renderAllButton_Click(object sender, EventArgs e)
-        {
-            if (_vm.IsBusy)
+        void BtnStartWork_Click(object s, EventArgs e)
+		{
+			Debug.Assert(_vm.IsNotBusy, "Bad state!");
+
+			var outputDir = _vm.OutputPath;
+
+            if ((Directory.Exists(outputDir) && Directory.GetFiles(outputDir).Length > 0)
+                || Directory.Exists(_vm.DefaultChunksDirPath))
             {
-                var result = MessageBox.Show("Are you sure you want to stop?",
+                var dialogResult = MessageBox.Show("All existing files will be deleted!\n" +
+                                                    "Do you want to continue?",
+                                                    "Output folder not empty",
+                                                    MessageBoxButtons.YesNo,
+                                                    MessageBoxIcon.Exclamation);
+
+                if (dialogResult == DialogResult.No)
+                    return;
+
+                var tryToClear = Helper.ClearOutputFolder(outputDir);
+
+                if (!tryToClear) return;
+            }
+
+			_vm.StartRender();
+		}
+
+        void BtnStopWork_Click(object s, EventArgs e)
+		{
+			Debug.Assert(_vm.IsBusy, "Bad state!");
+
+			var result = MessageBox.Show("Are you sure you want to stop?",
                                                 "Cancel",
                                                 MessageBoxButtons.YesNo,
                                                 MessageBoxIcon.Exclamation);
 
-                if (result == DialogResult.No)
-                    return;
+            if (result == DialogResult.No)
+                return;
 
-                // cancel
-                StopWork(false);
-            }
-            else
-            {
-                var outputDir = _vm.Project.OutputPath;
-
-                if ((Directory.Exists(outputDir) && Directory.GetFiles(outputDir).Length > 0)
-                    || Directory.Exists(_vm.Project.DefaultChunksDirPath))
-                {
-                    var dialogResult = MessageBox.Show("All existing files will be deleted!\n" +
-                                                        "Do you want to continue?",
-                                                        "Output folder not empty",
-                                                        MessageBoxButtons.YesNo,
-                                                        MessageBoxIcon.Exclamation);
-
-                    if (dialogResult == DialogResult.No)
-                        return;
-
-                    var tryToClear = Helper.ClearOutputFolder(outputDir);
-
-                    if (!tryToClear) return;
-                }
-
-                RenderAll();
-            }
-        }
+            // cancel
+			_vm.StopRender();
+		}
 
         #endregion
 
         #region UpdateElements
-
-        private void UpdateProgress(RenderProgressInfo info)
-        {
-            float progPct = info.FramesRendered / (float)_vm.Project.TotalFrames;
-
-            Status($"Completed {info.PartsCompleted} / {_vm.Project.ChunkList.Count} chunks, " +
-                $"{info.FramesRendered} frames rendered");
-
-            UpdateProgressBars((int)(progPct * 100));
-
-            _etaCalc.Update(progPct);
-
-            if (_etaCalc.ETAIsAvailable)
-            {
-                var etr = ETR_Prefix + _etaCalc.ETR.ToString(TimeFmt);
-                Status(etr, statusETR);
-            }
-
-            //time elapsed display
-            TimeSpan runTime = _chrono.Elapsed;
-            var tElapsed = TimePassedPrefix + runTime.ToString(TimeFmt);
-            Status(tElapsed, statusTime);
-        }
 
         void UpdateProgressBars(int progressPercent = 0)
         {
@@ -532,11 +510,11 @@ namespace BlenderRenderController
 
             if (dResult == DialogResult.OK)
             {
-                var cct = await _vm.RunConcat(mc.ConcatTextFile, mc.OutputFile, mc.MixdownFile);
+				var cct = await _vm.RunConcat(mc.ChunksTextFile, mc.OutputFile, mc.MixdownAudioFile);
 
                 if (cct.ExitCode != 0)
                 {
-                    var report = concat.GenerateReport();
+                    var report = cct.GenerateReport();
                     var dlg = new Ui.DetailedMessageBox("Failed to concatenate chunks", "Error", report);
 
                     dlg.ShowDialog();
@@ -544,16 +522,6 @@ namespace BlenderRenderController
             }
         }
 
-
-        void ResetCTS()
-        {
-            if (_afterRenderCancelSrc != null)
-            {
-                _afterRenderCancelSrc.Dispose();
-                _afterRenderCancelSrc = null;
-            }
-            _afterRenderCancelSrc = new CancellationTokenSource();
-        }
 
         private void OpenOutputFolder()
         {
@@ -585,24 +553,24 @@ namespace BlenderRenderController
             if (startEndBlendRadio.Checked)
             {
                 // set to blend values
-                _vm.Project.ResetRange();
+                _vm.ResetFrameRange();
             }
         }
 
         private void ChunkOptionsRadio_CheckedChanged(object sender, EventArgs e)
         {
-            if (chunkOptionsAutoRadio.Checked)
-            {
-                _vm.Project.MaxConcurrency = Environment.ProcessorCount;
-                // recalc auto chunks:
-                var currentStart = totalStartNumericUpDown.Value;
-                var currentEnd = totalEndNumericUpDown.Value;
-                var currentProcessors = processCountNumericUpDown.Value;
+            //if (chunkOptionsAutoRadio.Checked)
+            //{
+            //    _vm.MaxProcessors = Environment.ProcessorCount;
+            //    // recalc auto chunks:
+            //    var currentStart = totalStartNumericUpDown.Value;
+            //    var currentEnd = totalEndNumericUpDown.Value;
+            //    var currentProcessors = processCountNumericUpDown.Value;
 
-                var expectedChunkLen = Math.Ceiling((currentEnd - currentStart + 1) / currentProcessors);
+            //    var expectedChunkLen = Math.Ceiling((currentEnd - currentStart + 1) / currentProcessors);
 
-                _vm.Project.ChunkLenght = (int)expectedChunkLen;
-            }
+            //    _vm.ChunkSize = (int)expectedChunkLen;
+            //}
         }
 
         private void AfterRenderAction_Changed(object sender, EventArgs e)
@@ -623,7 +591,7 @@ namespace BlenderRenderController
             var openFolder = new CommonOpenFileDialog
             {
                 IsFolderPicker = true,
-                InitialDirectory = _vm.Project.OutputPath,
+                InitialDirectory = _vm.OutputPath,
                 Title = dialogTxt,
             };
 
@@ -631,24 +599,24 @@ namespace BlenderRenderController
 
             if (res == CommonFileDialogResult.Ok)
             {
-                _vm.Project.OutputPath = openFolder.FileName;
+                _vm.OutputPath = openFolder.FileName;
             }
         }
 
         private void StartEndNumeric_Validated(object sender, EventArgs e)
         {
-            var currentStart = totalStartNumericUpDown.Value;
-            var currentEnd = totalEndNumericUpDown.Value;
-            var currentProcessors = processCountNumericUpDown.Value;
+            //var currentStart = totalStartNumericUpDown.Value;
+            //var currentEnd = totalEndNumericUpDown.Value;
+            //var currentProcessors = processCountNumericUpDown.Value;
 
-            if (chunkOptionsAutoRadio.Checked)
-            {
-                var expectedChunkLen = Math.Ceiling((currentEnd - currentStart + 1) / currentProcessors);
-                _vm.Project.ChunkLenght = (int)expectedChunkLen;
-            }
+            //if (_vm.AutoChunkSize)
+            //{
+            //    var expectedChunkLen = Math.Ceiling((currentEnd - currentStart + 1) / currentProcessors);
+            //    _vm.ChunkSize = (int)expectedChunkLen;
+            //}
 
-            // set max chunk size to total frames
-            chunkLengthNumericUpDown.Maximum = currentEnd - currentStart + 1;
+            //// set max chunk size to total frames
+            //chunkLengthNumericUpDown.Maximum = currentEnd - currentStart + 1;
         }
 
         private void StartEnd_Validating(object sender, CancelEventArgs e)
@@ -712,7 +680,7 @@ namespace BlenderRenderController
         private void UnloadCurrent_Click(object sender, EventArgs e)
         {
             projectBindingSrc.Clear();
-            _vm.Project = null;
+            _vm.UnloadProject();
         }
 
         private void AboutBRC_Click(object sender, EventArgs e)
@@ -728,58 +696,57 @@ namespace BlenderRenderController
 
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var vm = (BrcViewModel)sender;
+            var vm = (BrcMainViewModel)sender;
 
-            if (vm.IsBusy)
+			if (e.PropertyName == nameof(vm.AutoFrameRange))
+			{
+
+			}
+
+			if (vm.IsBusy)
             {
-                renderAllButton.Text = "Stop Render";
-                renderAllButton.Image = Resources.stop_icon;
-
                 if (!projectBindingSrc.IsBindingSuspended)
                     projectBindingSrc.SuspendBinding();
             }
             else
             {
-                renderAllButton.Text = "Start Render";
-                renderAllButton.Image = Resources.render_icon;
-
                 if (projectBindingSrc.IsBindingSuspended)
                     projectBindingSrc.ResumeBinding();
             }
 
-            renderAllButton.Enabled = vm.CanRender;
+			bool canEditProj = vm.ProjectLoaded && vm.CanLoadMore;
+			bool canReloadProj = vm.ConfigOk && vm.ProjectLoaded && vm.IsNotBusy;
 
+			btnStartWork.Visible = vm.IsNotBusy && vm.ConfigOk;
+			btnStopWork.Visible = vm.IsBusy && vm.ConfigOk;
 
-            unloadToolStripMenuItem.Enabled = vm.CanEditCurrentProject;
+			unloadToolStripMenuItem.Enabled = canEditProj;
 
-            miRenderMixdown.Enabled = vm.CanRender && !vm.IsBusy;
-            miJoinChunks.Enabled = !vm.IsBusy;
+            miRenderMixdown.Enabled = canReloadProj;
+            miJoinChunks.Enabled = vm.IsNotBusy;
 
-            miSettings.Enabled = !vm.IsBusy;
+			miSettings.Enabled = vm.IsNotBusy;
 
             miReloadCurrent.Enabled =
-            reloadTSButton.Enabled = vm.CanReloadCurrentProject;
+            reloadTSButton.Enabled = canEditProj;
 
-            frOutputFolder.Enabled = vm.CanEditCurrentProject;
+			frOutputFolder.Enabled = vm.ProjectLoaded && vm.IsNotBusy;
 
             panelChunkSize.Enabled =
-            panelFrameRange.Enabled = vm.CanEditCurrentProject;
+            panelFrameRange.Enabled = canEditProj;
 
             cbRenderer.Enabled =
-            cbAfterRenderAction.Enabled = !vm.IsBusy;
+            cbAfterRenderAction.Enabled = vm.IsNotBusy;
 
             miOpenFile.Enabled =
-            openFileTSButton.Enabled = vm.CanLoadNewProject;
-
-            miOpenRecent.Enabled =
-            openRecentsTSButton.Enabled = vm.CanLoadNewProject;
+            openFileTSButton.Enabled = vm.ConfigOk && vm.IsNotBusy;
 
             blendNameLabel.Visible = vm.ProjectLoaded;
 
             statusETR.Visible = 
             statusTime.Visible = vm.IsBusy;
 
-            Status(vm.DefaultStatusMessage);
+            //Status(vm.DefaultStatusMessage);
         }
     }
 

@@ -22,11 +22,14 @@ namespace BRClib.ViewModels
 
             Chunks = new List<Chunk>();
             _bkpRange = new Chunk(1, 50);
-            _data = new BlendData();
+            _data = _emptyProj;
 
             _startFrame = _bkpRange.Start;
             _endFrame = _bkpRange.End;
             _maxProcs = Environment.ProcessorCount;
+			_ara = Settings.AfterRender;
+			_renderer = Settings.Renderer;
+			_configOK = false;
 
             _autoChunkSize =
             _autoFrameRange =
@@ -41,7 +44,6 @@ namespace BRClib.ViewModels
         }
 
 
-
         public bool ConfigOk
         {
             get => _configOK;
@@ -49,7 +51,7 @@ namespace BRClib.ViewModels
             {
                 if (SetProperty(ref _configOK, value))
                 {
-                    CanLoadMore = _configOK;
+					CanLoadMore = ConfigOk && IsNotBusy;
                 }
             }
         }
@@ -62,6 +64,18 @@ namespace BRClib.ViewModels
                 SetProperty(ref _data, value, nameof(Data), OnDataUpdated);
             }
         }
+
+        public bool ProjectLoaded
+		{
+			get => _dataRdy;
+			private set 
+			{ 
+				if (SetProperty(ref _dataRdy, value))
+				{
+					CanLoadMore = ConfigOk && IsNotBusy;
+				} 
+			}
+		}
 
         public string BlendFile { get; private set; }
 
@@ -140,12 +154,9 @@ namespace BRClib.ViewModels
             {
                 if (SetProperty(ref _autoChunkSize, value))
                 {
-                    if (_autoChunkSize)
+					if (_autoChunkSize && Chunks.Count > 0)
                     {
-                        if (Chunks.Count > 0)
-                        {
-                            ChunkSize = Chunks[0].Length;
-                        }
+                        ChunkSize = Chunks[0].Length;
                     }
                 }
             }
@@ -175,8 +186,7 @@ namespace BRClib.ViewModels
                 {
                     if (_autoFrameRange)
                     {
-                        StartFrame = _bkpRange.Start;
-                        EndFrame = _bkpRange.End;
+						ResetFrameRange();
                     }
                 }
             }
@@ -185,13 +195,25 @@ namespace BRClib.ViewModels
         public AfterRenderAction JoiningAction
         {
             get => _ara;
-            set => SetProperty(ref _ara, value);
+			set
+			{
+				if (SetProperty(ref _ara, value))
+				{
+					Settings.AfterRender = _ara;
+				}
+			}
         }
 
         public Renderer Renderer
         {
             get => _renderer;
-            set => SetProperty(ref _renderer, value);
+            set 
+			{
+				if (SetProperty(ref _renderer, value))
+                {
+					Settings.Renderer = _renderer;
+                }
+            }
         }
 
         public string OutputPath
@@ -264,6 +286,11 @@ namespace BRClib.ViewModels
 
             return false;
         }
+
+        public void UnloadProject()
+		{
+			Data = _emptyProj;
+		}
 
         public async Task<MixdownCmd> RunMixdown()
         {
@@ -421,11 +448,19 @@ namespace BRClib.ViewModels
         {
             _bkpRange = new Chunk(Data.Start, Data.End);
 
+            // sync changes
             OutputPath = Data.OutputPath;
+			ResetFrameRange();
 
             AutoFrameRange =
             AutoChunkSize =
             AutoMaxProcessors = true;
+
+			// send events to update infobox items
+			OnPropertyChanged(nameof(ActiveScene));
+			OnPropertyChanged(nameof(Duration));
+			OnPropertyChanged(nameof(Fps));
+			OnPropertyChanged(nameof(Resolution));
         }
 
         void ResetCTS()
@@ -487,13 +522,13 @@ namespace BRClib.ViewModels
         int _startFrame, _endFrame, _chunkSize, _maxProcs;
         AfterRenderAction _ara;
         Renderer _renderer;
-        bool _autoFrameRange, _autoChunkSize, _autoMaxProcs, _configOK;
+        bool _autoFrameRange, _autoChunkSize, _autoMaxProcs, _configOK, _dataRdy;
         string _output, _statusTime;
         BlendData _data;
         Chunk _bkpRange;
         float _progress;
         
         CancellationTokenSource _sharedCTS;
-
+		static readonly BlendData _emptyProj = new BlendData();
     }
 }
