@@ -398,7 +398,7 @@ namespace BlenderRenderController
             this.checkAutoFrame.Size = new System.Drawing.Size(80, 19);
             this.checkAutoFrame.TabIndex = 0;
             this.checkAutoFrame.Text = "Automatic";
-            this.toolTipInfo.SetToolTip(this.checkAutoFrame, "Start and End frame match Project\'s values");
+            this.toolTipInfo.SetToolTip(this.checkAutoFrame, "Use project\'s start and end frame values");
             this.checkAutoFrame.UseVisualStyleBackColor = true;
             // 
             // checkChunkSize

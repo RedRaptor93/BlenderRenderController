@@ -22,9 +22,6 @@ namespace BlenderRenderController
     public partial class BrcMain : Window
     {
         BrcMainViewModel _vm;
-        RenderManager _renderMngr;
-        ETACalculator _etaCalc;
-        CancellationTokenSource _afterRenderCancelSrc;
 
 
         public BrcMain() : this(Glade.LoadUI("BrcGtk.glade", "brc_style.css"), "BrcMain")
@@ -37,14 +34,11 @@ namespace BlenderRenderController
             _vm.PropertyChanged += ViewModel_PropertyChanged;
             CheckConfigs();
 
-            _renderMngr = new RenderManager();
-
             // 'Invoke' makes sure the event handlers will run on the UI thread
-            _renderMngr.Finished += (s,e) => Invoke(RenderMngr_Finished, s, e);
-            _renderMngr.AfterRenderStarted += (s, e) => Invoke(RenderMngr_AfterRenderStarted, s, e);
-            _renderMngr.ProgressChanged += (s, e) => Invoke(RenderMngr_ProgressChanged, s, e);
-
-            _etaCalc = new ETACalculator(10, 5);
+            _vm.OnRenderFinished = e => Invoke(OnRenderMngrFinished, e);
+            //_renderMngr.Finished += (s,e) => Invoke(RenderMngr_Finished, s, e);
+            //_renderMngr.AfterRenderStarted += (s, e) => Invoke(RenderMngr_AfterRenderStarted, s, e);
+            //_renderMngr.ProgressChanged += (s, e) => Invoke(RenderMngr_ProgressChanged, s, e);
 
             ShowAll();
         }
@@ -202,16 +196,6 @@ namespace BlenderRenderController
         }
 
         void Status(string text) => Status(text, null);
-
-        void ResetCTS()
-        {
-            if (_afterRenderCancelSrc != null)
-            {
-                _afterRenderCancelSrc.Dispose();
-                _afterRenderCancelSrc = null;
-            }
-            _afterRenderCancelSrc = new CancellationTokenSource();
-        }
 
 
         // Events handlers
@@ -438,58 +422,34 @@ namespace BlenderRenderController
             btnStartRender.GrabFocus();
         }
 
-        private void RenderMngr_ProgressChanged(object sender, RenderProgressInfo e)
+        private void UpdateProgress(float p = 0f)
         {
-            lblStatus.Text = $"Completed {e.PartsCompleted} / {_vm.Project.ChunkList.Count} chunks, " +
-                $"{e.FramesRendered} frames rendered";
-
-            float porcentageDone = e.FramesRendered / (float)_vm.Project.TotalFrames;
-
-            workProgress.Fraction = porcentageDone;
-
-            _etaCalc.Update(porcentageDone);
-
-            if (_etaCalc.ETAIsAvailable)
+            if (p < 0f)
             {
-                lblETR.Text = "ETR: " + _etaCalc.ETR.ToString(@"hh\:mm\:ss");
+                // There's no equivalent here of WinForms's Marquee style
+                // TODO
+                workProgress.Pulse();
             }
-
-            // TODO? TimeElapsed
-
-        }
-
-        private void RenderMngr_AfterRenderStarted(object sender, AfterRenderAction e)
-        {
-            workProgress.Fraction = 0;
-
-            switch (e)
+            else
             {
-                case AfterRenderAction.MIX_JOIN:
-                    Status("Joining chunks w/ custom mixdown");
-                    break;
-                case AfterRenderAction.JOIN:
-                    Status("Joining chunks");
-                    break;
-                case AfterRenderAction.MIXDOWN:
-                    Status("Rendering mixdown");
-                    break;
+                workProgress.Fraction = p;
             }
         }
 
-        private void RenderMngr_Finished(object sender, BrcRenderResult e)
+        private void OnRenderMngrFinished(BrcRenderResult e)
         {
-            StopWork(true);
+            //StopWork(true);
 
             Dialog dlg = null;
 
             if (e == BrcRenderResult.AllOk)
             {
-                if (_renderMngr.Action == AfterRenderAction.NOTHING
+                if (Settings.AfterRender == AfterRenderAction.NOTHING
                     && Settings.DeleteChunksFolder)
                 {
                     try
                     {
-                        Directory.Delete(_vm.Project.ChunksDirPath, true);
+                        Directory.Delete(_vm.DefaultChunksDirPath, true);
                     }
                     catch (Exception ex)
                     {
@@ -640,40 +600,34 @@ namespace BlenderRenderController
         {
             var vm = (BrcMainViewModel)sender;
 
-            workSpinner.Active = vm.IsBusy;
-
-            startStopStack.Sensitive = vm.CanRender;
-            miUnload.Sensitive = vm.CanEditCurrentProject;
-
-            miRenderMixdown.Sensitive = vm.CanRender && !vm.IsBusy;
-            miJoinChunks.Sensitive = !vm.IsBusy;
-
-            miPref.Sensitive = vm.IsNotBusy;
-
-            miReloadFile.Sensitive = tsReloadFile.Sensitive = vm.CanReloadCurrentProject;
-
-            frRenderOptions.Sensitive =
-            frOutputFolder.Sensitive = vm.CanEditCurrentProject;
-
-            miOpenFile.Sensitive =
-            tsOpenFile.Sensitive =
-            miOpenRecent.Sensitive =
-            tsOpenRecent.Sensitive = vm.CanLoadNewProject;
-
-            lblETR.Visible =
-            lblTimeElapsed.Visible = vm.ProjectLoaded;
-
-            lblStatus.Text = vm.DefaultStatusMessage;
-
-            if (e.PropertyName == nameof(vm.Project))
+            switch (e.PropertyName)
             {
-                UpdateOptions(vm.Project);
-                UpdateInfoBoxItems(vm.Project);
+                case nameof(vm.IsBusy):
+                case nameof(vm.ConfigOk):
+                    miOpenFile.Sensitive =
+                    miOpenRecent.Sensitive =
+                    tsOpenFile.Sensitive =
+                    tsOpenRecent.Sensitive = vm.ConfigOk && vm.IsNotBusy;
+                    break;
+                case nameof(vm.ProjectLoaded):
+                case nameof(vm.CanLoadMore):
+                    miReloadFile.Sensitive =
+                    tsReloadFile.Sensitive =
+                    miUnload.Sensitive = vm.ProjectLoaded && vm.CanLoadMore;
+                    break;
+                case nameof(vm.Progress):
+                    UpdateProgress(vm.Progress);
+                    Status(vm.StatusTime, lblETR);
+                    break;
+                case nameof(vm.Footer):
+                    Status(vm.Footer);
+                    break;
+                case nameof(vm.AutoFrameRange):
 
-                if (vm.ProjectLoaded)
-                    vm.Project.PropertyChanged += VMProject_PropChanged;
+                    break;
+                default:
+                    break;
             }
-
         }
 
         void On_ShowAbout(object s, EventArgs e)

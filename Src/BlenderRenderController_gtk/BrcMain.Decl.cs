@@ -15,6 +15,9 @@ namespace BlenderRenderController
         [UI] Frame frBlendFile, frRenderOptions, frOutputFolder;
         [UI] Box frameRangeBox, chunkDivBox;
 
+        // optionFields
+        [UI] Box fiStartFrame, fiEndFrame, fiChunkSize, fiMaxCores;
+
         [UI] Label lblProjectName;
 
         [UI] Stack startStopStack;
@@ -25,8 +28,7 @@ namespace BlenderRenderController
 
         // status bar
         [UI] ProgressBar workProgress;
-        [UI] Spinner workSpinner;
-        [UI] Label lblStatus, lblTimeElapsed, lblETR;
+        [UI] Label lblStatus, lblETR;
 
         // info box values
         [UI] Label activeSceneInfoValue, durationInfoValue, fpsInfoValue, resolutionInfoValue;
@@ -106,7 +108,7 @@ namespace BlenderRenderController
             numProcMaxAdjust.Upper = Environment.ProcessorCount;
 
             frameRangeBox.Sensitive = chunkDivBox.Sensitive = false;
-            AutoFrameRange = AutoChunkDiv = true;
+            //AutoFrameRange = AutoChunkDiv = true;
 
             this.DeleteEvent += BrcMain_DeleteEvent;
             this.tsOpenRecent.Clicked += TsOpenRecent_Clicked;
@@ -161,10 +163,11 @@ namespace BlenderRenderController
         {
             Application.Invoke(s, args, handler);
         }
-        
-        // private properties
-        bool AutoFrameRange { get; set; }
 
-        bool AutoChunkDiv { get; set; }
+        void Invoke<T>(Action<T> action, T args)
+        {
+            Application.Invoke(delegate { action(args); });
+        }
+        
     }
 }

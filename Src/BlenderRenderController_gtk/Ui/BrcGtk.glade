@@ -691,7 +691,7 @@ THE SOFTWARE.
                                         <property name="spacing">7</property>
                                         <property name="homogeneous">True</property>
                                         <child>
-                                          <object class="GtkBox" id="labeledNumUpDown1">
+                                          <object class="GtkBox" id="fiStartFrame">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="hexpand">True</property>
@@ -745,7 +745,7 @@ THE SOFTWARE.
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkBox" id="labeledNumUpDown2">
+                                          <object class="GtkBox" id="fiEndFrame">
                                             <property name="width_request">130</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
@@ -813,23 +813,45 @@ THE SOFTWARE.
                                       <object class="GtkFlowBox">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
+                                        <property name="margin_left">12</property>
                                         <property name="orientation">vertical</property>
                                         <property name="min_children_per_line">1</property>
                                         <property name="max_children_per_line">1</property>
+                                        <property name="selection_mode">none</property>
                                         <child>
                                           <object class="GtkFlowBoxChild">
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <child>
-                                              <object class="GtkRadioButton" id="radioFromBlend">
-                                                <property name="label" translatable="yes">From Blend</property>
+                                              <object class="GtkBox">
                                                 <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="receives_default">False</property>
-                                                <property name="tooltip_text" translatable="yes">Use project's start and end frame</property>
-                                                <property name="active">True</property>
-                                                <property name="draw_indicator">True</property>
-                                                <signal name="toggled" handler="On_AutoStartStop_Toggled" swapped="no"/>
+                                                <property name="can_focus">False</property>
+                                                <property name="tooltip_text" translatable="yes">Use project's start and end frame values</property>
+                                                <property name="halign">start</property>
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                  <object class="GtkLabel">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="label" translatable="yes">Automatic</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkSwitch" id="swAutoFrameRange">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
                                               </object>
                                             </child>
                                           </object>
@@ -839,14 +861,7 @@ THE SOFTWARE.
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <child>
-                                              <object class="GtkRadioButton" id="radioCustomSE">
-                                                <property name="label" translatable="yes">Custom</property>
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="receives_default">False</property>
-                                                <property name="draw_indicator">True</property>
-                                                <property name="group">radioFromBlend</property>
-                                              </object>
+                                              <placeholder/>
                                             </child>
                                           </object>
                                         </child>
@@ -877,7 +892,7 @@ THE SOFTWARE.
                                         <property name="spacing">7</property>
                                         <property name="homogeneous">True</property>
                                         <child>
-                                          <object class="GtkBox" id="labeledNumUpDown3">
+                                          <object class="GtkBox" id="fiChunkSize">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="orientation">vertical</property>
@@ -928,7 +943,7 @@ THE SOFTWARE.
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkBox" id="labeledNumUpDown4">
+                                          <object class="GtkBox" id="fiMaxCores">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="orientation">vertical</property>
@@ -938,7 +953,7 @@ THE SOFTWARE.
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="halign">start</property>
-                                                <property name="label" translatable="yes">Max Processes</property>
+                                                <property name="label" translatable="yes">Max Cores</property>
                                                 <property name="accel_widget">numProcessMax</property>
                                               </object>
                                               <packing>
@@ -991,19 +1006,40 @@ THE SOFTWARE.
                                         <property name="orientation">vertical</property>
                                         <property name="row_spacing">5</property>
                                         <property name="max_children_per_line">1</property>
+                                        <property name="selection_mode">none</property>
                                         <child>
                                           <object class="GtkFlowBoxChild">
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <child>
-                                              <object class="GtkRadioButton" id="radioAutoCS">
-                                                <property name="label" translatable="yes">Auto</property>
+                                              <object class="GtkBox">
                                                 <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="receives_default">False</property>
-                                                <property name="active">True</property>
-                                                <property name="draw_indicator">True</property>
-                                                <signal name="toggled" handler="On_AutoChunkSize_Toggled" swapped="no"/>
+                                                <property name="can_focus">False</property>
+                                                <property name="tooltip_text" translatable="yes">Automaticaly calculate chunk size</property>
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                  <object class="GtkLabel">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="label" translatable="yes">Auto.</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkSwitch" id="swAutoChunkSize">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
                                               </object>
                                             </child>
                                           </object>
@@ -1013,13 +1049,34 @@ THE SOFTWARE.
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <child>
-                                              <object class="GtkRadioButton" id="radioCustomCS">
-                                                <property name="label" translatable="yes">Custom</property>
+                                              <object class="GtkBox">
                                                 <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="receives_default">False</property>
-                                                <property name="draw_indicator">True</property>
-                                                <property name="group">radioAutoCS</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="tooltip_text" translatable="yes">Use all available cores</property>
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                  <object class="GtkLabel">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="label" translatable="yes">Auto.</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkSwitch" id="swAutoMaxCores">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
                                               </object>
                                             </child>
                                           </object>
@@ -1331,19 +1388,6 @@ THE SOFTWARE.
                     <property name="position">0</property>
                   </packing>
                 </child>
-                <child>
-                  <object class="GtkSpinner" id="workSpinner">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="margin_left">5</property>
-                    <property name="margin_right">5</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1384,17 +1428,6 @@ THE SOFTWARE.
                     <property name="expand">False</property>
                     <property name="fill">True</property>
                     <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="lblTimeElapsed">
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Time elapsed: </property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
