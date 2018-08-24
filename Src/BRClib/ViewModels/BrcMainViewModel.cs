@@ -30,10 +30,13 @@ namespace BRClib.ViewModels
 			_ara = Settings.AfterRender;
 			_renderer = Settings.Renderer;
 			_configOK = false;
+            _dataRdy = false;
 
             _autoChunkSize =
             _autoFrameRange =
             _autoMaxProcs = true;
+
+            _statusTime = TimeSpan.Zero.ToString(TIME_FMT);
 
             _renderMngr = new RenderManager();
             _renderMngr.Finished += RenderManager_Finished;
@@ -130,8 +133,6 @@ namespace BRClib.ViewModels
             get => _chunkSize;
             set
             {
-                if (AutoChunkSize) return;
-
                 SetProperty(ref _chunkSize, value);
             }
         }
@@ -141,8 +142,6 @@ namespace BRClib.ViewModels
             get => _maxProcs;
             set
             {
-                if (AutoMaxProcessors) return;
-
                 SetProperty(ref _maxProcs, value);
             }
         }
@@ -154,9 +153,9 @@ namespace BRClib.ViewModels
             {
                 if (SetProperty(ref _autoChunkSize, value))
                 {
-					if (_autoChunkSize && Chunks.Count > 0)
+                    if (_autoChunkSize)
                     {
-                        ChunkSize = Chunks[0].Length;
+                        RecalcChunkSize();
                     }
                 }
             }
@@ -172,6 +171,7 @@ namespace BRClib.ViewModels
                     if (_autoMaxProcs)
                     {
                         MaxProcessors = Environment.ProcessorCount;
+                        RecalcChunkSize();
                     }
                 }
             }
@@ -235,7 +235,7 @@ namespace BRClib.ViewModels
 
         public int TotalFrames => Data.End - Data.Start + 1;
 
-        // -1 == Indeterminate state
+        // -1f == Indeterminate state
         public float Progress
         {
             get => _progress;
@@ -244,11 +244,10 @@ namespace BRClib.ViewModels
 
         public string StatusTime
         {
-            get => _statusTime;
-            set => SetProperty(ref _statusTime, value);
+            get => "ETR: " + WorkETR.ToString(TIME_FMT);
         }
 
-        public bool StatusTimeVisible => IsBusy && StatusTime != null;
+        public TimeSpan WorkETR { get; set; }
 
 
         public void ResetFrameRange()
@@ -450,7 +449,9 @@ namespace BRClib.ViewModels
 
             // sync changes
             OutputPath = Data.OutputPath;
+            Header = Data.ProjectName;
 			ResetFrameRange();
+            ProjectLoaded = Data != _emptyProj;
 
             AutoFrameRange =
             AutoChunkSize =
@@ -461,6 +462,12 @@ namespace BRClib.ViewModels
 			OnPropertyChanged(nameof(Duration));
 			OnPropertyChanged(nameof(Fps));
 			OnPropertyChanged(nameof(Resolution));
+        }
+
+        void RecalcChunkSize()
+        {
+            var cz = Math.Ceiling(TotalFrames / (double)MaxProcessors);
+            ChunkSize = (int)cz;
         }
 
         void ResetCTS()
@@ -503,8 +510,7 @@ namespace BRClib.ViewModels
 
             if (_etaCalc.ETAIsAvailable)
             {
-                var etr = $"ETR: {_etaCalc.ETR:hh\\:mm\\:ss}";
-                StatusTime = etr;
+                WorkETR = _etaCalc.ETR;
             }
         }
 
@@ -527,8 +533,8 @@ namespace BRClib.ViewModels
         BlendData _data;
         Chunk _bkpRange;
         float _progress;
-        
         CancellationTokenSource _sharedCTS;
 		static readonly BlendData _emptyProj = new BlendData();
+        const string TIME_FMT = @"hh\:mm\:ss";
     }
 }

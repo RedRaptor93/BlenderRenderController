@@ -38,11 +38,8 @@ namespace BlenderRenderController
                      ETR_Prefix = "ETR: ",
                      TimeFmt = @"hh\:mm\:ss";
 
-        const string progId = nameof(BlenderRenderController);
-
-        CancellationTokenSource _afterRenderCancelSrc;
-
         BrcMainViewModel _vm;
+        AboutBox _aboutBox = new AboutBox();
 
 
         public BrcForm()
@@ -52,8 +49,9 @@ namespace BlenderRenderController
             _vm = new BrcMainViewModel();
             _vm.PropertyChanged += ViewModel_PropertyChanged;
             _vm.OnRenderFinished = OnRenderFinishedHandler;
+            projectBindingSrc.DataSource = _vm;
 
-            TaskbarManager.Instance.ApplicationId = progId;
+            TaskbarManager.Instance.ApplicationId = nameof(BlenderRenderController);
         }
 
 
@@ -72,8 +70,7 @@ namespace BlenderRenderController
         {
             _vm.ConfigOk = CheckProgramPaths();
 
-            // invoke manually to set starting state
-            ViewModel_PropertyChanged(_vm, new PropertyChangedEventArgs("Created"));
+            SetStartingState();
 
             // setup sources for ComboBoxes
             SetComboBoxData(cbRenderer, CustomRes.RendererResources, Settings.Renderer);
@@ -95,13 +92,6 @@ namespace BlenderRenderController
                     fe.Value = string.Format("{0:%h}h {0:%m}m {0:%s}s {0:%f}ms", (TimeSpan)fe.Value);
                 }
             };
-
-            // extra bindings
-            totalStartNumericUpDown.DataBindings.Add("Enabled", startEndCustomRadio, "Checked");
-            totalEndNumericUpDown.DataBindings.Add("Enabled", startEndCustomRadio, "Checked");
-
-            chunkLengthNumericUpDown.DataBindings.Add("Enabled", chunkOptionsCustomRadio, "Checked");
-            processCountNumericUpDown.DataBindings.Add("Enabled", chunkOptionsCustomRadio, "Checked");
 
             exitToolStripMenuItem.Click += delegate { Close(); };
 
@@ -273,7 +263,7 @@ namespace BlenderRenderController
                 GetBlendInfo(blend);
             }
 
-            //Status(_vm.DefaultStatusMessage);
+            _vm.Footer = _vm.ProjectLoaded ? "Ready" : "Select a file";
         }
 
         private void RecentBlendsItem_Click(object sender, EventArgs e)
@@ -394,34 +384,35 @@ namespace BlenderRenderController
 
         #endregion
 
-        #region UpdateElements
 
-        void UpdateProgressBars(int progressPercent = 0)
+        void UpdateProgressBars(float prog = 0f)
         {
             string titleProg = "Blender Render Controller";
 
-            if (progressPercent < 0)
+            if (prog < 0f)
             {
                 renderProgressBar.Style = ProgressBarStyle.Marquee;
                 TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Indeterminate);
             }
             else
             {
+                var progI = (int)(prog * 100);
                 renderProgressBar.Style = ProgressBarStyle.Blocks;
-                renderProgressBar.Value = progressPercent;
+                renderProgressBar.Value = (int)(prog * 100);
 
-                if (progressPercent != 0)
+                if (prog != 0)
                 {
-                    titleProg = $"{progressPercent}% complete - Blender Render Controller";
-                    TaskbarManager.Instance.SetProgressValue(progressPercent, 100);
+                    titleProg = $"{progI}% complete - Blender Render Controller";
+                    TaskbarManager.Instance.SetProgressValue(progI, 100);
                 }
                 else
+                {
                     TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
+                }
             }
 
-            SafeChangeText(titleProg, this);
+            SafeSetText(titleProg, this);
         }
-
 
         private void UpdateRecentBlendsMenu()
         {
@@ -463,31 +454,21 @@ namespace BlenderRenderController
 
         }
         
-        private void SafeChangeText(string msg, Control ctrl)
+        private void SafeSetText(string msg, Control ctrl)
         {
             if (ctrl.InvokeRequired)
-            {
-                ctrl.Invoke(new Action<string, Control>(SafeChangeText), msg, ctrl);
-            }
+                ctrl.Invoke(new Action<string, Control>(SafeSetText), msg, ctrl);
             else
-            {
                 ctrl.Text = msg;
-            }
         }
 
-        private void Status(string msg, ToolStripItem tsItem)
+        void SafeSetText(string msg, ToolStripItem item)
         {
-            if (tsItem == null) tsItem = statusMessage;
-
             if (InvokeRequired)
-                Invoke(new Action<string, ToolStripItem>(Status), msg, tsItem);
+                Invoke(new Action<string, ToolStripItem>(SafeSetText), msg, item);
             else
-                tsItem.Text = msg;
+                item.Text = msg;
         }
-
-        void Status(string msg) => Status(msg, null);
-
-        #endregion
 
 
         private async void mixDownButton_Click(object sender, EventArgs e)
@@ -547,32 +528,7 @@ namespace BlenderRenderController
         {
             OpenOutputFolder();
         }
-
-        private void StartEndOptionsRadio_CheckedChanged(object sender, EventArgs e)
-        {
-            if (startEndBlendRadio.Checked)
-            {
-                // set to blend values
-                _vm.ResetFrameRange();
-            }
-        }
-
-        private void ChunkOptionsRadio_CheckedChanged(object sender, EventArgs e)
-        {
-            //if (chunkOptionsAutoRadio.Checked)
-            //{
-            //    _vm.MaxProcessors = Environment.ProcessorCount;
-            //    // recalc auto chunks:
-            //    var currentStart = totalStartNumericUpDown.Value;
-            //    var currentEnd = totalEndNumericUpDown.Value;
-            //    var currentProcessors = processCountNumericUpDown.Value;
-
-            //    var expectedChunkLen = Math.Ceiling((currentEnd - currentStart + 1) / currentProcessors);
-
-            //    _vm.ChunkSize = (int)expectedChunkLen;
-            //}
-        }
-
+        
         private void AfterRenderAction_Changed(object sender, EventArgs e)
         {
             Settings.AfterRender = (AfterRenderAction)cbAfterRenderAction.SelectedValue;
@@ -601,22 +557,6 @@ namespace BlenderRenderController
             {
                 _vm.OutputPath = openFolder.FileName;
             }
-        }
-
-        private void StartEndNumeric_Validated(object sender, EventArgs e)
-        {
-            //var currentStart = totalStartNumericUpDown.Value;
-            //var currentEnd = totalEndNumericUpDown.Value;
-            //var currentProcessors = processCountNumericUpDown.Value;
-
-            //if (_vm.AutoChunkSize)
-            //{
-            //    var expectedChunkLen = Math.Ceiling((currentEnd - currentStart + 1) / currentProcessors);
-            //    _vm.ChunkSize = (int)expectedChunkLen;
-            //}
-
-            //// set max chunk size to total frames
-            //chunkLengthNumericUpDown.Maximum = currentEnd - currentStart + 1;
         }
 
         private void StartEnd_Validating(object sender, CancelEventArgs e)
@@ -685,7 +625,7 @@ namespace BlenderRenderController
 
         private void AboutBRC_Click(object sender, EventArgs e)
         {
-            new AboutBox().ShowDialog();
+            _aboutBox.ShowDialog();
         }
 
         private void miGithub_Click(object sender, EventArgs e)
@@ -693,60 +633,90 @@ namespace BlenderRenderController
             Process.Start("https://github.com/RedRaptor93/BlenderRenderController");
         }
 
+        void SetStartingState()
+        {
+            miRenderMixdown.Enabled = _vm.ConfigOk && _vm.ProjectLoaded && _vm.IsNotBusy;
+            frOutputFolder.Enabled = _vm.ProjectLoaded && _vm.IsNotBusy;
+
+            miOpenRecent.Enabled =
+            miOpenFile.Enabled =
+            openFileTSButton.Enabled = _vm.ConfigOk && _vm.IsNotBusy;
+
+            statusETR.Visible = _vm.IsBusy;
+            miJoinChunks.Enabled = _vm.IsNotBusy;
+            miSettings.Enabled = _vm.IsNotBusy;
+
+            miReloadCurrent.Enabled =
+            reloadTSButton.Enabled =
+            unloadToolStripMenuItem.Enabled = _vm.ProjectLoaded && _vm.CanLoadMore;
+
+            totalEndNumericUpDown.Enabled =
+            totalStartNumericUpDown.Enabled = !_vm.AutoFrameRange;
+            chunkLengthNumericUpDown.Enabled = !_vm.AutoChunkSize;
+            processCountNumericUpDown.Enabled = !_vm.AutoMaxProcessors;
+        }
 
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var vm = (BrcMainViewModel)sender;
 
-			if (e.PropertyName == nameof(vm.AutoFrameRange))
-			{
+            // all of the more complex Binding logic goes here
 
-			}
+            miRenderMixdown.Enabled = vm.ConfigOk && vm.ProjectLoaded && vm.IsNotBusy;
+            frOutputFolder.Enabled = vm.ProjectLoaded && vm.IsNotBusy;
 
-			if (vm.IsBusy)
+            if (e.PropertyName == nameof(vm.IsBusy) || e.PropertyName == nameof(vm.ConfigOk))
             {
-                if (!projectBindingSrc.IsBindingSuspended)
-                    projectBindingSrc.SuspendBinding();
+                if (vm.IsBusy)
+                {
+                    if (!projectBindingSrc.IsBindingSuspended)
+                        projectBindingSrc.SuspendBinding();
+                }
+                else
+                {
+                    if (projectBindingSrc.IsBindingSuspended)
+                        projectBindingSrc.ResumeBinding();
+                }
+
+                // Toolstrip and menu items can't have data binding
+                miOpenRecent.Enabled =
+                miOpenFile.Enabled =
+                openFileTSButton.Enabled = vm.ConfigOk && vm.IsNotBusy;
+
+                statusETR.Visible = vm.IsBusy;
+                miJoinChunks.Enabled = vm.IsNotBusy;
+                miSettings.Enabled = vm.IsNotBusy;
             }
-            else
+            else if (e.PropertyName == nameof(vm.ProjectLoaded) || e.PropertyName == nameof(vm.CanLoadMore))
             {
-                if (projectBindingSrc.IsBindingSuspended)
-                    projectBindingSrc.ResumeBinding();
+                //panelChunkSize.Enabled =
+                //panelFrameRange.Enabled =
+                miReloadCurrent.Enabled =
+                reloadTSButton.Enabled =
+                unloadToolStripMenuItem.Enabled = vm.ProjectLoaded && vm.CanLoadMore;
             }
-
-			bool canEditProj = vm.ProjectLoaded && vm.CanLoadMore;
-			bool canReloadProj = vm.ConfigOk && vm.ProjectLoaded && vm.IsNotBusy;
-
-			btnStartWork.Visible = vm.IsNotBusy && vm.ConfigOk;
-			btnStopWork.Visible = vm.IsBusy && vm.ConfigOk;
-
-			unloadToolStripMenuItem.Enabled = canEditProj;
-
-            miRenderMixdown.Enabled = canReloadProj;
-            miJoinChunks.Enabled = vm.IsNotBusy;
-
-			miSettings.Enabled = vm.IsNotBusy;
-
-            miReloadCurrent.Enabled =
-            reloadTSButton.Enabled = canEditProj;
-
-			frOutputFolder.Enabled = vm.ProjectLoaded && vm.IsNotBusy;
-
-            panelChunkSize.Enabled =
-            panelFrameRange.Enabled = canEditProj;
-
-            cbRenderer.Enabled =
-            cbAfterRenderAction.Enabled = vm.IsNotBusy;
-
-            miOpenFile.Enabled =
-            openFileTSButton.Enabled = vm.ConfigOk && vm.IsNotBusy;
-
-            blendNameLabel.Visible = vm.ProjectLoaded;
-
-            statusETR.Visible = 
-            statusTime.Visible = vm.IsBusy;
-
-            //Status(vm.DefaultStatusMessage);
+            else if (e.PropertyName == nameof(vm.Progress))
+            {
+                UpdateProgressBars(vm.Progress);
+                SafeSetText(vm.StatusTime, statusETR);
+            }
+            else if (e.PropertyName == nameof(vm.Footer))
+            {
+                SafeSetText(vm.Footer, statusMessage);
+            }
+            else if (e.PropertyName == nameof(vm.AutoFrameRange))
+            {
+                totalEndNumericUpDown.Enabled =
+                totalStartNumericUpDown.Enabled = !vm.AutoFrameRange;
+            }
+            else if (e.PropertyName == nameof(vm.AutoChunkSize))
+            {
+                chunkLengthNumericUpDown.Enabled = !vm.AutoChunkSize;
+            }
+            else if (e.PropertyName == nameof(vm.AutoMaxProcessors))
+            {
+                processCountNumericUpDown.Enabled = !vm.AutoMaxProcessors;
+            }
         }
     }
 

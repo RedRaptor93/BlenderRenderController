@@ -129,41 +129,24 @@
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>104</value>
   </metadata>
+  <metadata name="toolTipInfo.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>317, 46</value>
+  </metadata>
   <metadata name="statusStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>154, 56</value>
   </metadata>
   <metadata name="toolStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>30, 54</value>
   </metadata>
-  <metadata name="recentBlendsMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>147, 20</value>
-  </metadata>
   <metadata name="menuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>22, 18</value>
   </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="miDonate.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAACEAAAAWCAYAAABOm/V6AAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
-        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAJySURBVEhLpdZLiE5hHMfxMzLJZYTcEgsUKWNoRlJy
-        Z0HKatBkSmYhG2RBscNikAUhwijFglgMykLJW+RSFsq1bMjCjMj9Oq/vb97ndJ738R/n9czic2bOOc//
-        Of9zzv/5nzdJ6ptjNeIm7rq/13ABJ7AfO7EeKzAbEzAE/bEWT1DsxibGVvxEaZJ/+42veIPneIxfyMaw
-        +R+DcRb+RXqPTaXq8BD2RL3BphJ6tx9hTxKrAbVrcpMYijOwJ8m8wzO8QKW1UkzqmorTVu+4Yl04NQ+a
-        2J6g5DZU/SPRD32xEipEa7yvK5nS2NrWXqi2Ll6NXQjv6AO+eftt6ANrDi1bPzb0CItJIjndXkjC4KnQ
-        3YVBFzETetza17JToYbxMhyvEc4hndiGAUjCJKqwCZ/gB6mh6PGm4+4hPbfRHQsdhj+HvMdejEY21kui
-        FpfhBynj7RiILKi+eQPSMS+hu07P1SAsYhXsPoyFP0+Jl8Q5+BOrHsozLncM6fgWd2wyHrhjojtvxRiE
-        8RkviRHQd2Ap1BH/HlxuBnQRXewLbuGV2/+OoxgHK7ZcD4WZR8vxB+5ADWwVtEr0LVACc2HF2SKSGA8V
-        7nFoGW/BeegLOR2fsRtWrC0iCRWYHrtW0ilcRxMaoPOboURGuf18EUnoFRyC+oWalt69PunDoPOToNey
-        0O3ni0jiPg5gDnSxk1BvUavW+YlQl13i9vNFJHEET93/6iuXsAiz3LF10BOye4IlIgk1tS7oZ5t+oh3E
-        DSyD+sFbqFasWFtEEqLmpH5wFcuxAEpK/UI1o9+QVpwtMgmZDzUo1YWeTAf2YBCs8T3rTqKQ/AFAXby7
-        Poi/CQAAAABJRU5ErkJggg==
-</value>
-  </data>
   <data name="renderInfoLabel.ToolTip" xml:space="preserve">
     <value>Make sure that Blender itself can render your project (or the selected frame range) well.
 If there is an issue in a video produced by this tool, it is the most likely caused by an incorrect Blender rendering.
 If you experience issues with sound, make sure you use use the 'Joining action' with mixdown audio.</value>
   </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAAEAAAAAAAEAIAB1kQAAFgAAAIlQTkcNChoKAAAADUlIRFIAAAEAAAABAAgGAAAAXHKoZgAAAAlw
@@ -789,7 +772,27 @@ If you experience issues with sound, make sure you use use the 'Joining action' 
         UCZrOo7Ws+l0ri+bM4dxVwB45gGAp+fomWfvVpPef4Fnnr177f8D/Sv7i4Et8usAAAAASUVORK5CYII=
 </value>
   </data>
+  <metadata name="recentBlendsMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>147, 20</value>
+  </metadata>
   <metadata name="openBlendDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>446, 19</value>
   </metadata>
+  <data name="miDonate.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAACEAAAAWCAYAAABOm/V6AAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAJySURBVEhLpdZLiE5hHMfxMzLJZYTcEgsUKWNoRlJy
+        Z0HKatBkSmYhG2RBscNikAUhwijFglgMykLJW+RSFsq1bMjCjMj9Oq/vb97ndJ738R/n9czic2bOOc//
+        Of9zzv/5nzdJ6ptjNeIm7rq/13ABJ7AfO7EeKzAbEzAE/bEWT1DsxibGVvxEaZJ/+42veIPneIxfyMaw
+        +R+DcRb+RXqPTaXq8BD2RL3BphJ6tx9hTxKrAbVrcpMYijOwJ8m8wzO8QKW1UkzqmorTVu+4Yl04NQ+a
+        2J6g5DZU/SPRD32xEipEa7yvK5nS2NrWXqi2Ll6NXQjv6AO+eftt6ANrDi1bPzb0CItJIjndXkjC4KnQ
+        3YVBFzETetza17JToYbxMhyvEc4hndiGAUjCJKqwCZ/gB6mh6PGm4+4hPbfRHQsdhj+HvMdejEY21kui
+        FpfhBynj7RiILKi+eQPSMS+hu07P1SAsYhXsPoyFP0+Jl8Q5+BOrHsozLncM6fgWd2wyHrhjojtvxRiE
+        8RkviRHQd2Ap1BH/HlxuBnQRXewLbuGV2/+OoxgHK7ZcD4WZR8vxB+5ADWwVtEr0LVACc2HF2SKSGA8V
+        7nFoGW/BeegLOR2fsRtWrC0iCRWYHrtW0ilcRxMaoPOboURGuf18EUnoFRyC+oWalt69PunDoPOToNey
+        0O3ni0jiPg5gDnSxk1BvUavW+YlQl13i9vNFJHEET93/6iuXsAiz3LF10BOye4IlIgk1tS7oZ5t+oh3E
+        DSyD+sFbqFasWFtEEqLmpH5wFcuxAEpK/UI1o9+QVpwtMgmZDzUo1YWeTAf2YBCs8T3rTqKQ/AFAXby7
+        Poi/CQAAAABJRU5ErkJggg==
+</value>
+  </data>
 </root>

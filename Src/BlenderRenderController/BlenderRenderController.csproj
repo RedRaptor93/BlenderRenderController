@@ -195,9 +195,7 @@
     <None Include="Properties\app.manifest">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Properties\DataSources\BRClib.BlendData.datasource" />
-    <None Include="Properties\DataSources\BRClib.Project.datasource" />
-    <None Include="Properties\DataSources\BrcSettings.datasource" />
+    <None Include="Properties\DataSources\BRClib.ViewModels.BrcMainViewModel.datasource" />
     <EmbeddedResource Include="BrcForm.resx">
       <DependentUpon>BrcForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -206,6 +204,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <None Include="Properties\DataSources\BrcSettings.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

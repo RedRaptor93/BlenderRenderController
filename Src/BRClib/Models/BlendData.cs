@@ -109,13 +109,6 @@ namespace BRClib
             return FromPyOutput(stdOutput.Split('\n'));
         }
 
-
-        private int _start, _end;
-        private double _fps;
-        private string _outPath, _projName,
-            _activeScene, _res;
-
-
         //public string AudioFileFormat
         //{
         //    get
