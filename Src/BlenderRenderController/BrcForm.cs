@@ -600,7 +600,7 @@ namespace BlenderRenderController
 
         private void toolStripMenuItemBug_Click(object sender, EventArgs e)
         {
-            Process.Start("https://github.com/RedRaptor93/BlenderRenderController/wiki/Reporting-an-issue");
+            _vm.OpenReportIssuePage();
         }
 
         private void clearRecentProjectsListToolStripMenuItem_Click(object sender, EventArgs e)
@@ -630,12 +630,15 @@ namespace BlenderRenderController
 
         private void miGithub_Click(object sender, EventArgs e)
         {
-            Process.Start("https://github.com/RedRaptor93/BlenderRenderController");
+            _vm.OpenProjectPage();
         }
 
         void SetStartingState()
         {
-            miRenderMixdown.Enabled = _vm.ConfigOk && _vm.ProjectLoaded && _vm.IsNotBusy;
+            miRenderMixdown.Enabled = 
+            checkAutoFrame.Enabled =
+            checkChunkSize.Enabled =
+            checkMaxProcs.Enabled =
             frOutputFolder.Enabled = _vm.ProjectLoaded && _vm.IsNotBusy;
 
             miOpenRecent.Enabled =
@@ -662,7 +665,10 @@ namespace BlenderRenderController
 
             // all of the more complex Binding logic goes here
 
-            miRenderMixdown.Enabled = vm.ConfigOk && vm.ProjectLoaded && vm.IsNotBusy;
+            miRenderMixdown.Enabled = 
+            checkAutoFrame.Enabled =
+            checkChunkSize.Enabled =
+            checkMaxProcs.Enabled =
             frOutputFolder.Enabled = vm.ProjectLoaded && vm.IsNotBusy;
 
             if (e.PropertyName == nameof(vm.IsBusy) || e.PropertyName == nameof(vm.ConfigOk))
@@ -689,8 +695,6 @@ namespace BlenderRenderController
             }
             else if (e.PropertyName == nameof(vm.ProjectLoaded) || e.PropertyName == nameof(vm.CanLoadMore))
             {
-                //panelChunkSize.Enabled =
-                //panelFrameRange.Enabled =
                 miReloadCurrent.Enabled =
                 reloadTSButton.Enabled =
                 unloadToolStripMenuItem.Enabled = vm.ProjectLoaded && vm.CanLoadMore;

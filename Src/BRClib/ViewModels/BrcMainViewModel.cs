@@ -247,7 +247,7 @@ namespace BRClib.ViewModels
             get => "ETR: " + WorkETR.ToString(TIME_FMT);
         }
 
-        public TimeSpan WorkETR { get; set; }
+        public TimeSpan WorkETR { get; private set; }
 
 
         public void ResetFrameRange()
@@ -284,6 +284,16 @@ namespace BRClib.ViewModels
             }
 
             return false;
+        }
+
+        public void OpenReportIssuePage()
+        {
+            ShellOpen("https://github.com/RedRaptor93/BlenderRenderController/wiki/Reporting-an-issue");
+        }
+
+        public void OpenProjectPage()
+        {
+            ShellOpen("https://github.com/RedRaptor93/BlenderRenderController");
         }
 
         public void UnloadProject()

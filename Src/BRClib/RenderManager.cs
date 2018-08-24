@@ -61,6 +61,7 @@ namespace BRClib
                 lock (_syncLock)
                 {
                     TryQueueRenderProcess();
+                    ReportProgress(_FramesRendered.Count, _State.ChunksCompleted);
                 }
             };
         }
@@ -194,7 +195,6 @@ namespace BRClib
 
             _arCts = new CancellationTokenSource();
             WasAborted = false;
-            _reportCount = 0;
         }
 
         /// <summary>
@@ -253,21 +253,20 @@ namespace BRClib
                 proc.Start();
                 proc.BeginOutputReadLine();
 
-                logger.Trace("Started render n. {0}, frames: {1}", _State.Index, _ChunkList[_State.Index]);
+                logger.Trace("Started render proc {0}, frames: {1}", _State.Index, _ChunkList[_State.Index]);
 
                 _State.ChunksInProgress++;
                 _State.Index++;
             }
-
-            ReportProgress(_FramesRendered.Count, _State.ChunksCompleted);
         }
 
-        int _reportCount;
+        byte _reportCount;
         private void ReportProgress(int framesRendered, int chunksCompleted)
         {
-            if (_reportCount++ % 3 == 0)
+            if (_reportCount++ % 4 == 0)
             {
                 ProgressChanged?.Raise(this, new RenderProgressInfo(framesRendered, chunksCompleted));
+                _reportCount = 0;
             }
         }
 
