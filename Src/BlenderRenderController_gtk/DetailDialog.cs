@@ -20,59 +20,14 @@ namespace BlenderRenderController
             StyleContext.AddProviderForScreen(Screen, elements.Item2, 800);
         }
 
-        public DetailDialog(string message, string title, string details, Window parent, MessageType type, 
-                            ButtonsType buttons = ButtonsType.Ok)
-            : this(message, title, details, parent, type)
-        {
-            SetupButtons(buttons);
-        }
-
-        public DetailDialog(string message, string title, string details, Window parent, MessageType type)
+        public DetailDialog(Window parent, string message, string details, MessageType type)
             : this(Glade.LoadUI("Dialogs.glade", "brc_style.css"), "DetailDialog")
         {
-            this.TransientFor = parent;
-            detailsBuffer.Text = details;
+            TransientFor = parent;
             dialogMsgLbl.Text = message;
-            this.Title = title;
-            SetDialogIcon(type);
+            detailsBuffer.Text = details;
+            SetDialogTitleAndIcon(type);
         }
-
-
-        void SetupButtons(ButtonsType type)
-        {
-            switch (type)
-            {
-                case ButtonsType.Ok:
-                    SetupButtons(null, null, ResponseType.Ok);
-                    break;
-                case ButtonsType.Close:
-                    SetupButtons(null, null, ResponseType.Close);
-                    break;
-                case ButtonsType.Cancel:
-                    SetupButtons(null, null, ResponseType.Cancel);
-                    break;
-                case ButtonsType.YesNo:
-                    SetupButtons(null, ResponseType.Yes, ResponseType.No);
-                    break;
-                case ButtonsType.OkCancel:
-                    SetupButtons(null, ResponseType.Ok, ResponseType.Cancel);
-                    break;
-                default:
-                    throw new Exception("Unexpected ButtonType");
-            }
-        }
-
-        void SetupButtons(params ResponseType?[] responses)
-        {
-            foreach (var r in responses)
-            {
-                if (r.HasValue)
-                {
-                    AddButton(GetResponseText(r.Value), r.Value);
-                }
-            }
-        }
-
 
         string GetResponseText(ResponseType responseType)
         {
@@ -103,10 +58,11 @@ namespace BlenderRenderController
             }
         }
 
-        void SetDialogIcon(MessageType type)
+        void SetDialogTitleAndIcon(MessageType type)
         {
+            string stockTitle = type.ToString();
             string iconName = "dialog-";
-
+            
             switch (type)
             {
                 case MessageType.Info:
@@ -124,12 +80,12 @@ namespace BlenderRenderController
                 case MessageType.Other:
                 default:
                     iconName = "image-missing";
+                    stockTitle = null;
                     break;
             }
 
-            var icTheame = IconTheme.GetForScreen(Screen);
-            dialogIcon.Pixbuf = icTheame.LoadIcon(iconName, 48, 0);
+            dialogIcon.Pixbuf = IconTheme.GetForScreen(Screen).LoadIcon(iconName, 48, 0);
+            Title = stockTitle;
         }
-
     }
 }

@@ -208,8 +208,7 @@ namespace BlenderRenderController
                     break;
                 case 1: // WARN RenderFormat is image
                     var eMsg = string.Format(BRCRes.AppErr_RenderFormatIsImage, _vm.Data.FileFormat);
-                    MessageBox.Show(BRCRes.AppErr_RenderFormatIsImage, "Warning",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(eMsg, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     break;
                 case 2: // WARN Invalid output path
                         // use .blend folder path if outputPath is unset, display a warning about it
@@ -293,7 +292,6 @@ namespace BlenderRenderController
         private void OnRenderFinishedHandler(BrcRenderResult e)
         {
             // all slow work is done
-            //StopWork(true);
 
             if (e == BrcRenderResult.AllOk)
             {
@@ -342,9 +340,9 @@ namespace BlenderRenderController
 
         void BtnStartWork_Click(object s, EventArgs e)
 		{
-			Debug.Assert(_vm.IsNotBusy, "Bad state!");
+            Debug.Assert(_vm.IsNotBusy, "Bad state!", "Start render called while busy");
 
-			var outputDir = _vm.OutputPath;
+            var outputDir = _vm.OutputPath;
 
             if ((Directory.Exists(outputDir) && Directory.GetFiles(outputDir).Length > 0)
                 || Directory.Exists(_vm.DefaultChunksDirPath))
@@ -368,8 +366,6 @@ namespace BlenderRenderController
 
         void BtnStopWork_Click(object s, EventArgs e)
 		{
-			Debug.Assert(_vm.IsBusy, "Bad state!");
-
 			var result = MessageBox.Show("Are you sure you want to stop?",
                                                 "Cancel",
                                                 MessageBoxButtons.YesNo,
@@ -378,8 +374,9 @@ namespace BlenderRenderController
             if (result == DialogResult.No)
                 return;
 
-            // cancel
+            // stop / cancel
 			_vm.StopRender();
+            _vm.CancelExtraTasks();
 		}
 
         #endregion
@@ -636,7 +633,7 @@ namespace BlenderRenderController
         void SetStartingState()
         {
             miRenderMixdown.Enabled = 
-            checkAutoFrame.Enabled =
+            checkAutoFrame.Enabled =    
             checkChunkSize.Enabled =
             checkMaxProcs.Enabled =
             frOutputFolder.Enabled = _vm.ProjectLoaded && _vm.IsNotBusy;
@@ -656,7 +653,7 @@ namespace BlenderRenderController
             totalEndNumericUpDown.Enabled =
             totalStartNumericUpDown.Enabled = !_vm.AutoFrameRange;
             chunkLengthNumericUpDown.Enabled = !_vm.AutoChunkSize;
-            processCountNumericUpDown.Enabled = !_vm.AutoMaxProcessors;
+            processCountNumericUpDown.Enabled = !_vm.AutoMaxCores;
         }
 
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -717,9 +714,9 @@ namespace BlenderRenderController
             {
                 chunkLengthNumericUpDown.Enabled = !vm.AutoChunkSize;
             }
-            else if (e.PropertyName == nameof(vm.AutoMaxProcessors))
+            else if (e.PropertyName == nameof(vm.AutoMaxCores))
             {
-                processCountNumericUpDown.Enabled = !vm.AutoMaxProcessors;
+                processCountNumericUpDown.Enabled = !vm.AutoMaxCores;
             }
         }
     }

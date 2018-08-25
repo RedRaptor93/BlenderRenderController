@@ -22,7 +22,7 @@ namespace BRClib.ViewModels
 
             Chunks = new List<Chunk>();
             _bkpRange = new Chunk(1, 50);
-            _data = _emptyProj;
+            _data = _NoData;
 
             _startFrame = _bkpRange.Start;
             _endFrame = _bkpRange.End;
@@ -137,7 +137,7 @@ namespace BRClib.ViewModels
             }
         }
 
-        public int MaxProcessors
+        public int MaxCores
         {
             get => _maxProcs;
             set
@@ -161,7 +161,7 @@ namespace BRClib.ViewModels
             }
         }
 
-        public bool AutoMaxProcessors
+        public bool AutoMaxCores
         {
             get => _autoMaxProcs;
             set
@@ -170,7 +170,7 @@ namespace BRClib.ViewModels
                 {
                     if (_autoMaxProcs)
                     {
-                        MaxProcessors = Environment.ProcessorCount;
+                        MaxCores = Environment.ProcessorCount;
                         RecalcChunkSize();
                     }
                 }
@@ -298,7 +298,7 @@ namespace BRClib.ViewModels
 
         public void UnloadProject()
 		{
-			Data = _emptyProj;
+			Data = _NoData;
 		}
 
         public async Task<MixdownCmd> RunMixdown()
@@ -351,7 +351,7 @@ namespace BRClib.ViewModels
         {
             if (AutoChunkSize)
             {
-                Chunks = Chunk.CalcChunks(StartFrame, EndFrame, MaxProcessors).ToList();
+                Chunks = Chunk.CalcChunks(StartFrame, EndFrame, MaxCores).ToList();
             }
             else
             {
@@ -370,7 +370,7 @@ namespace BRClib.ViewModels
                 ProjectName = this.Data.ProjectName,
                 ChunksDir = DefaultChunksDirPath,
                 OutputPath = this.OutputPath,
-                MaxProcessors = this.MaxProcessors,
+                MaxProcessors = this.MaxCores,
                 Chunks = this.Chunks,
                 Duration = this.Duration
             };
@@ -461,11 +461,11 @@ namespace BRClib.ViewModels
             OutputPath = Data.OutputPath;
             Header = Data.ProjectName;
 			ResetFrameRange();
-            ProjectLoaded = Data != _emptyProj;
+            ProjectLoaded = Data != _NoData;
 
             AutoFrameRange =
             AutoChunkSize =
-            AutoMaxProcessors = true;
+            AutoMaxCores = true;
 
 			// send events to update infobox items
 			OnPropertyChanged(nameof(ActiveScene));
@@ -476,7 +476,7 @@ namespace BRClib.ViewModels
 
         void RecalcChunkSize()
         {
-            var cz = Math.Ceiling(TotalFrames / (double)MaxProcessors);
+            var cz = Math.Ceiling(TotalFrames / (double)MaxCores);
             ChunkSize = (int)cz;
         }
 
@@ -544,7 +544,7 @@ namespace BRClib.ViewModels
         Chunk _bkpRange;
         float _progress;
         CancellationTokenSource _sharedCTS;
-		static readonly BlendData _emptyProj = new BlendData();
+		static readonly BlendData _NoData = new BlendData();
         const string TIME_FMT = @"hh\:mm\:ss";
     }
 }

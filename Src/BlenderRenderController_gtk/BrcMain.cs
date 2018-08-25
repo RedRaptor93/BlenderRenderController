@@ -28,8 +28,6 @@ namespace BlenderRenderController
         {
             Initialize();
 
-            _ProjBase = lblProjectName.Text;
-
             _vm = new BrcMainViewModel();
             _vm.PropertyChanged += ViewModel_PropertyChanged;
             CheckConfigs();
@@ -92,97 +90,47 @@ namespace BlenderRenderController
             return result;
         }
 
-        void UpdateInfoBoxItems()
-        {
-            activeSceneInfoValue.Text = _vm.Data.ActiveScene;
-            durationInfoValue.Text = string.Format("{0:%h}h {0:%m}m {0:%s}s {0:%f}ms", _vm.Duration);
-            fpsInfoValue.Text = _vm.Fps.ToString("F2");
-            resolutionInfoValue.Text = _vm.Resolution;
-
-            lblProjectName.Text = _ProjBase + " - " + _vm.Data.ProjectName;
-        }
-
-        void UpdateOptions()
-        {
-            numStartFrameAdjust.Value = project.Start;
-            numEndFrameAdjust.Value = project.End;
-            numChunkSizeAdjust.Value = project.ChunkLenght;
-            numProcMaxAdjust.Value = project.MaxConcurrency;
-
-            entryOutputPath.Text = project.OutputPath;
-        }
 
         async void OpenBlendFile(string blendFile)
         {
-            Status("Loading " + PathIO.GetFileName(blendFile) + " ...");
-            workSpinner.Start();
+            logger.Info("Loading .blend");
+
+            var (retcode, cmd) = await _vm.OpenBlend(blendFile);
+            // success = retcode >= 0;
+            // showDlg = retcode != 0;
 
             Dialog dlg = null;
 
-            if (!File.Exists(blendFile))
+            switch (retcode)
             {
-                ShowDialog("File not found");
-                return;
+                case -1: // ERROR File not found
+                    dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, "File not found");
+                    break;
+                case -2: // ERROR no info receved
+                    dlg = new DetailDialog(this, BRCRes.AppErr_NoInfoReceived, cmd.GenerateReport(), MessageType.Error);
+                    dlg.AddButton("Retry", ResponseType.Yes);
+                    dlg.AddButton("_Cancel", ResponseType.Cancel);
+                    var response = (ResponseType)dlg.Run(); 
+                    if (response == ResponseType.Yes)
+                    {
+                        OpenBlendFile(blendFile);
+                    }
+                    dlg.Destroy();
+                    return;
+                case 1: // WARN RenderFormat is image
+                    var eMsg = string.Format(BRCRes.AppErr_RenderFormatIsImage, _vm.Data.FileFormat);
+                    dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Warning, ButtonsType.Ok, eMsg);
+                    break;
+                case 2: // WARN Invalid output path
+                        // use .blend folder path if outputPath is unset, display a warning about it
+                    dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Warning, ButtonsType.Ok, BRCRes.AppErr_BlendOutputInvalid);
+                    break;
             }
 
-            var getinfo = new GetInfoCmd(blendFile);
-            await getinfo.RunAsync();
-
-            var report = getinfo.GenerateReport();
-
-            if (getinfo.StdOutput.Length == 0)
+            if (dlg != null)
             {
-                ShowDialog(BRCRes.AppErr_NoInfoReceived, report);
-                return;
-            }
-
-            var data = BlendData.FromPyOutput(getinfo.StdOutput);
-            if (data == null)
-            {
-                ShowDialog("Read error", report);
-                return;
-            }
-
-            var proj = new Project(data)
-            {
-                BlendFilePath = blendFile
-            };
-            
-
-            if (RenderFormats.IMAGES.Contains(proj.FileFormat))
-            {
-                var eMsg = string.Format(BRCRes.AppErr_RenderFormatIsImage, proj.FileFormat);
-                ShowDialog(eMsg, null, MessageType.Warning);
-            }
-
-            if (string.IsNullOrWhiteSpace(proj.OutputPath))
-            {
-                // use .blend folder path if outputPath is unset, display a warning about it
-                ShowDialog(BRCRes.AppErr_BlendOutputInvalid, null, MessageType.Warning);
-                proj.OutputPath = PathIO.GetDirectoryName(blendFile);
-            }
-            else
-                proj.OutputPath = PathIO.GetDirectoryName(proj.OutputPath);
-
-            _vm.Project = proj;
-
-            workSpinner.Stop();
-
-            // ----
-            int ShowDialog(string message, string details = null, MessageType type = MessageType.Error)
-            {
-                if (string.IsNullOrEmpty(details))
-                {
-                    dlg = new MessageDialog(this, DialogFlags.Modal, type, ButtonsType.Ok, message);
-                }
-                else
-                {
-                    dlg = new DetailDialog(message, type.ToString(), details, this, type);
-                }
-
-                int dr = dlg.Run();
+                dlg.Run();
                 dlg.Destroy();
-                return dr;
             }
         }
 
@@ -216,7 +164,8 @@ namespace BlenderRenderController
                 }
                 else
                 {
-                    StopWork(false);
+                    _vm.StopRender();
+                    _vm.CancelExtraTasks();
                 }
             }
 
@@ -262,20 +211,19 @@ namespace BlenderRenderController
         private void On_ReloadFile(object sender, EventArgs e)
         {
             var bpath = _vm.BlendFile;
-            _vm.Project = null;
+            _vm.UnloadProject();
             OpenBlendFile(bpath);
         }
 
         private void On_UnloadFile(object sender, EventArgs e)
         {
-            _vm.Project.PropertyChanged -= VMProject_PropChanged;
-            _vm.Project = null;
+            _vm.UnloadProject();
         }
 
 
         void On_miGithub_Clicked(object s, EventArgs e)
         {
-            ShellOpen("https://github.com/RedRaptor93/BlenderRenderController");
+            _vm.OpenProjectPage();
         }
 
         void On_miDonate_Clicked(object s, EventArgs e)
@@ -285,7 +233,7 @@ namespace BlenderRenderController
 
         void On_miReportABug_Clicked(object s, EventArgs e)
         {
-            ShellOpen("https://github.com/RedRaptor93/BlenderRenderController/wiki/Reporting-an-issue");
+            _vm.OpenReportIssuePage();
         }
 
         private void On_Quit(object s, EventArgs e)
@@ -296,85 +244,52 @@ namespace BlenderRenderController
         void On_cbJoiningAction_Changed(object s, EventArgs e)
         {
             var cb = (ComboBox)s;
-            var active = cb.Active;
-
-            Settings.AfterRender = (AfterRenderAction)active;
+            Settings.AfterRender = (AfterRenderAction)cb.Active;
         }
 
         void On_cbRenderer_Changed(object s, EventArgs e)
         {
             var cb = (ComboBox)s;
-            var active = cb.Active;
-            Settings.Renderer = (Renderer)active;
+            Settings.Renderer = (Renderer)cb.Active;
         }
 
-        void On_AutoStartStop_Toggled(object s, EventArgs e)
+        void On_AutoFramerange_Toggled(object s, EventArgs e)
         {
-            var radioBtn = (RadioButton)s;
-            AutoFrameRange = radioBtn.Active;
-
-            frameRangeBox.Sensitive = !AutoFrameRange;
-
-            if (AutoFrameRange)
-            {
-                _vm.Project.ResetRange();
-            }
+            _vm.AutoFrameRange = swAutoFrameRange.Active;
         }
 
         void On_AutoChunkSize_Toggled(object s, EventArgs e)
         {
-            var radioBtn = (RadioButton)s;
-            AutoChunkDiv = radioBtn.Active;
-
-            chunkDivBox.Sensitive = !AutoChunkDiv;
-
-            if (!AutoChunkDiv)
-                return;
-
-            var currentStart = numStartFrameAdjust.Value;
-            var currentEnd = numEndFrameAdjust.Value;
-            var maxParallel = Environment.ProcessorCount;
-            var expectedCLen = Math.Ceiling((currentEnd - currentStart + 1) / maxParallel);
-
-            _vm.Project.ChunkLenght = (int)expectedCLen;
+            _vm.AutoChunkSize = swAutoChunkSize.Active;
         }
 
         void On_numFrameRange_ValueChanged(object s, EventArgs e)
         {
-            var spinBtn = (SpinButton)s;
-
-            var startFrame = numStartFrameAdjust.Value;
-            var endFrame = numEndFrameAdjust.Value;
-
-            if (AutoChunkDiv)
-            {
-                _vm.Project.ChunkLenght = (int)Math.Ceiling((endFrame - startFrame + 1) / _vm.Project.MaxConcurrency);
-            }
-
-            _vm.Project.Start = (int)startFrame;
-            _vm.Project.End = (int)endFrame;
+            _vm.StartFrame = (int)numStartFrameAdjust.Value;
+            _vm.EndFrame = (int)numEndFrameAdjust.Value;
         }
 
         void On_numChunkSize_ValueChanged(object s, EventArgs e)
         {
             var adj = (Adjustment)s;
-            _vm.Project.ChunkLenght = (int)adj.Value;
+            _vm.ChunkSize = (int)adj.Value;
         }
 
         void On_numProcessMax_ValueChanged(object s, EventArgs e)
         {
             var adj = (Adjustment)s;
-            _vm.Project.MaxConcurrency = (int)adj.Value;
+            _vm.MaxCores = (int)adj.Value;
         }
 
         void StartRender_Clicked(object s, EventArgs e)
         {
             // start render... 
+            Debug.Assert(_vm.IsNotBusy, "Bad state!", "Start render called while busy");    
 
-            var outdir = _vm.Project.OutputPath;
+            var outdir = _vm.OutputPath;
 
             bool destNotEmpty = (Directory.Exists(outdir) && Directory.GetFiles(outdir).Length > 0)
-                || Directory.Exists(_vm.Project.ChunksDirPath);
+                || Directory.Exists(_vm.DefaultChunksDirPath);
 
             if (destNotEmpty)
             {
@@ -392,7 +307,7 @@ namespace BlenderRenderController
                     return;
             }
 
-            StartRender();
+            _vm.StartRender();
 
             btnStopRender.Show();
             startStopStack.VisibleChild = btnStopRender;
@@ -402,20 +317,13 @@ namespace BlenderRenderController
         void StopRender_Clicked(object s, EventArgs e)
         {
             // stop / cancel render...
+            Debug.Assert(_vm.IsBusy, "Bad state!");
 
-            if (_vm.IsBusy)
-            {
-                var dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Warning, 
-                                            ButtonsType.YesNo,
-                                            "Are you sure you want to stop?");
+            var dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Warning, 
+                ButtonsType.YesNo, "Are you sure you want to stop?");
 
-                var result = (ResponseType)dlg.Run(); dlg.Destroy();
-
-                if (result == ResponseType.No)
-                    return;
-
-                StopWork(false);
-            }
+            var result = (ResponseType)dlg.Run(); dlg.Destroy();
+            if (result == ResponseType.No) return;
 
             btnStartRender.Show();
             startStopStack.VisibleChild = btnStartRender;
@@ -426,12 +334,11 @@ namespace BlenderRenderController
         {
             if (p < 0f)
             {
-                // There's no equivalent here of WinForms's Marquee style
-                // TODO
-                workProgress.Pulse();
+                StartMarquee();
             }
             else
             {
+                StopMarquee();
                 workProgress.Fraction = p;
             }
         }
@@ -500,65 +407,34 @@ namespace BlenderRenderController
 
         async void On_RenderMixdown_Clicked(object s, EventArgs e)
         {
-            _vm.IsBusy = true;
-            ResetCTS();
-
-            Status("Rendering mixdown...");
-
-            var mixcmd = new MixdownCmd()
+            var mix = await _vm.RunMixdown();
+            if (mix.ExitCode != 0)
             {
-                BlendFile = _vm.Project.BlendFilePath,
-                Range = _vm.Project.ChunkList.GetFullRange(),
-                OutputFolder = _vm.Project.OutputPath
-            };
-
-            var result = await mixcmd.RunAsync(_afterRenderCancelSrc.Token);
-
-            if (result == 0)
-            {
-                Status("Mixdown complete");
-            }
-            else
-            {
-                var report = mixcmd.GenerateReport();
-                var dlg = new DetailDialog("Mixdown failed", "Error", report, this, MessageType.Error);
-
-                Status("Something went wrong...");
-
+                var report = mix.GenerateReport();
+                var dlg = new DetailDialog(this, "Mixdown failed", report, MessageType.Error);
+                dlg.AddButton("_OK", ResponseType.Ok);
                 dlg.Run(); dlg.Destroy();
             }
-
-            _vm.IsBusy = false;
         }
 
         async void On_JoinChunks_Clicked(object s, EventArgs e)
         {
-            _vm.IsBusy = true;
-            ResetCTS();
-
             var dlg = new ConcatDialog();
             dlg.TransientFor = this;
             var response = (ResponseType)dlg.Run(); dlg.Destroy();
 
+            if (response != ResponseType.Ok) return;
 
-            if (response == ResponseType.Accept)
+            var cmd = dlg.Concat;
+            var cct = await _vm.RunConcat(cmd.ConcatTextFile, cmd.OutputFile, cmd.MixdownFile);
+
+            if (cmd.ExitCode != 0)
             {
-                var concat = dlg.Concat;
-                var res = await concat.RunAsync();
-                if (res == 0)
-                {
-                    Status("Concatenation complete");
-                }
-                else
-                {
-                    var report = concat.GenerateReport();
-                    var ddlg = new DetailDialog("Failed to concatenate chunks", "Error", report, this, MessageType.Error);
-                    Status("Something went wrong...");
-                    ddlg.Run(); ddlg.Destroy();
-                }
+                var report = cmd.GenerateReport();
+                var ddlg = new DetailDialog(this, "Concatenation failed", report, MessageType.Error);
+                ddlg.AddButton("_OK", ResponseType.Ok);
+                ddlg.Run(); ddlg.Destroy();
             }
-
-            _vm.IsBusy = false;
         }
 
         void BtnChangeFolder_Clicked(object s, EventArgs e)
@@ -566,9 +442,8 @@ namespace BlenderRenderController
             var result = (ResponseType)chooseOutputFolderDialog.Run();
             if (result == ResponseType.Accept)
             {
-                _vm.Project.OutputPath =
+                _vm.OutputPath =
                 entryOutputPath.Text = chooseOutputFolderDialog.Filename;
-                _vm.Project.ChunksDirPath = _vm.Project.DefaultChunksDirPath;
             }
 
             chooseOutputFolderDialog.Hide();
@@ -589,12 +464,6 @@ namespace BlenderRenderController
             Trace.WriteLine("Recent items" + string.Join(", ", orderedItems));
         }
 
-        void VMProject_PropChanged(object s, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            var proj = (Project)s;
-            UpdateOptions(proj);
-            UpdateInfoBoxItems(proj);
-        }
 
         private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -622,12 +491,43 @@ namespace BlenderRenderController
                 case nameof(vm.Footer):
                     Status(vm.Footer);
                     break;
-                case nameof(vm.AutoFrameRange):
-
+                case nameof(vm.Header):
+                    lblProjectName.Text = vm.Data.ProjectName;
+                    lblProjectName.Visible = !string.IsNullOrEmpty(vm.Data.ProjectName);
                     break;
-                default:
+                case nameof(vm.AutoFrameRange):
+                    fiStartFrame.Sensitive = !vm.AutoFrameRange;
+                    fiEndFrame.Sensitive = !vm.AutoFrameRange;
+                    break;
+                case nameof(vm.AutoChunkSize):
+                    fiChunkSize.Sensitive = !vm.AutoChunkSize;
+                    break;
+                case nameof(vm.AutoMaxCores):
+                    fiMaxCores.Sensitive = !vm.AutoMaxCores;
+                    break;
+                // Infobox items
+                case nameof(vm.ActiveScene):
+                    activeSceneInfoValue.Text = !string.IsNullOrEmpty(vm.ActiveScene) ? vm.ActiveScene : "...";
+                    break;
+                case nameof(vm.Duration):
+                    durationInfoValue.Text = vm.Duration != TimeSpan.Zero 
+                                            ? string.Format("{0:%h}h {0:%m}m {0:%s}s {0:%f}ms", vm.Duration) 
+                                            : "...";
+                    break;
+                case nameof(vm.Fps):
+                    fpsInfoValue.Text = vm.Fps > 0 ? vm.Fps.ToString("F2") : "...";
+                    break;
+                case nameof(vm.Resolution):
+                    resolutionInfoValue.Text = !string.IsNullOrEmpty(vm.Resolution) ? vm.Resolution : "...";
                     break;
             }
+
+            miRenderMixdown.Sensitive =
+            swAutoFrameRange.Sensitive =
+            swAutoChunkSize.Sensitive =
+            swAutoMaxCores.Sensitive =
+            frOutputFolder.Sensitive = vm.ProjectLoaded && vm.IsNotBusy;
+
         }
 
         void On_ShowAbout(object s, EventArgs e)

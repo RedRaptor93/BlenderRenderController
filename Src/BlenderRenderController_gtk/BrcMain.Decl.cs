@@ -1,7 +1,7 @@
 ﻿using BRCRes = BRClib.Properties.Resources;
+using UI = Gtk.Builder.ObjectAttribute;
 using System;
 using Gtk;
-using UI = Gtk.Builder.ObjectAttribute;
 using NLog;
 
 namespace BlenderRenderController
@@ -17,6 +17,7 @@ namespace BlenderRenderController
 
         // optionFields
         [UI] Box fiStartFrame, fiEndFrame, fiChunkSize, fiMaxCores;
+        [UI] Switch swAutoFrameRange, swAutoChunkSize, swAutoMaxCores;
 
         [UI] Label lblProjectName;
 
@@ -48,7 +49,7 @@ namespace BlenderRenderController
         [UI] ToolButton tsOpenFile, tsReloadFile, tsAbout;
         [UI] MenuToolButton tsOpenRecent;
 
-        [UI] ComboBox cbJoiningAction, cbRenderer;
+        //[UI] ComboBox cbJoiningAction, cbRenderer;
 
         [UI] Entry entryOutputPath;
 
@@ -60,7 +61,6 @@ namespace BlenderRenderController
         Dialog prefWin;
         RecentItemsMenu recentBlendsMenu;
         readonly Builder m_builder;
-        readonly string _ProjBase; // for holding a copy of lblProjectName.Text
 
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
@@ -88,12 +88,12 @@ namespace BlenderRenderController
 
 
             openBlendDialog = new FileChooserDialog("Open blend file", this, FileChooserAction.Open,
-                "Cancel", ResponseType.Cancel, "Open", ResponseType.Accept);
+                "_Cancel", ResponseType.Cancel, "_Open", ResponseType.Accept);
 
             openBlendDialog.Filter = blendFilter;
 
             chooseOutputFolderDialog = new FileChooserDialog("Choose output folder", this, FileChooserAction.SelectFolder,
-                "Cancel", ResponseType.Cancel, "Select", ResponseType.Accept);
+                "_Cancel", ResponseType.Cancel, "Select", ResponseType.Accept);
 
             recentBlendsMenu = new RecentItemsMenu(recentBlendsFilter);
             miOpenRecent.Submenu = recentBlendsMenu;
@@ -102,18 +102,16 @@ namespace BlenderRenderController
             recentBlendsMenu.RecentItem_Clicked += On_OpenRecent;
             recentBlendsMenu.Clear_Clicked += On_ClearRecents_Click;
 
-            recentBlendsMenu.ShowAll();
-
             numProcMaxAdjust.Value =
             numProcMaxAdjust.Upper = Environment.ProcessorCount;
 
-            frameRangeBox.Sensitive = chunkDivBox.Sensitive = false;
-            //AutoFrameRange = AutoChunkDiv = true;
-
+            // events
             this.DeleteEvent += BrcMain_DeleteEvent;
             this.tsOpenRecent.Clicked += TsOpenRecent_Clicked;
             numProcMaxAdjust.ValueChanged += On_numProcessMax_ValueChanged;
             numChunkSizeAdjust.ValueChanged += On_numChunkSize_ValueChanged;
+            swAutoChunkSize.StateSet += On_AutoChunkSize_Toggled;
+            swAutoFrameRange.StateSet += On_AutoFramerange_Toggled;
 
             // Init dialogs
             aboutWin = new AboutDialog(m_builder.GetObject("AboutWin").Handle);
@@ -126,7 +124,37 @@ namespace BlenderRenderController
             {
                 _vm.ConfigOk = BRClib.Global.CheckProgramPaths();
             };
+
+            // Set starting state
+            miRenderMixdown.Sensitive =
+            swAutoFrameRange.Sensitive =
+            swAutoChunkSize.Sensitive =
+            swAutoMaxCores.Sensitive =
+            frOutputFolder.Sensitive = _vm.ProjectLoaded && _vm.IsNotBusy;
+
+            miOpenFile.Sensitive =
+            miOpenRecent.Sensitive =
+            tsOpenFile.Sensitive =
+            tsOpenRecent.Sensitive = _vm.ConfigOk && _vm.IsNotBusy;
+
+            miReloadFile.Sensitive =
+            tsReloadFile.Sensitive =
+            miUnload.Sensitive = _vm.ProjectLoaded && _vm.CanLoadMore;
+
+            Status("...");
+
+            lblProjectName.Visible = false;
+
+            fiStartFrame.Sensitive = !_vm.AutoFrameRange;
+            fiEndFrame.Sensitive = !_vm.AutoFrameRange;
+            fiChunkSize.Sensitive = !_vm.AutoChunkSize;
+            fiMaxCores.Sensitive = !_vm.AutoMaxCores;
+
+            // ShowAlls
+            recentBlendsMenu.ShowAll();
+
         }
+
 
         private void TsOpenRecent_Clicked(object sender, EventArgs e)
         {
@@ -168,6 +196,28 @@ namespace BlenderRenderController
         {
             Application.Invoke(delegate { action(args); });
         }
-        
+
+
+        uint timeoutID;
+
+        void StartMarquee()
+        {
+            timeoutID = GLib.Timeout.Add(200, Marquee_Tick);
+        }
+
+        private bool Marquee_Tick()
+        {
+            workProgress.Pulse();
+            return true;
+        }
+
+        void StopMarquee()
+        {
+            if (timeoutID > 0)
+            {
+                GLib.Timeout.Remove(timeoutID);
+                timeoutID = 0;
+            }
+        }
     }
 }

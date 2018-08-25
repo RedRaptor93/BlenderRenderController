@@ -1019,11 +1019,12 @@ namespace BlenderRenderController
             this.Controls.Add(this.optionsLabel);
             this.Controls.Add(this.outputFolderLabel);
             this.Controls.Add(this.renderProgressBar);
+            this.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.projectBindingSrc, "Title", true));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(498, 597);
-            this.MinimumSize = new System.Drawing.Size(485, 297);
+            this.MaximumSize = new System.Drawing.Size(498, 596);
+            this.MinimumSize = new System.Drawing.Size(485, 295);
             this.Name = "BrcForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Blender Render Controller";
