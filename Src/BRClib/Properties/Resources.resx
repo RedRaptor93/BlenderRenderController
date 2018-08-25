@@ -127,7 +127,7 @@ You can render an image sequence with this tool but you will need to make a vide
   </data>
   <data name="AppErr_RequiredProgramsNotFound" xml:space="preserve">
     <value>One or more required program(s) were not found (Path invalid OR first time run), set the paths in the Settings window</value>
-    <comment>??? maybe remove?</comment>
+    <comment>Don't really know what this is, maybe remove?</comment>
   </data>
   <data name="AR_JoinMixdown" xml:space="preserve">
     <value>Join chunks w/ Mixdown audio</value>
@@ -161,5 +161,83 @@ You can render an image sequence with this tool but you will need to make a vide
   </data>
   <data name="ChunksConcatFile" xml:space="preserve">
     <value>chunklist.txt</value>
+  </data>
+  <data name="AppTitleProgress" xml:space="preserve">
+    <value>{0}% complete - {1}</value>
+    <comment>0=porcentage, 1=AppTitle</comment>
+  </data>
+  <data name="Dlg_clear_output_folder" xml:space="preserve">
+    <value>All existing files will be deleted!
+Do you want to continue?</value>
+  </data>
+  <data name="Dlg_clear_recent_blends_msg" xml:space="preserve">
+    <value>This will clear all files in the recent blends list, are you sure?</value>
+  </data>
+  <data name="Dlg_clear_recent_blends_title" xml:space="preserve">
+    <value>Clear recent blends?</value>
+  </data>
+  <data name="Dlg_closing_app_with_work_in_progress" xml:space="preserve">
+    <value>Closing now will cancel the ongoing work. Close anyway?</value>
+  </data>
+  <data name="Dlg_concat_failed" xml:space="preserve">
+    <value>Failed to concatenate chunks</value>
+  </data>
+  <data name="Dlg_mixdown_failed" xml:space="preserve">
+    <value>Mixdown failed</value>
+  </data>
+  <data name="Dlg_recent_blend_not_found" xml:space="preserve">
+    <value>Blend file not found, remove it from the recents list?</value>
+  </data>
+  <data name="Dlg_select_out_loc" xml:space="preserve">
+    <value>Select output location</value>
+  </data>
+  <data name="Dlg_setup_req_cap" xml:space="preserve">
+    <value>Setup required</value>
+  </data>
+  <data name="Dlg_setup_req_inst" xml:space="preserve">
+    <value>Paths missing</value>
+  </data>
+  <data name="Dlg_stop_work" xml:space="preserve">
+    <value>Cancel current task?</value>
+  </data>
+  <data name="Dlg_WIP" xml:space="preserve">
+    <value>Work in progress</value>
+  </data>
+  <data name="G_error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="G_file_not_found" xml:space="preserve">
+    <value>File not found</value>
+  </data>
+  <data name="G_goto_settings" xml:space="preserve">
+    <value>Goto Settings</value>
+  </data>
+  <data name="G_loading" xml:space="preserve">
+    <value>Loading</value>
+  </data>
+  <data name="G_output_folder_not_found" xml:space="preserve">
+    <value>Output folder not found.</value>
+  </data>
+  <data name="G_warn" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Val_end_lt_start" xml:space="preserve">
+    <value>End frame cannot be equal or less then Start frame</value>
+  </data>
+  <data name="Val_start_gt_end" xml:space="preserve">
+    <value>Start frame cannot be equal or greater then End frame</value>
+  </data>
+  <data name="Val_too_short" xml:space="preserve">
+    <value>Project must be at least 50 frames long</value>
+  </data>
+  <data name="AR_Mixdown" xml:space="preserve">
+    <value>Mixdown</value>
+  </data>
+  <data name="G_ready" xml:space="preserve">
+    <value>Ready</value>
+  </data>
+  <data name="Status_render_progress" xml:space="preserve">
+    <value>Completed {0} / {1} chunks, {2} frames rendered</value>
+    <comment>0=parts completed, 1=parts remaining, 2=frames rendered</comment>
   </data>
 </root>

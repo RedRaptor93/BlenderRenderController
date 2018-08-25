@@ -21,7 +21,6 @@ namespace BRClib
 {
     public class RenderManager
     {
-        IReadOnlyList<Chunk> _ChunkList;
         List<Process> _Processes;
         FrameSet _FramesRendered;
         RenderJob _Job;
@@ -35,14 +34,14 @@ namespace BRClib
                        TotalChunks, 
                        ChunksInProgress,
                        Index, 
-                       MaxConcurrency;
+                       MaxCores;
 
             public bool CanQueue =>
-                Index < TotalChunks && ChunksInProgress < MaxConcurrency;
+                Index < TotalChunks && ChunksInProgress < MaxCores;
 
             public int ChunksCompleted => TotalChunks - ChunksToDo;
-        }
-        RenderState _State;
+
+        } RenderState _State;
 
         Timer _Timer;
         readonly object _syncLock = new object();
@@ -181,18 +180,17 @@ namespace BRClib
 
         void ResetFields()
         {
-            _ChunkList = _Job.Chunks;
-            _Processes = _ChunkList.Select(CreateRenderProcess).ToList();
+            _Processes = _Job.Chunks.Select(CreateRenderProcess).ToList();
 
             _FramesRendered = new FrameSet();
 
             _State = new RenderState
             {
-                TotalChunks = _ChunkList.Count,
-                ChunksToDo = _ChunkList.Count,
-                MaxConcurrency = _Job.MaxProcessors
+                TotalChunks = _Job.Chunks.Count,
+                ChunksToDo = _Job.Chunks.Count,
+                MaxCores = _Job.MaxCores
             };
-
+            
             _arCts = new CancellationTokenSource();
             WasAborted = false;
         }
@@ -253,7 +251,7 @@ namespace BRClib
                 proc.Start();
                 proc.BeginOutputReadLine();
 
-                logger.Trace("Started render proc {0}, frames: {1}", _State.Index, _ChunkList[_State.Index]);
+                logger.Trace("Started render proc {0}, frames: {1}", _State.Index, _Job.Chunks[_State.Index]);
 
                 _State.ChunksInProgress++;
                 _State.Index++;
@@ -308,7 +306,7 @@ namespace BRClib
             {
                 _Timer.Stop();
 
-                Debug.Assert(_FramesRendered.ToList().Count == _ChunkList.TotalLength(),
+                Debug.Assert(_FramesRendered.ToList().Count == _Job.Chunks.TotalLength(),
                             "Frames counted don't match the ChunkList TotalLenght");
 
                 OnChunksRenderFinished();
@@ -395,8 +393,6 @@ namespace BRClib
                     "concatFile was not created, but chunkFiles is not empty");
             }
 
-            var fullrange = _ChunkList.GetFullRange();
-
             var videoExt = Path.GetExtension(chunkFiles.First());
             var projFinalPath = Path.Combine(_Job.OutputPath, _Job.ProjectName + videoExt);
             var mixdownPath = Path.Combine(_Job.OutputPath, MixdownFile);
@@ -404,7 +400,7 @@ namespace BRClib
             var mixdowncmd = new MixdownCmd()
             {
                 BlendFile = _Job.BlendFile,
-                Range = fullrange,
+                Range = _Job.Chunks.GetFullRange(),
                 OutputFolder = _Job.OutputPath
             };
 
@@ -566,9 +562,9 @@ namespace BRClib
     {
         public string BlendFile, AudioCodec, ProjectName, ChunksDir, OutputPath;
         public TimeSpan Duration;
-        public int MaxProcessors;
+        public int MaxCores;
 
-        public List<Chunk> Chunks;
+        public IReadOnlyList<Chunk> Chunks;
     }
 
 }

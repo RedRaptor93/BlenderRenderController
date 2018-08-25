@@ -34,9 +34,6 @@ namespace BlenderRenderController
 
             // 'Invoke' makes sure the event handlers will run on the UI thread
             _vm.OnRenderFinished = e => Invoke(OnRenderMngrFinished, e);
-            //_renderMngr.Finished += (s,e) => Invoke(RenderMngr_Finished, s, e);
-            //_renderMngr.AfterRenderStarted += (s, e) => Invoke(RenderMngr_AfterRenderStarted, s, e);
-            //_renderMngr.ProgressChanged += (s, e) => Invoke(RenderMngr_ProgressChanged, s, e);
 
             ShowAll();
         }
@@ -472,11 +469,13 @@ namespace BlenderRenderController
             switch (e.PropertyName)
             {
                 case nameof(vm.IsBusy):
+                case nameof(vm.IsNotBusy):
                 case nameof(vm.ConfigOk):
                     miOpenFile.Sensitive =
                     miOpenRecent.Sensitive =
                     tsOpenFile.Sensitive =
                     tsOpenRecent.Sensitive = vm.ConfigOk && vm.IsNotBusy;
+                    miJoinChunks.Sensitive = vm.ConfigOk;
                     break;
                 case nameof(vm.ProjectLoaded):
                 case nameof(vm.CanLoadMore):
@@ -505,6 +504,10 @@ namespace BlenderRenderController
                 case nameof(vm.AutoMaxCores):
                     fiMaxCores.Sensitive = !vm.AutoMaxCores;
                     break;
+                //case nameof(vm.StartFrame):
+                //case nameof(vm.EndFrame):
+                //    fiMaxCores.Sensitive = !vm.AutoMaxCores;
+                //    break;
                 // Infobox items
                 case nameof(vm.ActiveScene):
                     activeSceneInfoValue.Text = !string.IsNullOrEmpty(vm.ActiveScene) ? vm.ActiveScene : "...";

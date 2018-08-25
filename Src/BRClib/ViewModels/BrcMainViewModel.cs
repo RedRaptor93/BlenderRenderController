@@ -36,8 +36,6 @@ namespace BRClib.ViewModels
             _autoFrameRange =
             _autoMaxProcs = true;
 
-            _statusTime = TimeSpan.Zero.ToString(TIME_FMT);
-
             _renderMngr = new RenderManager();
             _renderMngr.Finished += RenderManager_Finished;
             _renderMngr.AfterRenderStarted += RenderManager_AfterRenderStarted;
@@ -119,13 +117,25 @@ namespace BRClib.ViewModels
         public int StartFrame
         {
             get => _startFrame;
-            set => SetProperty(ref _startFrame, value);
+            set
+            {
+                if (SetProperty(ref _startFrame, value) && AutoChunkSize)
+                {
+                    RecalcChunkSize();
+                }
+            }
         }
 
         public int EndFrame
         {
             get => _endFrame;
-            set => SetProperty(ref _endFrame, value);
+            set
+            {
+                if (SetProperty(ref _endFrame, value) && AutoChunkSize)
+                {
+                    RecalcChunkSize();
+                }
+            }
         }
 
         public int ChunkSize
@@ -244,7 +254,7 @@ namespace BRClib.ViewModels
 
         public string StatusTime
         {
-            get => "ETR: " + WorkETR.ToString(TIME_FMT);
+            get => "ETR: " + WorkETR.ToString(@"hh\:mm\:ss");
         }
 
         public TimeSpan WorkETR { get; private set; }
@@ -349,6 +359,10 @@ namespace BRClib.ViewModels
 
         public void StartRender()
         {
+            IsBusy = true;
+            Progress = 0;
+            Footer = "Starting Render...";
+
             if (AutoChunkSize)
             {
                 Chunks = Chunk.CalcChunks(StartFrame, EndFrame, MaxCores).ToList();
@@ -360,8 +374,6 @@ namespace BRClib.ViewModels
 
             // logger.Info("Chunks: " + string.Join(", ", _vm.Chunks));
 
-            IsBusy = true;
-
             // render manager setup...
             var rj = new RenderJob
             {
@@ -370,15 +382,12 @@ namespace BRClib.ViewModels
                 ProjectName = this.Data.ProjectName,
                 ChunksDir = DefaultChunksDirPath,
                 OutputPath = this.OutputPath,
-                MaxProcessors = this.MaxCores,
+                MaxCores = this.MaxCores,
                 Chunks = this.Chunks,
                 Duration = this.Duration
             };
 
             _renderMngr.Setup(rj);
-
-            Progress = 0;
-            Footer = "Starting Render...";
             _renderMngr.StartAsync();
         }
 
@@ -453,6 +462,7 @@ namespace BRClib.ViewModels
             }
         }
 
+
         void OnDataUpdated()
         {
             _bkpRange = new Chunk(Data.Start, Data.End);
@@ -476,8 +486,7 @@ namespace BRClib.ViewModels
 
         void RecalcChunkSize()
         {
-            var cz = Math.Ceiling(TotalFrames / (double)MaxCores);
-            ChunkSize = (int)cz;
+            ChunkSize = (int)Math.Ceiling(EndFrame - StartFrame + 1 / (double)MaxCores);
         }
 
         void ResetCTS()
@@ -512,7 +521,7 @@ namespace BRClib.ViewModels
 
         private void RenderManager_ProgressChanged(object sender, RenderProgressInfo e)
         {
-            Progress = e.FramesRendered / (float)TotalFrames;
+            Progress = e.FramesRendered / (float)(EndFrame - StartFrame + 1);
             Footer = $"Completed {e.PartsCompleted} / {Chunks.Count} chunks, " +
                 $"{e.FramesRendered} frames rendered";
 
@@ -539,12 +548,11 @@ namespace BRClib.ViewModels
         AfterRenderAction _ara;
         Renderer _renderer;
         bool _autoFrameRange, _autoChunkSize, _autoMaxProcs, _configOK, _dataRdy;
-        string _output, _statusTime;
+        string _output;
         BlendData _data;
         Chunk _bkpRange;
         float _progress;
         CancellationTokenSource _sharedCTS;
 		static readonly BlendData _NoData = new BlendData();
-        const string TIME_FMT = @"hh\:mm\:ss";
     }
 }

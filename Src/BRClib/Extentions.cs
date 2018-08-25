@@ -46,6 +46,8 @@ namespace BRClib.Extentions
         public static void Raise<TArgs>(this MulticastDelegate thisEvent, object sender, TArgs args)
         {
             // HACKHACK
+            // Gtk has no idea what ISynchronizeInvoke is and implementing it is a pain.
+            // So it's only actually sync'ed in WinForms
 #if NETSTANDARD2_0
             thisEvent.DynamicInvoke(sender, args);
 #else
@@ -70,31 +72,6 @@ namespace BRClib.Extentions
 #endif
         }
 
-        /// <summary>
-        /// Safely raises any EventHandler event asynchronously.
-        /// </summary>
-        /// <param name="sender">The object raising the event (usually this).</param>
-        /// <param name="args">The EventArgs for this event.</param>
-        public static void Raise(this MulticastDelegate thisEvent, object sender, EventArgs args)
-        {
-            var localMCD = thisEvent;
-            void callback(IAsyncResult ar) => ((EventHandler)ar.AsyncState).EndInvoke(ar);
-
-            foreach (Delegate d in localMCD.GetInvocationList())
-            {
-                if (d is EventHandler uiMethod)
-                {
-                    if (d.Target is ISynchronizeInvoke target)
-                    {
-                        target.BeginInvoke(uiMethod, new object[] { sender, args });
-                    }
-                    else
-                    {
-                        uiMethod.BeginInvoke(sender, args, callback, uiMethod);
-                    }
-                }
-            }
-        }
 
         /// <summary>
         /// Starts a process asynchronously and optionally reads its standard output and error streams

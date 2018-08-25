@@ -116,6 +116,15 @@ namespace BRClib.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0}% complete - {1}.
+        /// </summary>
+        public static string AppTitleProgress {
+            get {
+                return ResourceManager.GetString("AppTitleProgress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Join chunks w/ Mixdown audio.
         /// </summary>
         public static string AR_JoinMixdown {
@@ -134,6 +143,15 @@ namespace BRClib.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Mixdown.
+        /// </summary>
+        public static string AR_Mixdown {
+            get {
+                return ResourceManager.GetString("AR_Mixdown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No extra action.
         /// </summary>
         public static string AR_NoAction {
@@ -148,6 +166,178 @@ namespace BRClib.Properties {
         public static string ChunksConcatFile {
             get {
                 return ResourceManager.GetString("ChunksConcatFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All existing files will be deleted!
+        ///Do you want to continue?.
+        /// </summary>
+        public static string Dlg_clear_output_folder {
+            get {
+                return ResourceManager.GetString("Dlg_clear_output_folder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This will clear all files in the recent blends list, are you sure?.
+        /// </summary>
+        public static string Dlg_clear_recent_blends_msg {
+            get {
+                return ResourceManager.GetString("Dlg_clear_recent_blends_msg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Clear recent blends?.
+        /// </summary>
+        public static string Dlg_clear_recent_blends_title {
+            get {
+                return ResourceManager.GetString("Dlg_clear_recent_blends_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Closing now will cancel the ongoing work. Close anyway?.
+        /// </summary>
+        public static string Dlg_closing_app_with_work_in_progress {
+            get {
+                return ResourceManager.GetString("Dlg_closing_app_with_work_in_progress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to concatenate chunks.
+        /// </summary>
+        public static string Dlg_concat_failed {
+            get {
+                return ResourceManager.GetString("Dlg_concat_failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mixdown failed.
+        /// </summary>
+        public static string Dlg_mixdown_failed {
+            get {
+                return ResourceManager.GetString("Dlg_mixdown_failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Blend file not found, remove it from the recents list?.
+        /// </summary>
+        public static string Dlg_recent_blend_not_found {
+            get {
+                return ResourceManager.GetString("Dlg_recent_blend_not_found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select output location.
+        /// </summary>
+        public static string Dlg_select_out_loc {
+            get {
+                return ResourceManager.GetString("Dlg_select_out_loc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Setup required.
+        /// </summary>
+        public static string Dlg_setup_req_cap {
+            get {
+                return ResourceManager.GetString("Dlg_setup_req_cap", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Paths missing.
+        /// </summary>
+        public static string Dlg_setup_req_inst {
+            get {
+                return ResourceManager.GetString("Dlg_setup_req_inst", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel current task?.
+        /// </summary>
+        public static string Dlg_stop_work {
+            get {
+                return ResourceManager.GetString("Dlg_stop_work", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Work in progress.
+        /// </summary>
+        public static string Dlg_WIP {
+            get {
+                return ResourceManager.GetString("Dlg_WIP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        public static string G_error {
+            get {
+                return ResourceManager.GetString("G_error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File not found.
+        /// </summary>
+        public static string G_file_not_found {
+            get {
+                return ResourceManager.GetString("G_file_not_found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Goto Settings.
+        /// </summary>
+        public static string G_goto_settings {
+            get {
+                return ResourceManager.GetString("G_goto_settings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loading.
+        /// </summary>
+        public static string G_loading {
+            get {
+                return ResourceManager.GetString("G_loading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Output folder not found..
+        /// </summary>
+        public static string G_output_folder_not_found {
+            get {
+                return ResourceManager.GetString("G_output_folder_not_found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ready.
+        /// </summary>
+        public static string G_ready {
+            get {
+                return ResourceManager.GetString("G_ready", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Warning.
+        /// </summary>
+        public static string G_warn {
+            get {
+                return ResourceManager.GetString("G_warn", resourceCulture);
             }
         }
         
@@ -184,6 +374,42 @@ namespace BRClib.Properties {
         public static string RM_unexpected_error {
             get {
                 return ResourceManager.GetString("RM_unexpected_error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Completed {0} / {1} chunks, {2} frames rendered.
+        /// </summary>
+        public static string Status_render_progress {
+            get {
+                return ResourceManager.GetString("Status_render_progress", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to End frame cannot be equal or less then Start frame.
+        /// </summary>
+        public static string Val_end_lt_start {
+            get {
+                return ResourceManager.GetString("Val_end_lt_start", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start frame cannot be equal or greater then End frame.
+        /// </summary>
+        public static string Val_start_gt_end {
+            get {
+                return ResourceManager.GetString("Val_start_gt_end", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Project must be at least 50 frames long.
+        /// </summary>
+        public static string Val_too_short {
+            get {
+                return ResourceManager.GetString("Val_too_short", resourceCulture);
             }
         }
     }

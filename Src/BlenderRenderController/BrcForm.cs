@@ -7,7 +7,6 @@ using BRCRes = BRClib.Properties.Resources;
 using BlenderRenderController.Properties;
 using BlenderRenderController.Ui;
 using BRClib;
-using BRClib.Commands;
 using BRClib.ViewModels;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Microsoft.WindowsAPICodePack.Taskbar;
@@ -18,9 +17,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BlenderRenderController
@@ -34,10 +30,6 @@ namespace BlenderRenderController
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        const string TimePassedPrefix = "Time: ",
-                     ETR_Prefix = "ETR: ",
-                     TimeFmt = @"hh\:mm\:ss";
-
         BrcMainViewModel _vm;
         AboutBox _aboutBox = new AboutBox();
 
@@ -49,7 +41,6 @@ namespace BlenderRenderController
             _vm = new BrcMainViewModel();
             _vm.PropertyChanged += ViewModel_PropertyChanged;
             _vm.OnRenderFinished = OnRenderFinishedHandler;
-            projectBindingSrc.DataSource = _vm;
 
             TaskbarManager.Instance.ApplicationId = nameof(BlenderRenderController);
         }
@@ -61,7 +52,7 @@ namespace BlenderRenderController
             {
                 // window must be visible
                 Show();
-                GetBlendInfo(blendFile);
+                OpenBlendFile(blendFile);
             }
         }
 
@@ -69,6 +60,7 @@ namespace BlenderRenderController
         private void BrcForm_Load(object sender, EventArgs e)
         {
             _vm.ConfigOk = CheckProgramPaths();
+            projectBindingSrc.DataSource = _vm;
 
             SetStartingState();
 
@@ -120,15 +112,15 @@ namespace BlenderRenderController
 
                 var td = new TaskDialog
                 {
-                    Caption = "Setup required",
-                    InstructionText = "Paths missing",
+                    Caption = BRCRes.Dlg_setup_req_cap,
+                    InstructionText = BRCRes.Dlg_setup_req_inst,
                     Text = BRCRes.AppErr_RequiredProgramsNotFound,
                     Icon = TaskDialogStandardIcon.Warning,
                     StandardButtons = TaskDialogStandardButtons.Close,
                     OwnerWindowHandle = this.Handle
                 };
 
-                var tdCmdLink = new TaskDialogCommandLink("BtnOpenSettings", "Goto Settings");
+                var tdCmdLink = new TaskDialogCommandLink("BtnOpenSettings", BRCRes.G_goto_settings);
                 tdCmdLink.Click += delegate
                 {
                     settingsForm.Show(this);
@@ -146,8 +138,8 @@ namespace BlenderRenderController
             if (_vm.IsBusy)
             {
                 var result = MessageBox.Show(
-                             "Closing now will cancel the rendering process. Close anyway?",
-                             "Render in progress",
+                             BRCRes.Dlg_closing_app_with_work_in_progress,
+                             BRCRes.Dlg_WIP,
                              MessageBoxButtons.YesNo,
                              MessageBoxIcon.Warning);
 
@@ -184,9 +176,9 @@ namespace BlenderRenderController
 
         #region BlendFileInfo
 
-        private async void GetBlendInfo(string blendFile)
+        private async void OpenBlendFile(string blendFile)
         {
-            logger.Info("Loading .blend");
+            logger.Info(BRCRes.G_loading);
 
             var (retcode, cmd) = await _vm.OpenBlend(blendFile);
             // success = retcode >= 0;
@@ -195,24 +187,24 @@ namespace BlenderRenderController
             switch (retcode)
             {
                 case -1: // ERROR File not found
-                    MessageBox.Show("File not found", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(BRCRes.G_file_not_found, BRCRes.G_error, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 case -2: // ERROR no info receved
-                    var d = new DetailedMessageBox(BRCRes.AppErr_NoInfoReceived, "Error", cmd.GenerateReport()).ShowDialog();
+                    var d = new DetailedMessageBox(BRCRes.AppErr_NoInfoReceived, BRCRes.G_error, cmd.GenerateReport()).ShowDialog();
 
                     if (d == DialogResult.Retry)
-                        GetBlendInfo(blendFile);
+                        OpenBlendFile(blendFile);
                     else
                         return;
 
                     break;
                 case 1: // WARN RenderFormat is image
                     var eMsg = string.Format(BRCRes.AppErr_RenderFormatIsImage, _vm.Data.FileFormat);
-                    MessageBox.Show(eMsg, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(eMsg, BRCRes.G_warn, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     break;
                 case 2: // WARN Invalid output path
                         // use .blend folder path if outputPath is unset, display a warning about it
-                    MessageBox.Show(BRCRes.AppErr_BlendOutputInvalid, "Warning",
+                    MessageBox.Show(BRCRes.AppErr_BlendOutputInvalid, BRCRes.G_warn,
                                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                     break;
             }
@@ -250,7 +242,7 @@ namespace BlenderRenderController
             if (result == DialogResult.OK)
             {
                 var blend = openBlendDialog.FileName;
-                GetBlendInfo(blend);
+                OpenBlendFile(blend);
             }
         }
 
@@ -259,7 +251,7 @@ namespace BlenderRenderController
             var blend = _vm.BlendFile;
             if (!string.IsNullOrEmpty(blend))
             {
-                GetBlendInfo(blend);
+                OpenBlendFile(blend);
             }
 
             _vm.Footer = _vm.ProjectLoaded ? "Ready" : "Select a file";
@@ -272,7 +264,7 @@ namespace BlenderRenderController
 
             if (!File.Exists(blendPath))
             {
-                var res = MessageBox.Show("Blend file not found, remove it from the recents list?", "Not found",
+                var res = MessageBox.Show(BRCRes.Dlg_recent_blend_not_found, "Not found",
                                             MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
                 if (res == DialogResult.Yes)
@@ -283,7 +275,7 @@ namespace BlenderRenderController
                 return;
             }
 
-            GetBlendInfo(blendPath);
+            OpenBlendFile(blendPath);
         }
         #endregion
 
@@ -347,9 +339,8 @@ namespace BlenderRenderController
             if ((Directory.Exists(outputDir) && Directory.GetFiles(outputDir).Length > 0)
                 || Directory.Exists(_vm.DefaultChunksDirPath))
             {
-                var dialogResult = MessageBox.Show("All existing files will be deleted!\n" +
-                                                    "Do you want to continue?",
-                                                    "Output folder not empty",
+                var dialogResult = MessageBox.Show(BRCRes.Dlg_clear_output_folder,
+                                                    BRCRes.G_warn,
                                                     MessageBoxButtons.YesNo,
                                                     MessageBoxIcon.Exclamation);
 
@@ -366,7 +357,7 @@ namespace BlenderRenderController
 
         void BtnStopWork_Click(object s, EventArgs e)
 		{
-			var result = MessageBox.Show("Are you sure you want to stop?",
+			var result = MessageBox.Show(BRCRes.Dlg_stop_work,
                                                 "Cancel",
                                                 MessageBoxButtons.YesNo,
                                                 MessageBoxIcon.Exclamation);
@@ -384,7 +375,7 @@ namespace BlenderRenderController
 
         void UpdateProgressBars(float prog = 0f)
         {
-            string titleProg = "Blender Render Controller";
+            string titleProg = BRCRes.AppTitle;
 
             if (prog < 0f)
             {
@@ -397,9 +388,9 @@ namespace BlenderRenderController
                 renderProgressBar.Style = ProgressBarStyle.Blocks;
                 renderProgressBar.Value = (int)(prog * 100);
 
-                if (prog != 0)
+                if (progI != 0f)
                 {
-                    titleProg = $"{progI}% complete - Blender Render Controller";
+                    titleProg = string.Format(BRCRes.AppTitleProgress, progI, BRCRes.AppTitle);
                     TaskbarManager.Instance.SetProgressValue(progI, 100);
                 }
                 else
@@ -475,7 +466,7 @@ namespace BlenderRenderController
             if (mix.ExitCode != 0)
             {
                 var report = mix.GenerateReport();
-                var dlg = new DetailedMessageBox("Mixdown failed", "Error", report);
+                var dlg = new DetailedMessageBox(BRCRes.Dlg_mixdown_failed, BRCRes.G_error, report);
 
                 dlg.ShowDialog();
             }
@@ -493,7 +484,7 @@ namespace BlenderRenderController
                 if (cct.ExitCode != 0)
                 {
                     var report = cct.GenerateReport();
-                    var dlg = new Ui.DetailedMessageBox("Failed to concatenate chunks", "Error", report);
+                    var dlg = new DetailedMessageBox(BRCRes.Dlg_concat_failed, BRCRes.G_error, report);
 
                     dlg.ShowDialog();
                 }
@@ -505,7 +496,7 @@ namespace BlenderRenderController
         {
             if (!_vm.OpenOutputFolder())
             {
-                MessageBox.Show("Output folder does not exist.", "",
+                MessageBox.Show(BRCRes.G_output_folder_not_found, BRCRes.G_warn,
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Exclamation);
             }
@@ -539,13 +530,11 @@ namespace BlenderRenderController
 
         private void outputFolderBrowseButton_Click(object sender, EventArgs e)
         {
-            string dialogTxt = "Select output location";
-
             var openFolder = new CommonOpenFileDialog
             {
                 IsFolderPicker = true,
                 InitialDirectory = _vm.OutputPath,
-                Title = dialogTxt,
+                Title = BRCRes.Dlg_select_out_loc,
             };
 
             var res = openFolder.ShowDialog();
@@ -561,18 +550,18 @@ namespace BlenderRenderController
             if (totalStartNumericUpDown.Value >= totalEndNumericUpDown.Value)
             {
                 errorProvider.
-                    SetError(totalStartNumericUpDown, "Start frame cannot be equal or greater then End frame");
+                    SetError(totalStartNumericUpDown, BRCRes.Val_start_gt_end);
                 e.Cancel = true;
             }
             else if (totalEndNumericUpDown.Value <= totalStartNumericUpDown.Value)
             {
                 errorProvider
-                    .SetError(totalEndNumericUpDown, "End frame cannot be equal or less then Start frame");
+                    .SetError(totalEndNumericUpDown, BRCRes.Val_end_lt_start);
                 e.Cancel = true;
             }
             else if ((totalEndNumericUpDown.Value - totalStartNumericUpDown.Value + 1) < 50)
             {
-                var msg = "Project must be at least 50 frames long";
+                var msg = BRCRes.Val_too_short;
 
                 errorProvider.SetError(totalEndNumericUpDown, msg);
                 errorProvider.SetError(totalStartNumericUpDown, msg);
@@ -606,8 +595,8 @@ namespace BlenderRenderController
                 return;
 
             var response = MessageBox.Show(
-                 "This will clear all files in the recent blends list, are you sure?",
-                 "Clear recent blends?",
+                 BRCRes.Dlg_clear_recent_blends_msg,
+                 BRCRes.Dlg_clear_recent_blends_title,
                  MessageBoxButtons.YesNo, MessageBoxIcon.Information);
 
             if (response == DialogResult.Yes)
@@ -661,14 +650,13 @@ namespace BlenderRenderController
             var vm = (BrcMainViewModel)sender;
 
             // all of the more complex Binding logic goes here
-
             miRenderMixdown.Enabled = 
             checkAutoFrame.Enabled =
             checkChunkSize.Enabled =
             checkMaxProcs.Enabled =
             frOutputFolder.Enabled = vm.ProjectLoaded && vm.IsNotBusy;
 
-            if (e.PropertyName == nameof(vm.IsBusy) || e.PropertyName == nameof(vm.ConfigOk))
+            if (e.PropertyName == nameof(vm.IsBusy) || e.PropertyName == nameof(vm.IsNotBusy) || e.PropertyName == nameof(vm.ConfigOk))
             {
                 if (vm.IsBusy)
                 {

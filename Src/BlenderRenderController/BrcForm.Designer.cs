@@ -230,7 +230,7 @@ namespace BlenderRenderController
             // 
             // processCountNumericUpDown
             // 
-            this.processCountNumericUpDown.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.projectBindingSrc, "MaxProcessors", true));
+            this.processCountNumericUpDown.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.projectBindingSrc, "MaxCores", true));
             this.processCountNumericUpDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.processCountNumericUpDown.Location = new System.Drawing.Point(102, 21);
             this.processCountNumericUpDown.Minimum = new decimal(new int[] {
@@ -420,7 +420,7 @@ namespace BlenderRenderController
             this.checkMaxProcs.AutoSize = true;
             this.checkMaxProcs.Checked = true;
             this.checkMaxProcs.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkMaxProcs.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.projectBindingSrc, "AutoMaxProcessors", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.checkMaxProcs.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.projectBindingSrc, "AutoMaxCores", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.checkMaxProcs.Location = new System.Drawing.Point(106, 3);
             this.checkMaxProcs.Margin = new System.Windows.Forms.Padding(50, 3, 3, 3);
             this.checkMaxProcs.Name = "checkMaxProcs";

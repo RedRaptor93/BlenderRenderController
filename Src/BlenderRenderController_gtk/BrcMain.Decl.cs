@@ -13,7 +13,7 @@ namespace BlenderRenderController
 
         // main frames
         [UI] Frame frBlendFile, frRenderOptions, frOutputFolder;
-        [UI] Box frameRangeBox, chunkDivBox;
+        //[UI] Box frameRangeBox, chunkDivBox;
 
         // optionFields
         [UI] Box fiStartFrame, fiEndFrame, fiChunkSize, fiMaxCores;
@@ -21,6 +21,7 @@ namespace BlenderRenderController
 
         [UI] Label lblProjectName;
 
+        // Start / stop btns
         [UI] Stack startStopStack;
         [UI] Button btnStartRender, btnStopRender;
 
@@ -35,7 +36,7 @@ namespace BlenderRenderController
         [UI] Label activeSceneInfoValue, durationInfoValue, fpsInfoValue, resolutionInfoValue;
 
         // menubar
-        [UI] MenuBar menuBar;
+        //[UI] MenuBar menuBar;
 
         // -File
         [UI] ImageMenuItem miOpenFile, miReloadFile, miPref;
@@ -45,7 +46,7 @@ namespace BlenderRenderController
         [UI] ImageMenuItem miRenderMixdown, miJoinChunks;
 
         // toolbar
-        [UI] Toolbar toolbar;
+        //[UI] Toolbar toolbar;
         [UI] ToolButton tsOpenFile, tsReloadFile, tsAbout;
         [UI] MenuToolButton tsOpenRecent;
 
