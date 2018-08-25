@@ -121,7 +121,7 @@ namespace BRClib.ViewModels
             {
                 if (SetProperty(ref _startFrame, value) && AutoChunkSize)
                 {
-                    RecalcChunkSize();
+                    ChunkSize = -1;
                 }
             }
         }
@@ -133,7 +133,7 @@ namespace BRClib.ViewModels
             {
                 if (SetProperty(ref _endFrame, value) && AutoChunkSize)
                 {
-                    RecalcChunkSize();
+                    ChunkSize = -1;
                 }
             }
         }
@@ -165,7 +165,7 @@ namespace BRClib.ViewModels
                 {
                     if (_autoChunkSize)
                     {
-                        RecalcChunkSize();
+                        ChunkSize = -1;
                     }
                 }
             }

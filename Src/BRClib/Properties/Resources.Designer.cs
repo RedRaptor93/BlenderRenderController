@@ -198,7 +198,7 @@ namespace BRClib.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Closing now will cancel the ongoing work. Close anyway?.
+        ///   Looks up a localized string similar to Closing now will cancel ongoing work. Close anyway?.
         /// </summary>
         public static string Dlg_closing_app_with_work_in_progress {
             get {

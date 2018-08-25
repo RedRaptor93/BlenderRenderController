@@ -177,7 +177,7 @@ Do you want to continue?</value>
     <value>Clear recent blends?</value>
   </data>
   <data name="Dlg_closing_app_with_work_in_progress" xml:space="preserve">
-    <value>Closing now will cancel the ongoing work. Close anyway?</value>
+    <value>Closing now will cancel ongoing work. Close anyway?</value>
   </data>
   <data name="Dlg_concat_failed" xml:space="preserve">
     <value>Failed to concatenate chunks</value>

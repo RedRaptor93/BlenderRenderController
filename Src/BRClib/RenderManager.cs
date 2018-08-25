@@ -263,7 +263,7 @@ namespace BRClib
         {
             if (_reportCount++ % 4 == 0)
             {
-                ProgressChanged?.Raise(this, new RenderProgressInfo(framesRendered, chunksCompleted));
+                ProgressChanged?.Invoke(this, new RenderProgressInfo(framesRendered, chunksCompleted));
                 _reportCount = 0;
             }
         }
@@ -332,7 +332,7 @@ namespace BRClib
 
             if (!renderOk)
             {
-                Finished?.Raise(this, BrcRenderResult.ChunkRenderFailed);
+                Finished?.Invoke(this, BrcRenderResult.ChunkRenderFailed);
                 logger.Error("One or more render processes did not complete sucessfully");
                 return;
             }
@@ -342,7 +342,7 @@ namespace BRClib
             // Send a '100%' ProgressReport
             ReportProgress(_FramesRendered.Count, _State.TotalChunks);
 
-            AfterRenderStarted?.Raise(this, Action);
+            AfterRenderStarted?.Invoke(this, Action);
 
             Task.Factory.StartNew(AfterRenderProc, Action, _arCts.Token)
             .ContinueWith(t =>
@@ -362,7 +362,7 @@ namespace BRClib
 
                 return result;
             })
-            .ContinueWith(t => Finished?.Raise(this, t.Result));
+            .ContinueWith(t => Finished?.Invoke(this, t.Result));
         }
 
 

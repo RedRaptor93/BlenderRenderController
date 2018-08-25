@@ -293,11 +293,7 @@ namespace BlenderRenderController
             0,
             0,
             0});
-            this.chunkLengthNumericUpDown.Minimum = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
+            this.chunkLengthNumericUpDown.Minimum = -1;
             this.chunkLengthNumericUpDown.Name = "chunkLengthNumericUpDown";
             this.chunkLengthNumericUpDown.Size = new System.Drawing.Size(86, 22);
             this.chunkLengthNumericUpDown.TabIndex = 7;
@@ -326,7 +322,6 @@ namespace BlenderRenderController
             // 
             // btnStartWork
             // 
-            this.btnStartWork.DataBindings.Add(new System.Windows.Forms.Binding("Visible", this.projectBindingSrc, "IsNotBusy", true));
             this.btnStartWork.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.projectBindingSrc, "ProjectLoaded", true));
             this.btnStartWork.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnStartWork.Image = global::BlenderRenderController.Properties.Resources.render_icon;
@@ -345,8 +340,6 @@ namespace BlenderRenderController
             // 
             // btnStopWork
             // 
-            this.btnStopWork.DataBindings.Add(new System.Windows.Forms.Binding("Visible", this.projectBindingSrc, "IsNotBusy", true));
-            this.btnStopWork.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.projectBindingSrc, "ProjectLoaded", true));
             this.btnStopWork.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnStopWork.Image = global::BlenderRenderController.Properties.Resources.stop_icon;
             this.btnStopWork.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;

@@ -39,7 +39,8 @@ namespace BlenderRenderController
             InitializeComponent();
 
             _vm = new BrcMainViewModel();
-            _vm.PropertyChanged += ViewModel_PropertyChanged;
+            //_vm.PropertyChanged += ViewModel_PropertyChanged;
+            _vm.PropertyChanged += PropChangedInvoker;
             _vm.OnRenderFinished = OnRenderFinishedHandler;
 
             TaskbarManager.Instance.ApplicationId = nameof(BlenderRenderController);
@@ -312,10 +313,10 @@ namespace BlenderRenderController
             }
             else if (e == BrcRenderResult.AfterRenderFailed)
             {
-                MessageBox.Show(BRCRes.RM_AfterRenderFailed, "Error",
+                MessageBox.Show(BRCRes.RM_AfterRenderFailed, BRCRes.G_error,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                _vm.Footer = "Erros detected";
+                _vm.Footer = BRCRes.G_error;
             }
             else if (e == BrcRenderResult.Aborted)
             {
@@ -645,6 +646,11 @@ namespace BlenderRenderController
             processCountNumericUpDown.Enabled = !_vm.AutoMaxCores;
         }
 
+        private void PropChangedInvoker(object sender, PropertyChangedEventArgs e)
+        {
+            Invoke((EventHandler<PropertyChangedEventArgs>)ViewModel_PropertyChanged, sender, e);
+        }
+
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             var vm = (BrcMainViewModel)sender;
@@ -668,6 +674,9 @@ namespace BlenderRenderController
                     if (projectBindingSrc.IsBindingSuspended)
                         projectBindingSrc.ResumeBinding();
                 }
+
+                btnStartWork.Visible = vm.IsNotBusy;
+                btnStopWork.Visible = vm.IsBusy;
 
                 // Toolstrip and menu items can't have data binding
                 miOpenRecent.Enabled =
@@ -701,6 +710,7 @@ namespace BlenderRenderController
             else if (e.PropertyName == nameof(vm.AutoChunkSize))
             {
                 chunkLengthNumericUpDown.Enabled = !vm.AutoChunkSize;
+                chunkLengthNumericUpDown.Minimum = vm.AutoChunkSize ? -1 : 0;
             }
             else if (e.PropertyName == nameof(vm.AutoMaxCores))
             {
