@@ -26,16 +26,15 @@ namespace BlenderRenderController
 
         public BrcMain() : this(Glade.LoadUI("BrcGtk.glade", "brc_style.css"), "BrcMain")
         {
+            _vm = new BrcMainViewModel();
+
             Initialize();
 
-            _vm = new BrcMainViewModel();
             _vm.PropertyChanged += ViewModel_PropertyChanged;
             CheckConfigs();
 
             // 'Invoke' makes sure the event handlers will run on the UI thread
             _vm.OnRenderFinished = e => Invoke(OnRenderMngrFinished, e);
-
-            ShowAll();
         }
 
         static bool ClearOutputFolder(string path)
@@ -250,15 +249,7 @@ namespace BlenderRenderController
             Settings.Renderer = (Renderer)cb.Active;
         }
 
-        void On_AutoFramerange_Toggled(object s, EventArgs e)
-        {
-            _vm.AutoFrameRange = swAutoFrameRange.Active;
-        }
 
-        void On_AutoChunkSize_Toggled(object s, EventArgs e)
-        {
-            _vm.AutoChunkSize = swAutoChunkSize.Active;
-        }
 
         void On_numFrameRange_ValueChanged(object s, EventArgs e)
         {
@@ -322,6 +313,8 @@ namespace BlenderRenderController
             var result = (ResponseType)dlg.Run(); dlg.Destroy();
             if (result == ResponseType.No) return;
 
+            _vm.StopRender();
+
             btnStartRender.Show();
             startStopStack.VisibleChild = btnStartRender;
             btnStartRender.GrabFocus();
@@ -367,8 +360,6 @@ namespace BlenderRenderController
 
                 dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Question, ButtonsType.YesNo,
                         "Open destination folder?");
-
-                dlg.Run();
 
                 var result = (ResponseType)dlg.Run();
                 dlg.Destroy(); dlg = null;
@@ -471,17 +462,17 @@ namespace BlenderRenderController
                 case nameof(vm.IsBusy):
                 case nameof(vm.IsNotBusy):
                 case nameof(vm.ConfigOk):
+                    miJoinChunks.Sensitive = vm.ConfigOk;
                     miOpenFile.Sensitive =
                     miOpenRecent.Sensitive =
                     tsOpenFile.Sensitive =
                     tsOpenRecent.Sensitive = vm.ConfigOk && vm.IsNotBusy;
-                    miJoinChunks.Sensitive = vm.ConfigOk;
+                    cbRenderer.Sensitive =
+                    cbJoiningAction.Sensitive = vm.IsNotBusy;
                     break;
                 case nameof(vm.ProjectLoaded):
-                case nameof(vm.CanLoadMore):
-                    miReloadFile.Sensitive =
-                    tsReloadFile.Sensitive =
-                    miUnload.Sensitive = vm.ProjectLoaded && vm.CanLoadMore;
+                    btnStartRender.Sensitive = vm.ProjectLoaded;
+                    lblProjectName.Visible = vm.ProjectLoaded;
                     break;
                 case nameof(vm.Progress):
                     UpdateProgress(vm.Progress);
@@ -492,22 +483,39 @@ namespace BlenderRenderController
                     break;
                 case nameof(vm.Header):
                     lblProjectName.Text = vm.Data.ProjectName;
-                    lblProjectName.Visible = !string.IsNullOrEmpty(vm.Data.ProjectName);
+                    break;
+                case nameof(vm.Title):
+                    Title = vm.Title;
                     break;
                 case nameof(vm.AutoFrameRange):
                     fiStartFrame.Sensitive = !vm.AutoFrameRange;
                     fiEndFrame.Sensitive = !vm.AutoFrameRange;
+                    swAutoFrameRange.Active = vm.AutoFrameRange;
                     break;
                 case nameof(vm.AutoChunkSize):
                     fiChunkSize.Sensitive = !vm.AutoChunkSize;
+                    swAutoChunkSize.Active = vm.AutoChunkSize;
                     break;
                 case nameof(vm.AutoMaxCores):
                     fiMaxCores.Sensitive = !vm.AutoMaxCores;
+                    swAutoMaxCores.Active = vm.AutoMaxCores;
                     break;
-                //case nameof(vm.StartFrame):
-                //case nameof(vm.EndFrame):
-                //    fiMaxCores.Sensitive = !vm.AutoMaxCores;
-                //    break;
+                case nameof(vm.StartFrame):
+                    numStartFrameAdjust.Value = vm.StartFrame;
+                    break;
+                case nameof(vm.EndFrame):
+                    numEndFrameAdjust.Value = vm.EndFrame;
+                    break;
+                case nameof(vm.OutputPath):
+                    entryOutputPath.Text = vm.OutputPath;
+                    break;
+                case nameof(vm.MaxCores):
+                    numMaxCoresAdjust.Value = vm.MaxCores;
+                    break;
+                case nameof(vm.ChunkSize):
+                    numChunkSizeAdjust.Value = vm.ChunkSize;
+                    break;
+
                 // Infobox items
                 case nameof(vm.ActiveScene):
                     activeSceneInfoValue.Text = !string.IsNullOrEmpty(vm.ActiveScene) ? vm.ActiveScene : "...";
@@ -525,12 +533,16 @@ namespace BlenderRenderController
                     break;
             }
 
+
+
+            miUnload.Sensitive =
+            tsReloadFile.Sensitive =
+            miReloadFile.Sensitive =
             miRenderMixdown.Sensitive =
             swAutoFrameRange.Sensitive =
             swAutoChunkSize.Sensitive =
             swAutoMaxCores.Sensitive =
             frOutputFolder.Sensitive = vm.ProjectLoaded && vm.IsNotBusy;
-
         }
 
         void On_ShowAbout(object s, EventArgs e)

@@ -21,69 +21,7 @@ namespace BRClib
 {
     public class RenderManager
     {
-        List<Process> _Processes;
-        FrameSet _FramesRendered;
-        RenderJob _Job;
-        CancellationTokenSource _arCts;
-
-        private static Logger logger = LogManager.GetCurrentClassLogger();
-
-        struct RenderState
-        {
-            public int ChunksToDo,
-                       TotalChunks, 
-                       ChunksInProgress,
-                       Index, 
-                       MaxCores;
-
-            public bool CanQueue =>
-                Index < TotalChunks && ChunksInProgress < MaxCores;
-
-            public int ChunksCompleted => TotalChunks - ChunksToDo;
-
-        } RenderState _State;
-
-        Timer _Timer;
-
-
-        public RenderManager()
-        {
-            _Timer = new Timer
-            {
-                Interval = 250,
-                AutoReset = true
-            };
-
-            _Timer.Elapsed += Tick;
-        }
-
-
-        string MixdownFile
-        {
-            get
-            {
-                var mixdownFmt = _Job.AudioCodec;
-                var projName = _Job.ProjectName;
-
-                if (projName == null) return null;
-
-                switch (mixdownFmt)
-                {
-                    case "PCM":
-                        return Path.ChangeExtension(projName, "wav");
-                    case "VORBIS":
-                        return Path.ChangeExtension(projName, "ogg");
-                    case null:
-                    case "NONE":
-                        return Path.ChangeExtension(projName, "ac3");
-                    default:
-                        return Path.ChangeExtension(projName, mixdownFmt.ToLower());
-                }
-            }
-        }
-
-
-        public bool InProgress => _Timer.Enabled;
+        public bool InProgress => _WorkerRun;
 
         public bool WasAborted { get; private set; }
 
@@ -91,11 +29,27 @@ namespace BRClib
         public event EventHandler<AfterRenderAction> AfterRenderStarted;
         public event EventHandler<BrcRenderResult> Finished;
 
+
+        public void StartAsync()
+        {
+            if (InProgress)
+            {
+                Abort();
+                throw new InvalidOperationException("A render is already in progress");
+            }
+
+            CheckForValidProperties();
+            ResetFields();
+
+            logger.Info("RENDER STARTING");
+            StartWorker();
+        }
+
         public void Abort()
         {
             if (InProgress)
             {
-                _Timer.Stop();
+                StopWorker();
                 WasAborted = true;
                 _arCts.Cancel();
                 DisposeProcesses();
@@ -116,20 +70,40 @@ namespace BRClib
             _Job = job;
         }
 
-        public void StartAsync()
+
+        /// <summary>
+        /// Analizes the files in the specified folder and returns
+        /// a list of valid chunks, ordered by frame-range
+        /// </summary>
+        /// <param name="chunkFolderPath"></param>
+        /// <returns></returns>
+        public static List<string> GetChunkFiles(string chunkFolderPath)
         {
-            if (InProgress)
-            {
-                Abort();
-                throw new InvalidOperationException("A render is already in progress");
-            }
+            var dirFiles = Directory.EnumerateFiles(chunkFolderPath, "*.*",
+                                            SearchOption.TopDirectoryOnly);
 
-            CheckForValidProperties();
-            ResetFields();
+            string[] validExts = RenderFormats.VideoFileExts;
 
-            logger.Info("RENDER STARTING");
-            _Timer.Start();
+            var orderedChunks = dirFiles
+                .Select(f => new
+                {
+                    file = f,
+                    split = f.Split('-')
+                })
+                .Where(t => t.split.Length > 2 && validExts.Contains(Path.GetExtension(t.file)))
+                .Select(t => new
+                {
+                    frame = int.TryParse(t.split[t.split.Length-2], out int x) ? x : -1,
+                    t.file
+                })
+                .TakeWhile(t => t.frame != -1)
+                .OrderBy(t => t.frame)
+                .Select(t => t.file)
+                ;
+
+            return orderedChunks.ToList();
         }
+
 
         private void CheckForValidProperties()
         {
@@ -183,39 +157,6 @@ namespace BRClib
             WasAborted = false;
         }
 
-        /// <summary>
-        /// Analizes the files in the specified folder and returns
-        /// a list of valid chunks, ordered by frame-range
-        /// </summary>
-        /// <param name="chunkFolderPath"></param>
-        /// <returns></returns>
-        public static List<string> GetChunkFiles(string chunkFolderPath)
-        {
-            var dirFiles = Directory.EnumerateFiles(chunkFolderPath, "*.*",
-                                            SearchOption.TopDirectoryOnly);
-
-            string[] validExts = RenderFormats.VideoFileExts;
-
-            var orderedChunks = dirFiles
-                .Select(f => new
-                {
-                    file = f,
-                    split = f.Split('-')
-                })
-                .Where(t => t.split.Length > 2 && validExts.Contains(Path.GetExtension(t.file)))
-                .Select(t => new
-                {
-                    frame = int.TryParse(t.split[t.split.Length-2], out int x) ? x : -1,
-                    t.file
-                })
-                .TakeWhile(t => t.frame != -1)
-                .OrderBy(t => t.frame)
-                .Select(t => t.file)
-                ;
-
-            return orderedChunks.ToList();
-        }
-
         static string CreateConcatFile(List<string> chunkFilePaths, string concatDir)
         {
             var concatFile = Path.Combine(concatDir, "chunklist.txt");
@@ -231,14 +172,29 @@ namespace BRClib
             return concatFile;
         }
 
-        readonly object _syncLock = new object();
-        private void Tick(object sender, System.Timers.ElapsedEventArgs e)
+        void StartWorker()
         {
-            lock (_syncLock)
+            _WorkerRun = true;
+            _Worker = new Thread(QLoop);
+            _Worker.Start();
+        }
+
+        void StopWorker()
+        {
+            _WorkerRun = false;
+            _Worker.Join();
+        }
+
+        void QLoop()
+        {
+            logger.Debug("Queue loop begin");
+            while (_WorkerRun)
             {
                 TryQueueRenderProcess();
                 ReportProgress(_FramesRendered.Count, _State.ChunksCompleted);
+                Thread.Sleep(250);
             }
+            logger.Debug("Queue loop end");
         }
 
         private void TryQueueRenderProcess()
@@ -256,7 +212,6 @@ namespace BRClib
             }
         }
 
-        byte _reportCount;
         private void ReportProgress(int framesRendered, int chunksCompleted)
         {
             if (_reportCount++ % 4 == 0)
@@ -292,7 +247,7 @@ namespace BRClib
             return render;
         }
 
-        // decrement counts when a process exits, stops the timer when the 
+        // decrement counts when a process exits, stops the worker thread when the 
         // 'ToDo' count reaches 0
         private void Render_Exited(object sender, EventArgs e)
         {
@@ -302,7 +257,7 @@ namespace BRClib
 
             if (Interlocked.Decrement(ref _State.ChunksToDo) == 0)
             {
-                _Timer.Stop();
+                StopWorker();
 
                 Debug.Assert(_FramesRendered.ToList().Count == _Job.Chunks.TotalLength(),
                             "Frames counted don't match the ChunkList TotalLenght");
@@ -325,6 +280,7 @@ namespace BRClib
 
         private void OnChunksRenderFinished()
         {
+
             bool renderOk = _Processes.TrueForAll(p => p.ExitCode == 0);
             _Processes.Clear();
 
@@ -362,7 +318,6 @@ namespace BRClib
             })
             .ContinueWith(t => Finished?.Invoke(this, t.Result));
         }
-
 
         private bool AfterRenderProc(object state)
         {
@@ -511,7 +466,6 @@ namespace BRClib
 
         }
 
-
         private void DisposeProcesses()
         {
             var procList = _Processes.ToList();
@@ -540,6 +494,59 @@ namespace BRClib
                 }
             }
 
+        }
+
+
+        List<Process> _Processes;
+        FrameSet _FramesRendered;
+        RenderJob _Job;
+        CancellationTokenSource _arCts;
+        byte _reportCount;
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
+        struct RenderState
+        {
+            public int ChunksToDo,
+                       TotalChunks,
+                       ChunksInProgress,
+                       Index,
+                       MaxCores;
+
+            public bool CanQueue =>
+                Index < TotalChunks && ChunksInProgress < MaxCores;
+
+            public int ChunksCompleted => TotalChunks - ChunksToDo;
+
+        }
+        RenderState _State;
+
+        volatile bool _WorkerRun;
+        Thread _Worker;
+
+
+        string MixdownFile
+        {
+            get
+            {
+                var mixdownFmt = _Job.AudioCodec;
+                var projName = _Job.ProjectName;
+
+                if (projName == null) return null;
+
+                switch (mixdownFmt)
+                {
+                    case "PCM":
+                        return Path.ChangeExtension(projName, "wav");
+                    case "VORBIS":
+                        return Path.ChangeExtension(projName, "ogg");
+                    case null:
+                    case "NONE":
+                        return Path.ChangeExtension(projName, "ac3");
+                    default:
+                        return Path.ChangeExtension(projName, mixdownFmt.ToLower());
+                }
+            }
         }
 
     }

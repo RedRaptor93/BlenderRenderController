@@ -50,10 +50,7 @@ namespace BRClib.ViewModels
             get => _configOK;
             set
             {
-                if (SetProperty(ref _configOK, value))
-                {
-					CanLoadMore = ConfigOk && IsNotBusy;
-                }
+                SetProperty(ref _configOK, value);
             }
         }
 
@@ -73,7 +70,7 @@ namespace BRClib.ViewModels
 			{ 
 				if (SetProperty(ref _dataRdy, value))
 				{
-					CanLoadMore = ConfigOk && IsNotBusy;
+					CanLoadMore = ProjectLoaded && IsNotBusy;
 				} 
 			}
 		}
@@ -465,13 +462,14 @@ namespace BRClib.ViewModels
 
         void OnDataUpdated()
         {
-            _bkpRange = new Chunk(Data.Start, Data.End);
+            ProjectLoaded = Data != _NoData;
+
+            _bkpRange = ProjectLoaded ? new Chunk(Data.Start, Data.End) : new Chunk(1,50);
 
             // sync changes
             OutputPath = Data.OutputPath;
             Header = Data.ProjectName;
 			ResetFrameRange();
-            ProjectLoaded = Data != _NoData;
 
             AutoFrameRange =
             AutoChunkSize =

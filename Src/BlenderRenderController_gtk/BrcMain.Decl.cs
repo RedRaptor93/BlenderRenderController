@@ -3,6 +3,7 @@ using UI = Gtk.Builder.ObjectAttribute;
 using System;
 using Gtk;
 using NLog;
+using Action = System.Action;
 
 namespace BlenderRenderController
 {
@@ -13,7 +14,7 @@ namespace BlenderRenderController
 
         // main frames
         [UI] Frame frBlendFile, frRenderOptions, frOutputFolder;
-        //[UI] Box frameRangeBox, chunkDivBox;
+        //[UI] Box boxFrameRange, boxChunkCores;
 
         // optionFields
         [UI] Box fiStartFrame, fiEndFrame, fiChunkSize, fiMaxCores;
@@ -48,9 +49,9 @@ namespace BlenderRenderController
         // toolbar
         //[UI] Toolbar toolbar;
         [UI] ToolButton tsOpenFile, tsReloadFile, tsAbout;
-        [UI] MenuToolButton tsOpenRecent;
+        [UI] ToolButton tsOpenRecent;
 
-        //[UI] ComboBox cbJoiningAction, cbRenderer;
+        [UI] ComboBox cbJoiningAction, cbRenderer;
 
         [UI] Entry entryOutputPath;
 
@@ -98,7 +99,6 @@ namespace BlenderRenderController
 
             recentBlendsMenu = new RecentItemsMenu(recentBlendsFilter);
             miOpenRecent.Submenu = recentBlendsMenu;
-            tsOpenRecent.Menu = recentBlendsMenu;
 
             recentBlendsMenu.RecentItem_Clicked += On_OpenRecent;
             recentBlendsMenu.Clear_Clicked += On_ClearRecents_Click;
@@ -111,8 +111,9 @@ namespace BlenderRenderController
             this.tsOpenRecent.Clicked += TsOpenRecent_Clicked;
             numMaxCoresAdjust.ValueChanged += On_numProcessMax_ValueChanged;
             numChunkSizeAdjust.ValueChanged += On_numChunkSize_ValueChanged;
-            swAutoChunkSize.StateSet += On_AutoChunkSize_Toggled;
-            swAutoFrameRange.StateSet += On_AutoFramerange_Toggled;
+            swAutoMaxCores.AddNotification("active", On_AutoMaxCores_Toggled);
+            swAutoFrameRange.AddNotification("active", On_AutoFramerange_Toggled);
+            swAutoChunkSize.AddNotification("active", On_AutoChunkSize_Toggled);
 
             // Init dialogs
             aboutWin = new AboutDialog(m_builder.GetObject("AboutWin").Handle);
@@ -151,11 +152,31 @@ namespace BlenderRenderController
             fiChunkSize.Sensitive = !_vm.AutoChunkSize;
             fiMaxCores.Sensitive = !_vm.AutoMaxCores;
 
+            swAutoChunkSize.Active = _vm.AutoChunkSize;
+            swAutoFrameRange.Active = _vm.AutoFrameRange;
+            swAutoMaxCores.Active = _vm.AutoMaxCores;
+
+            btnStartRender.Sensitive = _vm.ProjectLoaded;
+
             // ShowAlls
             recentBlendsMenu.ShowAll();
 
         }
 
+        void On_AutoFramerange_Toggled(object s, GLib.NotifyArgs e)
+        {
+            _vm.AutoFrameRange = swAutoFrameRange.Active;
+        }
+
+        void On_AutoChunkSize_Toggled(object s, GLib.NotifyArgs e)
+        {
+            _vm.AutoChunkSize = swAutoChunkSize.Active;
+        }
+
+        void On_AutoMaxCores_Toggled(object s, GLib.NotifyArgs e)
+        {
+            _vm.AutoMaxCores = swAutoMaxCores.Active;
+        }
 
         private void TsOpenRecent_Clicked(object sender, EventArgs e)
         {
