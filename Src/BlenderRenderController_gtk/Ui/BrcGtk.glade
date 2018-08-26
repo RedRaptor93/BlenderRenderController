@@ -93,7 +93,7 @@ THE SOFTWARE.
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
-  <object class="GtkAdjustment" id="numProcMaxAdjust">
+  <object class="GtkAdjustment" id="numMaxCoresAdjust">
     <property name="lower">1</property>
     <property name="upper">999999</property>
     <property name="value">2</property>
@@ -997,7 +997,7 @@ THE SOFTWARE.
                                                 <property name="secondary_icon_activatable">False</property>
                                                 <property name="secondary_icon_sensitive">False</property>
                                                 <property name="input_purpose">number</property>
-                                                <property name="adjustment">numProcMaxAdjust</property>
+                                                <property name="adjustment">numMaxCoresAdjust</property>
                                                 <property name="snap_to_ticks">True</property>
                                                 <property name="numeric">True</property>
                                                 <property name="update_policy">if-valid</property>

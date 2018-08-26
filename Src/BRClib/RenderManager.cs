@@ -44,7 +44,6 @@ namespace BRClib
         } RenderState _State;
 
         Timer _Timer;
-        readonly object _syncLock = new object();
 
 
         public RenderManager()
@@ -55,15 +54,9 @@ namespace BRClib
                 AutoReset = true
             };
 
-            _Timer.Elapsed += delegate
-            {
-                lock (_syncLock)
-                {
-                    TryQueueRenderProcess();
-                    ReportProgress(_FramesRendered.Count, _State.ChunksCompleted);
-                }
-            };
+            _Timer.Elapsed += Tick;
         }
+
 
         string MixdownFile
         {
@@ -93,10 +86,6 @@ namespace BRClib
         public bool InProgress => _Timer.Enabled;
 
         public bool WasAborted { get; private set; }
-
-        public AfterRenderAction Action => Settings.AfterRender;
-
-        public Renderer Renderer => Settings.Renderer;
 
         public event EventHandler<RenderProgressInfo> ProgressChanged;
         public event EventHandler<AfterRenderAction> AfterRenderStarted;
@@ -136,7 +125,6 @@ namespace BRClib
             }
 
             CheckForValidProperties();
-
             ResetFields();
 
             logger.Info("RENDER STARTING");
@@ -243,6 +231,16 @@ namespace BRClib
             return concatFile;
         }
 
+        readonly object _syncLock = new object();
+        private void Tick(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            lock (_syncLock)
+            {
+                TryQueueRenderProcess();
+                ReportProgress(_FramesRendered.Count, _State.ChunksCompleted);
+            }
+        }
+
         private void TryQueueRenderProcess()
         {
             if (_State.CanQueue)
@@ -342,9 +340,9 @@ namespace BRClib
             // Send a '100%' ProgressReport
             ReportProgress(_FramesRendered.Count, _State.TotalChunks);
 
-            AfterRenderStarted?.Invoke(this, Action);
+            AfterRenderStarted?.Invoke(this, Settings.AfterRender);
 
-            Task.Factory.StartNew(AfterRenderProc, Action, _arCts.Token)
+            Task.Factory.StartNew(AfterRenderProc, Settings.AfterRender, _arCts.Token)
             .ContinueWith(t =>
             {
                 BrcRenderResult result;

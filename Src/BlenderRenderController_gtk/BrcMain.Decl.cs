@@ -26,7 +26,7 @@ namespace BlenderRenderController
         [UI] Button btnStartRender, btnStopRender;
 
         [UI] Adjustment numStartFrameAdjust, numEndFrameAdjust, 
-            numChunkSizeAdjust,  numProcMaxAdjust;
+            numChunkSizeAdjust,  numMaxCoresAdjust;
 
         // status bar
         [UI] ProgressBar workProgress;
@@ -103,13 +103,13 @@ namespace BlenderRenderController
             recentBlendsMenu.RecentItem_Clicked += On_OpenRecent;
             recentBlendsMenu.Clear_Clicked += On_ClearRecents_Click;
 
-            numProcMaxAdjust.Value =
-            numProcMaxAdjust.Upper = Environment.ProcessorCount;
+            numMaxCoresAdjust.Value =
+            numMaxCoresAdjust.Upper = Environment.ProcessorCount;
 
             // events
             this.DeleteEvent += BrcMain_DeleteEvent;
             this.tsOpenRecent.Clicked += TsOpenRecent_Clicked;
-            numProcMaxAdjust.ValueChanged += On_numProcessMax_ValueChanged;
+            numMaxCoresAdjust.ValueChanged += On_numProcessMax_ValueChanged;
             numChunkSizeAdjust.ValueChanged += On_numChunkSize_ValueChanged;
             swAutoChunkSize.StateSet += On_AutoChunkSize_Toggled;
             swAutoFrameRange.StateSet += On_AutoFramerange_Toggled;
