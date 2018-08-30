@@ -139,9 +139,6 @@ namespace BlenderRenderController
             });
         }
 
-        void Status(string text) => Status(text, null);
-
-
         // Events handlers
 
         private void BrcMain_DeleteEvent(object o, DeleteEventArgs args)
@@ -500,49 +497,38 @@ namespace BlenderRenderController
                     fiMaxCores.Sensitive = !vm.AutoMaxCores;
                     swAutoMaxCores.Active = vm.AutoMaxCores;
                     break;
-                case nameof(vm.StartFrame):
-                    numStartFrameAdjust.Value = vm.StartFrame;
-                    break;
-                case nameof(vm.EndFrame):
+				case nameof(vm.Data):
+                    // fields
+					numStartFrameAdjust.Value = vm.StartFrame;
                     numEndFrameAdjust.Value = vm.EndFrame;
-                    break;
-                case nameof(vm.OutputPath):
                     entryOutputPath.Text = vm.OutputPath;
-                    break;
-                case nameof(vm.MaxCores):
                     numMaxCoresAdjust.Value = vm.MaxCores;
-                    break;
-                case nameof(vm.ChunkSize):
                     numChunkSizeAdjust.Value = vm.ChunkSize;
-                    break;
-
-                // Infobox items
-                case nameof(vm.ActiveScene):
+					// Infobox items
                     activeSceneInfoValue.Text = !string.IsNullOrEmpty(vm.ActiveScene) ? vm.ActiveScene : "...";
-                    break;
-                case nameof(vm.Duration):
                     durationInfoValue.Text = vm.Duration != TimeSpan.Zero 
                                             ? string.Format("{0:%h}h {0:%m}m {0:%s}s {0:%f}ms", vm.Duration) 
                                             : "...";
-                    break;
-                case nameof(vm.Fps):
                     fpsInfoValue.Text = vm.Fps > 0 ? vm.Fps.ToString("F2") : "...";
-                    break;
-                case nameof(vm.Resolution):
                     resolutionInfoValue.Text = !string.IsNullOrEmpty(vm.Resolution) ? vm.Resolution : "...";
                     break;
             }
 
+			bool now = vm.ProjectLoaded && vm.IsNotBusy;
+			bool past = miUnload.Sensitive;
 
+            if (past != now)
+			{
+				miUnload.Sensitive =
+                tsReloadFile.Sensitive =
+                miReloadFile.Sensitive =
+                miRenderMixdown.Sensitive =
+                swAutoFrameRange.Sensitive =
+                swAutoChunkSize.Sensitive =
+                swAutoMaxCores.Sensitive =
+                frOutputFolder.Sensitive = now;
+			}
 
-            miUnload.Sensitive =
-            tsReloadFile.Sensitive =
-            miReloadFile.Sensitive =
-            miRenderMixdown.Sensitive =
-            swAutoFrameRange.Sensitive =
-            swAutoChunkSize.Sensitive =
-            swAutoMaxCores.Sensitive =
-            frOutputFolder.Sensitive = vm.ProjectLoaded && vm.IsNotBusy;
         }
 
         void On_ShowAbout(object s, EventArgs e)
