@@ -11,7 +11,8 @@ namespace BlenderRenderController
         RecentChooserWidget _RecentChooser;
         RecentManager _Manager;
 
-        ImageMenuItem miClearRecents = new ImageMenuItem("gtk-clear", null);
+        //ImageMenuItem miClearRecents = new ImageMenuItem("gtk-clear", null);
+        MenuItem miClear;
         MenuItem miEmptyPH = new MenuItem("Empty") { Sensitive = false };
 
 
@@ -25,9 +26,15 @@ namespace BlenderRenderController
             _RecentChooser.Filter = filter;
             _RecentChooser.SortType = RecentSortType.Mru;
 
-            miClearRecents.Activated += (s, e) => OnClearRecentsClicked();
+            miClear = new MenuItem();
+            var box = new Box(Orientation.Horizontal, 6);
+            box.Add(Image.NewFromIconName("edit-clear", IconSize.Menu));
+            box.PackEnd(new Label("_Clear"), true, true, 0);
 
-            Add(miClearRecents);
+            miClear.Add(box);
+            miClear.Activated += delegate { OnClearRecentsClicked(); };
+
+            Add(miClear);
             Add(new SeparatorMenuItem());
             Add(miEmptyPH);
 
@@ -70,14 +77,18 @@ namespace BlenderRenderController
 
             foreach (var item in Items)
             {
-                var mi = new ImageMenuItem(item.DisplayName)
+                var mi = new MenuItem()
                 {
                     TooltipText = item.UriDisplay,
-                    Name = RECENT_ITEM_NAME,
-#pragma warning disable CS0612
-                    Image = new Image(item.GetIcon(16))
-#pragma warning restore CS0612 // Type or member is obsolete
+                    Name = RECENT_ITEM_NAME
                 };
+
+                var box = new Box(Orientation.Horizontal, 6);
+                box.Add(new Image(item.GetIcon(16)));
+                box.PackEnd(new Label(item.UriDisplay), true, true, 0);
+
+                mi.Add(box);
+
                 mi.Activated += delegate { OnRecentItemClicked(item); };
                 Append(mi);
                 mi.ShowAll();

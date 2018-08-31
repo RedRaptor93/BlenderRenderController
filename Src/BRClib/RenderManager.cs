@@ -187,14 +187,16 @@ namespace BRClib
 
         void QLoop()
         {
-            logger.Debug("Queue loop begin");
+			int id = Thread.CurrentThread.ManagedThreadId;
+
+			logger.Debug("Entering queue loop. tid = 0x{0:X}", id);
             while (_WorkerRun)
             {
                 TryQueueRenderProcess();
                 ReportProgress(_FramesRendered.Count, _State.ChunksCompleted);
                 Thread.Sleep(250);
             }
-            logger.Debug("Queue loop end");
+			logger.Debug("Exiting queue loop. tid = 0x{0:X}", id);
         }
 
         private void TryQueueRenderProcess()
@@ -286,8 +288,8 @@ namespace BRClib
 
             if (!renderOk)
             {
-                Finished?.Invoke(this, BrcRenderResult.ChunkRenderFailed);
                 logger.Error("One or more render processes did not complete sucessfully");
+				Finished?.Invoke(this, BrcRenderResult.ChunkRenderFailed);
                 return;
             }
 

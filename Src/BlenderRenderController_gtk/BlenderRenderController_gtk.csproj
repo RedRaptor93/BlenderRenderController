@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <None Remove="Ui\*~" />
+    <None Remove="Ui\#*#*" />
         
     <Content Include="..\BlenderRenderController\Resources\blender_icon.png" Link="Resources\blender_icon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

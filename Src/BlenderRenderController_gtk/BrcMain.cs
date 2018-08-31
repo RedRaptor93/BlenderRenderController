@@ -294,6 +294,8 @@ namespace BlenderRenderController
 
             _vm.StartRender();
 
+			logger.Info("Chunks: " + string.Join(", ", _vm.Chunks));
+
             btnStopRender.Show();
             startStopStack.VisibleChild = btnStopRender;
             btnStopRender.GrabFocus();
