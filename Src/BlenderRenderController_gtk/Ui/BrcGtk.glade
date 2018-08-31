@@ -26,7 +26,7 @@ THE SOFTWARE.
 -->
 <interface>
   <requires lib="gtk+" version="3.18"/>
-  <!-- interface-local-resource-path C:\\Users\\Pedro\\Source\\Repos\\BlenderRenderController\\Src\\BlenderRenderController\\Resources -->
+  <!-- interface-local-resource-path ../../BlenderRenderController/Resources -->
   <!-- interface-css-provider-path brc_style.css -->
   <!-- interface-license-type mit -->
   <!-- interface-name Blender Render Controller -->
@@ -1382,26 +1382,14 @@ THE SOFTWARE.
             <property name="margin_bottom">6</property>
             <property name="orientation">vertical</property>
             <child>
-              <object class="GtkBox">
+              <object class="GtkProgressBar" id="workProgress">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkProgressBar" id="workProgress">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="padding">5</property>
-                <property name="position">1</property>
+                <property name="position">0</property>
               </packing>
             </child>
             <child>

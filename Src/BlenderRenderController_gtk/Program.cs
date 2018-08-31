@@ -13,6 +13,7 @@ namespace BlenderRenderController
             //bool portable = bool.TryParse(pstr, out bool r) ? r : false;
 
             Global.Init(true); // TODO: Control portable mode
+            Environment.CurrentDirectory = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources");
             Application.Init();
 
             var app = new Application("org.BlenderRenderController", GLib.ApplicationFlags.None);

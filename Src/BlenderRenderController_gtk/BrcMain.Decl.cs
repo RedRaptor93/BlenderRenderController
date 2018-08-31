@@ -107,8 +107,8 @@ namespace BlenderRenderController
             numMaxCoresAdjust.Upper = Environment.ProcessorCount;
 
             // events
-            this.DeleteEvent += BrcMain_DeleteEvent;
-            this.tsOpenRecent.Clicked += TsOpenRecent_Clicked;
+            DeleteEvent += BrcMain_DeleteEvent;
+            tsOpenRecent.Clicked += TsOpenRecent_Clicked;
             numMaxCoresAdjust.ValueChanged += On_numProcessMax_ValueChanged;
             numChunkSizeAdjust.ValueChanged += On_numChunkSize_ValueChanged;
             swAutoMaxCores.AddNotification("active", On_AutoMaxCores_Toggled);
@@ -136,8 +136,8 @@ namespace BlenderRenderController
 
             miOpenFile.Sensitive =
             miOpenRecent.Sensitive =
-            tsOpenFile.Sensitive =
-            tsOpenRecent.Sensitive = _vm.ConfigOk && _vm.IsNotBusy;
+            tsOpenRecent.Sensitive =
+            tsOpenFile.Sensitive = _vm.ConfigOk && _vm.IsNotBusy;
 
             miReloadFile.Sensitive =
             tsReloadFile.Sensitive =

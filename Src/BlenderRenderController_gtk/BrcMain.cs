@@ -464,8 +464,8 @@ namespace BlenderRenderController
                     miJoinChunks.Sensitive = vm.ConfigOk;
                     miOpenFile.Sensitive =
                     miOpenRecent.Sensitive =
-                    tsOpenFile.Sensitive =
-                    tsOpenRecent.Sensitive = vm.ConfigOk && vm.IsNotBusy;
+                    tsOpenRecent.Sensitive =
+                    tsOpenFile.Sensitive = vm.ConfigOk && vm.IsNotBusy;
                     cbRenderer.Sensitive =
                     cbJoiningAction.Sensitive = vm.IsNotBusy;
                     break;

@@ -7,7 +7,7 @@ using System.Threading;
 using BRClib.Commands;
 using MvvmHelpers;
 using static BRClib.Global;
-using BRCRes = BRClib.Properties.Resources;
+using Res = BRClib.Properties.Resources;
 
 namespace BRClib.ViewModels
 {
@@ -15,7 +15,7 @@ namespace BRClib.ViewModels
     {
         public BrcMainViewModel()
         {
-            Title = BRCRes.AppTitle;
+            Title = Res.AppTitle;
             Header = "blend name"; // project name
             Footer = "Ready"; // Status
             CanLoadMore = false; // Can load blend
@@ -398,7 +398,7 @@ namespace BRClib.ViewModels
             _etaCalc.Reset();
             IsBusy = false;
             Progress = 0;
-            Title = BRCRes.AppTitle;
+            Title = Res.AppTitle;
         }
 
         public Action<BrcRenderResult> OnRenderFinished { get; set; }
@@ -411,6 +411,9 @@ namespace BRClib.ViewModels
 
             if (!File.Exists(filepath))
             {
+                Footer = Res.G_error + ": " + Res.G_file_not_found;
+                Progress = 0;
+                IsBusy = false;
                 return (-1, null);
             }
 
@@ -419,6 +422,9 @@ namespace BRClib.ViewModels
 
             if (getinfocmd.StdOutput.Length == 0)
             {
+                Footer = Res.G_error + ": No info";
+                Progress = 0;
+                IsBusy = false;
                 return (-2, getinfocmd);
             }
 

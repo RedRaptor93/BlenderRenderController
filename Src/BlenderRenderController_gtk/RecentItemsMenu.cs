@@ -125,18 +125,17 @@ namespace BlenderRenderController
 
         private void OnClearRecentsClicked()
         {
-            var args = new CancelArgs();
-
             if (Clear_Clicked == null)
                 return;
 
-            Clear_Clicked(this, args);
-            Console.WriteLine("Should clear? " + args.RetVal);
+            var cArgs = new CancelArgs();
 
-            if ((bool)args.RetVal)
-            {
-                return;
-            }
+            Clear_Clicked(this, cArgs);
+            bool cancel = (bool)cArgs.RetVal;
+
+            System.Diagnostics.Debug.WriteLine("Should clear? {0}", args: cancel ? "No":"Yes");
+
+            if (cancel) return;
 
             _Manager.PurgeItems();
         }
