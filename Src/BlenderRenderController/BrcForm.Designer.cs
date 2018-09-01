@@ -293,7 +293,11 @@ namespace BlenderRenderController
             0,
             0,
             0});
-            this.chunkLengthNumericUpDown.Minimum = -1;
+            this.chunkLengthNumericUpDown.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            -2147483648});
             this.chunkLengthNumericUpDown.Name = "chunkLengthNumericUpDown";
             this.chunkLengthNumericUpDown.Size = new System.Drawing.Size(86, 22);
             this.chunkLengthNumericUpDown.TabIndex = 7;
@@ -388,9 +392,9 @@ namespace BlenderRenderController
             this.checkAutoFrame.DataBindings.Add(new System.Windows.Forms.Binding("Checked", this.projectBindingSrc, "AutoFrameRange", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.checkAutoFrame.Location = new System.Drawing.Point(3, 3);
             this.checkAutoFrame.Name = "checkAutoFrame";
-            this.checkAutoFrame.Size = new System.Drawing.Size(80, 19);
+            this.checkAutoFrame.Size = new System.Drawing.Size(101, 19);
             this.checkAutoFrame.TabIndex = 0;
-            this.checkAutoFrame.Text = "Automatic";
+            this.checkAutoFrame.Text = "Whole project";
             this.toolTipInfo.SetToolTip(this.checkAutoFrame, "Use project\'s start and end frame values");
             this.checkAutoFrame.UseVisualStyleBackColor = true;
             // 
@@ -427,8 +431,8 @@ namespace BlenderRenderController
             // 
             this.infoActiveScene.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.projectBindingSrc, "ActiveScene", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged, "..."));
             this.infoActiveScene.Location = new System.Drawing.Point(9, 9);
-            this.infoActiveScene.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.infoActiveScene.MinimumSize = new System.Drawing.Size(27, 29);
+            this.infoActiveScene.Margin = new System.Windows.Forms.Padding(4);
+            this.infoActiveScene.MinimumSize = new System.Drawing.Size(34, 36);
             this.infoActiveScene.Name = "infoActiveScene";
             this.infoActiveScene.Size = new System.Drawing.Size(105, 42);
             this.infoActiveScene.TabIndex = 0;
@@ -440,8 +444,8 @@ namespace BlenderRenderController
             // 
             this.infoDuration.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.projectBindingSrc, "Duration", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged, "..."));
             this.infoDuration.Location = new System.Drawing.Point(122, 9);
-            this.infoDuration.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.infoDuration.MinimumSize = new System.Drawing.Size(27, 29);
+            this.infoDuration.Margin = new System.Windows.Forms.Padding(4);
+            this.infoDuration.MinimumSize = new System.Drawing.Size(34, 36);
             this.infoDuration.Name = "infoDuration";
             this.infoDuration.Size = new System.Drawing.Size(131, 42);
             this.infoDuration.TabIndex = 2;
@@ -453,8 +457,8 @@ namespace BlenderRenderController
             // 
             this.infoFPS.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.projectBindingSrc, "Fps", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged, "...", "N2"));
             this.infoFPS.Location = new System.Drawing.Point(261, 9);
-            this.infoFPS.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.infoFPS.MinimumSize = new System.Drawing.Size(27, 29);
+            this.infoFPS.Margin = new System.Windows.Forms.Padding(4);
+            this.infoFPS.MinimumSize = new System.Drawing.Size(34, 36);
             this.infoFPS.Name = "infoFPS";
             this.infoFPS.Size = new System.Drawing.Size(78, 42);
             this.infoFPS.TabIndex = 4;
@@ -466,8 +470,8 @@ namespace BlenderRenderController
             // 
             this.infoResolution.DataBindings.Add(new System.Windows.Forms.Binding("Value", this.projectBindingSrc, "Resolution", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged, "..."));
             this.infoResolution.Location = new System.Drawing.Point(347, 9);
-            this.infoResolution.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.infoResolution.MinimumSize = new System.Drawing.Size(27, 29);
+            this.infoResolution.Margin = new System.Windows.Forms.Padding(4);
+            this.infoResolution.MinimumSize = new System.Drawing.Size(34, 36);
             this.infoResolution.Name = "infoResolution";
             this.infoResolution.Size = new System.Drawing.Size(91, 42);
             this.infoResolution.TabIndex = 3;
@@ -927,7 +931,7 @@ namespace BlenderRenderController
             this.infoBox.Controls.Add(this.infoResolution);
             this.infoBox.Location = new System.Drawing.Point(15, 87);
             this.infoBox.Name = "infoBox";
-            this.infoBox.Padding = new System.Windows.Forms.Padding(5, 5, 5, 5);
+            this.infoBox.Padding = new System.Windows.Forms.Padding(5);
             this.infoBox.Size = new System.Drawing.Size(446, 64);
             this.infoBox.TabIndex = 54;
             this.infoBox.WrapContents = false;

@@ -32,6 +32,7 @@ THE SOFTWARE.
   <!-- interface-name Blender Render Controller -->
   <!-- interface-description A tool for significant speedup of rendering with Blender VSE. -->
   <!-- interface-copyright Pedro Oliva Rodrigues -->
+  <object class="GtkAccelGroup" id="acMain"/>
   <object class="GtkImage" id="imgDonate">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -162,7 +163,9 @@ THE SOFTWARE.
                         <property name="tooltip_text" translatable="yes">Open .blend file</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <property name="accel_group">acMain</property>
                         <signal name="activate" handler="On_OpenFile" swapped="no"/>
+                        <accelerator key="o" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                     <child>
@@ -180,7 +183,9 @@ THE SOFTWARE.
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <property name="accel_group">acMain</property>
                         <signal name="activate" handler="On_ReloadFile" swapped="no"/>
+                        <accelerator key="r" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                     <child>
@@ -849,7 +854,7 @@ THE SOFTWARE.
                                           <object class="GtkLabel">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="label" translatable="yes">Automatic</property>
+                                            <property name="label" translatable="yes">Whole project</property>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>

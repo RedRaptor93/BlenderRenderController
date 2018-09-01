@@ -176,6 +176,7 @@ namespace BRClib
         {
             _WorkerRun = true;
             _Worker = new Thread(QLoop);
+            _Worker.Name = "Render queueing thread";
             _Worker.Start();
         }
 
@@ -187,16 +188,12 @@ namespace BRClib
 
         void QLoop()
         {
-			int id = Thread.CurrentThread.ManagedThreadId;
-
-			logger.Debug("Entering queue loop. tid = 0x{0:X}", id);
             while (_WorkerRun)
             {
                 TryQueueRenderProcess();
                 ReportProgress(_FramesRendered.Count, _State.ChunksCompleted);
                 Thread.Sleep(250);
             }
-			logger.Debug("Exiting queue loop. tid = 0x{0:X}", id);
         }
 
         private void TryQueueRenderProcess()
@@ -219,7 +216,7 @@ namespace BRClib
             if (_reportCount++ % 4 == 0)
             {
                 ProgressChanged?.Invoke(this, new RenderProgressInfo(framesRendered, chunksCompleted));
-                _reportCount = 0;
+                //_reportCount = 0;
             }
         }
 

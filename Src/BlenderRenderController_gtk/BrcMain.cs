@@ -139,6 +139,23 @@ namespace BlenderRenderController
             });
         }
 
+        void UpdateInfoBox()
+        {
+            // fields
+            numStartFrameAdjust.Value = _vm.StartFrame;
+            numEndFrameAdjust.Value = _vm.EndFrame;
+            entryOutputPath.Text = _vm.OutputPath;
+            numMaxCoresAdjust.Value = _vm.MaxCores;
+            numChunkSizeAdjust.Value = _vm.ChunkSize;
+            // Infobox items
+            activeSceneInfoValue.Text = !string.IsNullOrEmpty(_vm.ActiveScene) ? _vm.ActiveScene : "...";
+            durationInfoValue.Text = _vm.Duration != TimeSpan.Zero
+                                    ? string.Format("{0:%h}h {0:%m}m {0:%s}s {0:%f}ms", _vm.Duration)
+                                    : "...";
+            fpsInfoValue.Text = _vm.Fps > 0 ? _vm.Fps.ToString("F2") : "...";
+            resolutionInfoValue.Text = !string.IsNullOrEmpty(_vm.Resolution) ? _vm.Resolution : "...";
+        }
+
         // Events handlers
 
         private void BrcMain_DeleteEvent(object o, DeleteEventArgs args)
@@ -295,10 +312,6 @@ namespace BlenderRenderController
             _vm.StartRender();
 
 			logger.Info("Chunks: " + string.Join(", ", _vm.Chunks));
-
-            btnStopRender.Show();
-            startStopStack.VisibleChild = btnStopRender;
-            btnStopRender.GrabFocus();
         }
 
         void StopRender_Clicked(object s, EventArgs e)
@@ -313,10 +326,6 @@ namespace BlenderRenderController
             if (result == ResponseType.No) return;
 
             _vm.StopRender();
-
-            btnStartRender.Show();
-            startStopStack.VisibleChild = btnStartRender;
-            btnStartRender.GrabFocus();
         }
 
         private void UpdateProgress(float p = 0f)
@@ -334,8 +343,6 @@ namespace BlenderRenderController
 
         private void OnRenderMngrFinished(BrcRenderResult e)
         {
-            //StopWork(true);
-
             Dialog dlg = null;
 
             if (e == BrcRenderResult.AllOk)
@@ -389,7 +396,6 @@ namespace BlenderRenderController
                 dlg.Run();
                 dlg.Destroy();
             }
-
         }
 
         async void On_RenderMixdown_Clicked(object s, EventArgs e)
@@ -468,8 +474,19 @@ namespace BlenderRenderController
                     tsOpenFile.Sensitive = vm.ConfigOk && vm.IsNotBusy;
                     cbRenderer.Sensitive =
                     cbJoiningAction.Sensitive = vm.IsNotBusy;
+                    if (vm.IsNotBusy)
+                    {
+                        startStopStack.VisibleChild = btnStartRender;
+                        btnStartRender.GrabFocus();
+                    }
+                    else
+                    {
+                        startStopStack.VisibleChild = btnStopRender;
+                        btnStopRender.GrabFocus();
+                    }
                     break;
                 case nameof(vm.ProjectLoaded):
+                    btnStopRender.Sensitive =
                     btnStartRender.Sensitive = vm.ProjectLoaded;
                     lblProjectName.Visible = vm.ProjectLoaded;
                     break;
@@ -499,20 +516,11 @@ namespace BlenderRenderController
                     fiMaxCores.Sensitive = !vm.AutoMaxCores;
                     swAutoMaxCores.Active = vm.AutoMaxCores;
                     break;
-				case nameof(vm.Data):
-                    // fields
-					numStartFrameAdjust.Value = vm.StartFrame;
-                    numEndFrameAdjust.Value = vm.EndFrame;
-                    entryOutputPath.Text = vm.OutputPath;
-                    numMaxCoresAdjust.Value = vm.MaxCores;
-                    numChunkSizeAdjust.Value = vm.ChunkSize;
-					// Infobox items
-                    activeSceneInfoValue.Text = !string.IsNullOrEmpty(vm.ActiveScene) ? vm.ActiveScene : "...";
-                    durationInfoValue.Text = vm.Duration != TimeSpan.Zero 
-                                            ? string.Format("{0:%h}h {0:%m}m {0:%s}s {0:%f}ms", vm.Duration) 
-                                            : "...";
-                    fpsInfoValue.Text = vm.Fps > 0 ? vm.Fps.ToString("F2") : "...";
-                    resolutionInfoValue.Text = !string.IsNullOrEmpty(vm.Resolution) ? vm.Resolution : "...";
+                case nameof(vm.StartFrame):
+                case nameof(vm.EndFrame):
+                case nameof(vm.MaxCores):
+                case nameof(vm.Data):
+                    UpdateInfoBox();
                     break;
             }
 
@@ -530,6 +538,7 @@ namespace BlenderRenderController
                 swAutoMaxCores.Sensitive =
                 frOutputFolder.Sensitive = now;
 			}
+
 
         }
 

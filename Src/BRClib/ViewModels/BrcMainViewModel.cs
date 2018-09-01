@@ -399,6 +399,7 @@ namespace BRClib.ViewModels
             IsBusy = false;
             Progress = 0;
             Title = Res.AppTitle;
+            Footer = "Ready";
         }
 
         public Action<BrcRenderResult> OnRenderFinished { get; set; }
@@ -539,8 +540,8 @@ namespace BRClib.ViewModels
 
         private void RenderManager_Finished(object sender, BrcRenderResult e)
         {
-            StopRender();
             OnRenderFinished(e);
+            StopRender();
         }
 
 

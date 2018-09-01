@@ -156,11 +156,13 @@ namespace BlenderRenderController
             swAutoFrameRange.Active = _vm.AutoFrameRange;
             swAutoMaxCores.Active = _vm.AutoMaxCores;
 
+            btnStopRender.Sensitive =
             btnStartRender.Sensitive = _vm.ProjectLoaded;
 
             // ShowAlls
             recentBlendsMenu.ShowAll();
-
+            startStopStack.ShowAll();
+            
         }
 
         void On_AutoFramerange_Toggled(object s, GLib.NotifyArgs e)

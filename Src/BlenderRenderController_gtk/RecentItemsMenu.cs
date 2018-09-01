@@ -11,7 +11,6 @@ namespace BlenderRenderController
         RecentChooserWidget _RecentChooser;
         RecentManager _Manager;
 
-        //ImageMenuItem miClearRecents = new ImageMenuItem("gtk-clear", null);
         MenuItem miClear;
         MenuItem miEmptyPH = new MenuItem("Empty") { Sensitive = false };
 
@@ -29,7 +28,10 @@ namespace BlenderRenderController
             miClear = new MenuItem();
             var box = new Box(Orientation.Horizontal, 6);
             box.Add(Image.NewFromIconName("edit-clear", IconSize.Menu));
-            box.PackEnd(new Label("_Clear"), true, true, 0);
+
+            Label lbl = new Label("_Clear");
+            lbl.Xalign = 0f;
+            box.PackEnd(lbl, true, true, 0);
 
             miClear.Add(box);
             miClear.Activated += delegate { OnClearRecentsClicked(); };
@@ -75,6 +77,8 @@ namespace BlenderRenderController
             if (PlaceholderVisiblity())
                 return;
 
+            Icon.SizeLookup(IconSize.Menu, out int size, out int _);
+
             foreach (var item in Items)
             {
                 var mi = new MenuItem()
@@ -84,8 +88,11 @@ namespace BlenderRenderController
                 };
 
                 var box = new Box(Orientation.Horizontal, 6);
-                box.Add(new Image(item.GetIcon(16)));
-                box.PackEnd(new Label(item.UriDisplay), true, true, 0);
+                box.Add(new Image(item.GetIcon(size)));
+                Label lbl = new Label(item.DisplayName);
+                
+                lbl.Xalign = 0f;
+                box.PackEnd(lbl, true, true, 0);
 
                 mi.Add(box);
 
