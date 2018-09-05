@@ -139,7 +139,7 @@ namespace BlenderRenderController
             });
         }
 
-        void UpdateInfoBox()
+        void UpdateUI()
         {
             // fields
             numStartFrameAdjust.Value = _vm.StartFrame;
@@ -520,7 +520,7 @@ namespace BlenderRenderController
                 case nameof(vm.EndFrame):
                 case nameof(vm.MaxCores):
                 case nameof(vm.Data):
-                    UpdateInfoBox();
+                    UpdateUI();
                     break;
             }
 

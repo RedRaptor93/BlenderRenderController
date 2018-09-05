@@ -21,9 +21,13 @@ namespace BRClib
 {
     public class RenderManager
     {
-        public bool InProgress => _WorkerRun;
+        public bool InProgress => _RunWorker;
 
-        public bool WasAborted { get; private set; }
+        public bool WasAborted
+        {
+            get => _Aborted;
+            private set => _Aborted = value;
+        }
 
         public event EventHandler<RenderProgressInfo> ProgressChanged;
         public event EventHandler<AfterRenderAction> AfterRenderStarted;
@@ -42,17 +46,23 @@ namespace BRClib
             ResetFields();
 
             logger.Info("RENDER STARTING");
-            StartWorker();
+
+            _RunWorker = true;
+            _Worker = new Thread(QLoop);
+            _Worker.Name = "Render queueing thread";
+            _Worker.Start();
         }
 
         public void Abort()
         {
             if (InProgress)
             {
-                StopWorker();
                 WasAborted = true;
-                _arCts.Cancel();
+                _RunWorker = false;
+
                 DisposeProcesses();
+
+                _Worker.Join();
                 logger.Warn("RENDER ABORTED");
 
                 Finished?.Invoke(this, BrcRenderResult.Aborted);
@@ -153,7 +163,6 @@ namespace BRClib
                 MaxCores = _Job.MaxCores
             };
             
-            _arCts = new CancellationTokenSource();
             WasAborted = false;
         }
 
@@ -172,28 +181,18 @@ namespace BRClib
             return concatFile;
         }
 
-        void StartWorker()
-        {
-            _WorkerRun = true;
-            _Worker = new Thread(QLoop);
-            _Worker.Name = "Render queueing thread";
-            _Worker.Start();
-        }
-
-        void StopWorker()
-        {
-            _WorkerRun = false;
-            _Worker.Join();
-        }
-
         void QLoop()
         {
-            while (_WorkerRun)
+            while (_RunWorker)
             {
                 TryQueueRenderProcess();
                 ReportProgress(_FramesRendered.Count, _State.ChunksCompleted);
                 Thread.Sleep(250);
             }
+
+            if (WasAborted) return;
+
+            OnChunksRenderFinished();
         }
 
         private void TryQueueRenderProcess()
@@ -213,10 +212,9 @@ namespace BRClib
 
         private void ReportProgress(int framesRendered, int chunksCompleted)
         {
-            if (_reportCount++ % 4 == 0)
+            if (_reportCount++ % 3 == 0)
             {
                 ProgressChanged?.Invoke(this, new RenderProgressInfo(framesRendered, chunksCompleted));
-                //_reportCount = 0;
             }
         }
 
@@ -246,7 +244,7 @@ namespace BRClib
             return render;
         }
 
-        // decrement counts when a process exits, stops the worker thread when the 
+        // decrement counts when a process exits, stops the worker loop when the 
         // 'ToDo' count reaches 0
         private void Render_Exited(object sender, EventArgs e)
         {
@@ -256,12 +254,10 @@ namespace BRClib
 
             if (Interlocked.Decrement(ref _State.ChunksToDo) == 0)
             {
-                StopWorker();
+                _RunWorker = false;
 
                 Debug.Assert(_FramesRendered.ToList().Count == _Job.Chunks.TotalLength(),
                             "Frames counted don't match the ChunkList TotalLenght");
-
-                OnChunksRenderFinished();
             }
         }
 
@@ -279,7 +275,6 @@ namespace BRClib
 
         private void OnChunksRenderFinished()
         {
-
             bool renderOk = _Processes.TrueForAll(p => p.ExitCode == 0);
             _Processes.Clear();
 
@@ -296,36 +291,30 @@ namespace BRClib
             ReportProgress(_FramesRendered.Count, _State.TotalChunks);
 
             AfterRenderStarted?.Invoke(this, Settings.AfterRender);
-
-            Task.Factory.StartNew(AfterRenderProc, Settings.AfterRender, _arCts.Token)
-            .ContinueWith(t =>
+            bool ar = AfterRenderProc(Settings.AfterRender);
+            BrcRenderResult result;
+            if (WasAborted)
             {
-                BrcRenderResult result;
-                if (!t.Result)
-                {
-                    if (WasAborted)
-                        result = BrcRenderResult.Aborted;
-                    else
-                        result = BrcRenderResult.AfterRenderFailed;
-                }
-                else
-                {
-                    result = BrcRenderResult.AllOk;
-                }
+                result = BrcRenderResult.Aborted;
+            }
+            else if (ar)
+            {
+                result = BrcRenderResult.AllOk;
+            }
+            else
+            {
+                result = BrcRenderResult.AfterRenderFailed;
+            }
 
-                return result;
-            })
-            .ContinueWith(t => Finished?.Invoke(this, t.Result));
+            Finished?.Invoke(this, result);
         }
 
-        private bool AfterRenderProc(object state)
+        private bool AfterRenderProc(AfterRenderAction action)
         {
-            var action = (AfterRenderAction)state;
+            if (WasAborted) return false;
 
-            if (action == AfterRenderAction.NOTHING)
-            {
+            if (action == AfterRenderAction.NOTHING) 
                 return true;
-            }
 
             logger.Info("AfterRender started. Action: {0}", action);
 
@@ -366,13 +355,16 @@ namespace BRClib
 
             Process mixdownProc = null, concatProc = null;
 
+            _Processes.Add(mixdownProc);
+            _Processes.Add(concatProc);
+
             var arReports = new Dictionary<string, ProcessResult>
             {
                 ["mixdown"] = null,
                 ["concat"] = null
             };
 
-            if (_arCts.IsCancellationRequested) return false;
+            if (WasAborted) return false;
 
             switch (action)
             {
@@ -381,7 +373,7 @@ namespace BRClib
                     mixdownProc = mixdowncmd.GetProcess();
                     RunProc(ref mixdownProc, "mixdown");
 
-                    if (_arCts.IsCancellationRequested) return false;
+                    if (WasAborted) return false;
 
                     concatProc = concatcmd.GetProcess();
                     RunProc(ref concatProc, "concat");
@@ -406,6 +398,7 @@ namespace BRClib
                     break;
             }
 
+            if (WasAborted) return false;
 
             // check for bad exit codes
             var badProcResults = _Processes.Where(p => p != null && p.ExitCode != 0).ToArray();
@@ -418,7 +411,7 @@ namespace BRClib
                 using (var sw = File.AppendText(arReportFile))
                 {
                     // do not write reports if exit code was caused by cancellation
-                    if (!_arCts.IsCancellationRequested)
+                    if (!WasAborted)
                     {
                         if (mixdownProc?.ExitCode != 0)
                         {
@@ -436,7 +429,7 @@ namespace BRClib
             }
             else
             {
-                return !_arCts.IsCancellationRequested;
+                return !WasAborted;
             }
 
 
@@ -453,7 +446,6 @@ namespace BRClib
             void RunProc(ref Process proc, string key)
             {
                 proc.Start();
-                _Processes.Add(proc);
 
                 var soTask = proc.StandardOutput.ReadToEndAsync();
                 var seTask = proc.StandardError.ReadToEndAsync();
@@ -499,7 +491,6 @@ namespace BRClib
         List<Process> _Processes;
         FrameSet _FramesRendered;
         RenderJob _Job;
-        CancellationTokenSource _arCts;
         byte _reportCount;
 
         private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -520,7 +511,7 @@ namespace BRClib
         }
         RenderState _State;
 
-        volatile bool _WorkerRun;
+        volatile bool _RunWorker, _Aborted;
         Thread _Worker;
 
 
