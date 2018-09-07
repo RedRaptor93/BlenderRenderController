@@ -39,8 +39,7 @@ namespace BlenderRenderController
             InitializeComponent();
 
             _vm = new BrcMainViewModel();
-            //_vm.PropertyChanged += ViewModel_PropertyChanged;
-            _vm.PropertyChanged += PropChangedInvoker;
+            _vm.PropertyChanged += (s, e) => Invoke((EventHandler<PropertyChangedEventArgs>)ViewModel_PropertyChanged, s, e);
             _vm.OnRenderFinished = OnRenderFinishedHandler;
 
             TaskbarManager.Instance.ApplicationId = nameof(BlenderRenderController);
@@ -63,8 +62,6 @@ namespace BlenderRenderController
             _vm.ConfigOk = CheckProgramPaths();
             projectBindingSrc.DataSource = _vm;
 
-            SetStartingState();
-
             // setup sources for ComboBoxes
             SetComboBoxData(cbRenderer, CustomRes.RendererResources, Settings.Renderer);
             cbRenderer.SelectedIndexChanged += Renderer_Changed;
@@ -82,7 +79,7 @@ namespace BlenderRenderController
             {
                 if (!Convert.IsDBNull(fe.Value) && fe.Value != null)
                 {
-                    fe.Value = string.Format("{0:%h}h {0:%m}m {0:%s}s {0:%f}ms", (TimeSpan)fe.Value);
+                    fe.Value = string.Format(BRCRes.info_time_fmt, (TimeSpan)fe.Value);
                 }
             };
 
@@ -99,6 +96,7 @@ namespace BlenderRenderController
                 }
             }
 
+            SetStartingState();
         }
 
 
@@ -644,12 +642,11 @@ namespace BlenderRenderController
             totalStartNumericUpDown.Enabled = !_vm.AutoFrameRange;
             chunkLengthNumericUpDown.Enabled = !_vm.AutoChunkSize;
             processCountNumericUpDown.Enabled = !_vm.AutoMaxCores;
+
+            infoDuration.Value = string.Format(BRCRes.info_time_fmt, TimeSpan.Zero);
+            statusMessage.Text = "...";
         }
 
-        private void PropChangedInvoker(object sender, PropertyChangedEventArgs e)
-        {
-            Invoke((EventHandler<PropertyChangedEventArgs>)ViewModel_PropertyChanged, sender, e);
-        }
 
         private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {

@@ -342,6 +342,15 @@ namespace BRClib.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0:%h}h {0:%m}m {0:%s}s {0:%f}ms.
+        /// </summary>
+        public static string info_time_fmt {
+            get {
+                return ResourceManager.GetString("info_time_fmt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Blender Renderer.
         /// </summary>
         public static string Renderer_Blender {

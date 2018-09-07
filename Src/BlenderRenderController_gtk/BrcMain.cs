@@ -139,7 +139,7 @@ namespace BlenderRenderController
             });
         }
 
-        void UpdateUI()
+        void UpdateUIValues()
         {
             // fields
             numStartFrameAdjust.Value = _vm.StartFrame;
@@ -149,9 +149,7 @@ namespace BlenderRenderController
             numChunkSizeAdjust.Value = _vm.ChunkSize;
             // Infobox items
             activeSceneInfoValue.Text = !string.IsNullOrEmpty(_vm.ActiveScene) ? _vm.ActiveScene : "...";
-            durationInfoValue.Text = _vm.Duration != TimeSpan.Zero
-                                    ? string.Format("{0:%h}h {0:%m}m {0:%s}s {0:%f}ms", _vm.Duration)
-                                    : "...";
+            durationInfoValue.Text = _vm.Duration != TimeSpan.Zero ? string.Format(BRCRes.info_time_fmt, _vm.Duration) : "...";
             fpsInfoValue.Text = _vm.Fps > 0 ? _vm.Fps.ToString("F2") : "...";
             resolutionInfoValue.Text = !string.IsNullOrEmpty(_vm.Resolution) ? _vm.Resolution : "...";
         }
@@ -520,7 +518,7 @@ namespace BlenderRenderController
                 case nameof(vm.EndFrame):
                 case nameof(vm.MaxCores):
                 case nameof(vm.Data):
-                    UpdateUI();
+                    UpdateUIValues();
                     break;
             }
 

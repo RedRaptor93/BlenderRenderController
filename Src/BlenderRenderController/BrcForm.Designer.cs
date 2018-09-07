@@ -539,9 +539,9 @@ namespace BlenderRenderController
             this.blendFileLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.blendFileLabel.Location = new System.Drawing.Point(9, 62);
             this.blendFileLabel.Name = "blendFileLabel";
-            this.blendFileLabel.Size = new System.Drawing.Size(84, 20);
+            this.blendFileLabel.Size = new System.Drawing.Size(94, 20);
             this.blendFileLabel.TabIndex = 25;
-            this.blendFileLabel.Text = "Blend File";
+            this.blendFileLabel.Text = "Project info";
             // 
             // outputFolderLabel
             // 

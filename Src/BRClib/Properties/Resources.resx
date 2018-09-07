@@ -240,4 +240,7 @@ Do you want to continue?</value>
     <value>Completed {0} / {1} chunks, {2} frames rendered</value>
     <comment>0=parts completed, 1=parts remaining, 2=frames rendered</comment>
   </data>
+  <data name="info_time_fmt" xml:space="preserve">
+    <value>{0:%h}h {0:%m}m {0:%s}s {0:%f}ms</value>
+  </data>
 </root>

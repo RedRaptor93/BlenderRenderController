@@ -127,7 +127,16 @@ namespace BlenderRenderController
                 _vm.ConfigOk = BRClib.Global.CheckProgramPaths();
             };
 
-            // Set starting state
+            SetStartingState();
+
+            // ShowAlls
+            recentBlendsMenu.ShowAll();
+            startStopStack.ShowAll();
+
+        }
+
+        private void SetStartingState()
+        {
             miRenderMixdown.Sensitive =
             swAutoFrameRange.Sensitive =
             swAutoChunkSize.Sensitive =
@@ -159,10 +168,7 @@ namespace BlenderRenderController
             btnStopRender.Sensitive =
             btnStartRender.Sensitive = _vm.ProjectLoaded;
 
-            // ShowAlls
-            recentBlendsMenu.ShowAll();
-            startStopStack.ShowAll();
-            
+            UpdateUIValues();
         }
 
         void On_AutoFramerange_Toggled(object s, GLib.NotifyArgs e)
