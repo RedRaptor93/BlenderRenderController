@@ -27,15 +27,7 @@ namespace BRClib.Commands
         }
 
 
-        public string ProgramPath
-        {
-            get => _progPath;
-            set
-            {
-                // account for relative paths
-                _progPath = Path.GetFullPath(value);
-            }
-        }
+        public string ProgramPath { get; set; }
         public string StdOutput { get; protected set; }
         public string StdError { get; protected set; }
         public int ExitCode { get; protected set; }
@@ -58,7 +50,12 @@ namespace BRClib.Commands
 
         public Process GetProcess()
         {
-            return CreateProcess();
+            var proc = CreateProcess();
+
+            proc.Exited += (ps, pe) => Log.Debug("{0} exit code: {1}", _procName, (ps as Process).ExitCode);
+            Log.Debug("cmd:> {0} {1}", _procName, proc.StartInfo.Arguments);
+
+            return proc;
         }
 
         public virtual Task<int> RunAsync(CancellationToken token = default)
@@ -89,7 +86,7 @@ namespace BRClib.Commands
 
         protected virtual Process CreateProcess()
         {
-            if (!File.Exists(ProgramPath))
+            if (!File.Exists(Path.GetFullPath(ProgramPath)))
                 throw new FileNotFoundException("Program could not be found", ProgramPath);
 
             var proc = new Process
@@ -108,12 +105,6 @@ namespace BRClib.Commands
 
                 EnableRaisingEvents = true
             };
-            proc.Exited += (ps, pe) =>
-            {
-                Log.Debug("{0} exit code: {1}", _procName, (ps as Process).ExitCode);
-            };
-
-            Log.Debug("cmd:> {0} {1}", _procName, proc.StartInfo.Arguments);
 
             return proc;
         }
@@ -143,6 +134,6 @@ namespace BRClib.Commands
                                             "Std Error:\n{2}\n\n" +
                                             "Std Output:\n{3}\n";
 
-        string _procName, _rfn, _progPath;
+        string _procName, _rfn;
     }
 }

@@ -6,14 +6,13 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Text;
-using MvvmHelpers;
 
 namespace BRClib
 {
     /// <summary>
     /// Represents the settings from a Blender project file
     /// </summary>
-    public class BlendData : ObservableObject
+    public class BlendData
     {
         [JsonProperty("start")]
         public int Start { get; set; }

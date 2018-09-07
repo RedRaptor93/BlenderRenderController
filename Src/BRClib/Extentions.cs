@@ -13,8 +13,6 @@ using System.Linq;
 
 namespace BRClib.Extentions
 {
-    using ISynchronizeInvoke = System.ComponentModel.ISynchronizeInvoke;
-
     public static class Extentions
     {
         /// <summary>
@@ -37,40 +35,6 @@ namespace BRClib.Extentions
 
         public static Chunk GetFullRange(this IEnumerable<Chunk> chunks)
             => new Chunk(chunks.First().Start, chunks.Last().End);
-
-        /// <summary>
-        /// Safely raises any EventHandler event asynchronously.
-        /// </summary>
-        /// <param name="sender">The object raising the event (usually this).</param>
-        /// <param name="args">The TArgs for this event.</param>
-        public static void Raise<TArgs>(this MulticastDelegate thisEvent, object sender, TArgs args)
-        {
-            // HACKHACK
-            // Gtk has no idea what ISynchronizeInvoke is and implementing it is a pain.
-            // So it's only actually sync'ed in WinForms
-#if NETSTANDARD2_0
-            thisEvent.DynamicInvoke(sender, args);
-#else
-
-            var localMCD = thisEvent;
-            void callback(IAsyncResult ar) => ((EventHandler<TArgs>)ar.AsyncState).EndInvoke(ar);
-
-            foreach (Delegate d in localMCD.GetInvocationList())
-            {
-                if (d is EventHandler<TArgs> uiMethod)
-                {
-                    if (d.Target is ISynchronizeInvoke target)
-                    {
-                        target.BeginInvoke(uiMethod, new object[] { sender, args });
-                    }
-                    else
-                    {
-                        uiMethod.BeginInvoke(sender, args, callback, uiMethod);
-                    }
-                }
-            }
-#endif
-        }
 
 
         /// <summary>
