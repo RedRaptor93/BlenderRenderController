@@ -37,55 +37,6 @@ namespace BlenderRenderController
             _vm.OnRenderFinished = e => Invoke(OnRenderMngrFinished, e);
         }
 
-        static bool ClearOutputFolder(string path)
-        {
-            bool result;
-            string errMsg = null;
-
-            try
-            {
-                DirectoryInfo dir = new DirectoryInfo(path);
-                DirectoryInfo[] subDirs = dir.GetDirectories();
-
-                // clear files in the output
-                foreach (FileInfo fi in dir.GetFiles())
-                {
-                    fi.Delete();
-                }
-
-                // clear files in the 'chunks' subdir
-                var chunkSDir = subDirs.FirstOrDefault(di => di.Name == "chunks");
-                if (chunkSDir != null)
-                {
-                    Directory.Delete(chunkSDir.FullName, true);
-                }
-
-                result = true;
-            }
-            catch (IOException)
-            {
-                errMsg = "Can't clear output folder, files are in use";
-                result = false;
-            }
-            catch (Exception ex)
-            {
-                errMsg = $"An unexpected error ocurred, sorry.\n\n{ex.Message} ({ex.HResult:X})";
-                result = false;
-            }
-
-            Trace.WriteLineIf(!result, errMsg);
-
-            if (!result)
-            {
-                var msgDialog = new MessageDialog(null, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, 
-                    errMsg);
-
-                msgDialog.Run();
-            }
-
-            return result;
-        }
-
 
         async void OpenBlendFile(string blendFile)
         {
@@ -261,7 +212,25 @@ namespace BlenderRenderController
             Settings.Renderer = (Renderer)cb.Active;
         }
 
+        void On_AutoFramerange_Toggled(object s, GLib.NotifyArgs e)
+        {
+            _vm.AutoFrameRange = swAutoFrameRange.Active;
+        }
 
+        void On_AutoChunkSize_Toggled(object s, GLib.NotifyArgs e)
+        {
+            _vm.AutoChunkSize = swAutoChunkSize.Active;
+        }
+
+        void On_AutoMaxCores_Toggled(object s, GLib.NotifyArgs e)
+        {
+            _vm.AutoMaxCores = swAutoMaxCores.Active;
+        }
+
+        private void TsOpenRecent_Clicked(object sender, EventArgs e)
+        {
+            recentBlendsMenu.PopupAtWidget((Widget)sender, Gdk.Gravity.SouthWest, Gdk.Gravity.NorthWest, null);
+        }
 
         void On_numFrameRange_ValueChanged(object s, EventArgs e)
         {
@@ -299,12 +268,16 @@ namespace BlenderRenderController
                        "Do you want to continue?");
 
                 var result = (ResponseType)dlg.Run(); dlg.Destroy();
-
                 if (result == ResponseType.No)
                     return;
 
-                if (!ClearOutputFolder(outdir))
+                var (r, eMsg) = ClearOutputFolder(outdir);
+                if (!r)
+                {
+                    dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok, eMsg);
+                    dlg.Run(); dlg.Destroy();
                     return;
+                }
             }
 
             _vm.StartRender();

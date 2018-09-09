@@ -306,6 +306,7 @@ namespace BRClib.ViewModels
         public void UnloadProject()
 		{
 			Data = _NoData;
+            BlendFile = null;
 		}
 
         public async Task<MixdownCmd> RunMixdown()

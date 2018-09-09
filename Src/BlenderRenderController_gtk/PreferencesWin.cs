@@ -12,6 +12,7 @@ namespace BlenderRenderController
         [UI] FileChooserButton blenderChooser, ffmpegChooser;
         [UI] CheckButton showTooltipsCk, delChunksCk;
         [UI] ComboBox logginLvlCb;
+        [UI] Button btnOk;
 #pragma warning restore 649
 
         private PreferencesWin(Builder builder, string root)
@@ -21,9 +22,10 @@ namespace BlenderRenderController
         }
 
         public PreferencesWin()
-            : this(Glade.Load("PrefWin.glade"), "PrefWin")
+            : this(Glade.LoadUI("Dialogs.glade"), "PrefWin")
         {
             LoadSettings();
+            btnOk.Clicked += On_PrefOk_Clicked;
         }
 
         void LoadSettings()

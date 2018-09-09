@@ -346,9 +346,13 @@ namespace BlenderRenderController
                 if (dialogResult == DialogResult.No)
                     return;
 
-                var tryToClear = Helper.ClearOutputFolder(outputDir);
+                var (result, eMsg) = ClearOutputFolder(outputDir);
 
-                if (!tryToClear) return;
+                if (!result)
+                {
+                    MessageBox.Show(eMsg, BRCRes.G_error);
+                    return;
+                }
             }
 
 			_vm.StartRender();
@@ -653,11 +657,6 @@ namespace BlenderRenderController
             var vm = (BrcMainViewModel)sender;
 
             // all of the more complex Binding logic goes here
-            miRenderMixdown.Enabled = 
-            checkAutoFrame.Enabled =
-            checkChunkSize.Enabled =
-            checkMaxProcs.Enabled =
-            frOutputFolder.Enabled = vm.ProjectLoaded && vm.IsNotBusy;
 
             if (e.PropertyName == nameof(vm.IsBusy) || e.PropertyName == nameof(vm.IsNotBusy) || e.PropertyName == nameof(vm.ConfigOk))
             {
@@ -712,6 +711,17 @@ namespace BlenderRenderController
             else if (e.PropertyName == nameof(vm.AutoMaxCores))
             {
                 processCountNumericUpDown.Enabled = !vm.AutoMaxCores;
+            }
+
+            bool now = vm.ProjectLoaded && vm.IsNotBusy, past = miRenderMixdown.Enabled;
+
+            if (past != now)
+            {
+                miRenderMixdown.Enabled =
+                checkAutoFrame.Enabled =
+                checkChunkSize.Enabled =
+                checkMaxProcs.Enabled =
+                frOutputFolder.Enabled = now;
             }
         }
     }

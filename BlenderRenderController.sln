@@ -11,14 +11,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "Tests\UnitTest
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{46209597-E6D5-4C41-9314-C30D0C7EFEEB}"
 	ProjectSection(SolutionItems) = preProject
-		ArgFormats.xml = ArgFormats.xml
 		LICENCE.txt = LICENCE.txt
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlenderRenderController_gtk", "Src\BlenderRenderController_gtk\BlenderRenderController_gtk.csproj", "{9D46BCFF-A941-4107-AAA1-80881F4C1E92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlenderRenderController_gtk", "Src\BlenderRenderController_gtk\BlenderRenderController_gtk.csproj", "{9D46BCFF-A941-4107-AAA1-80881F4C1E92}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BRClib", "Src\BRClib\BRClib.csproj", "{0292B253-4B98-42EC-8B74-E989D425967C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BRClib", "Src\BRClib\BRClib.csproj", "{0292B253-4B98-42EC-8B74-E989D425967C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -60,7 +60,7 @@ namespace BlenderRenderController
             foreach (var f in MakeChooserFilters(VideoFileExts))
                 outputChooserDialog.AddFilter(f);
 
-            concatFileChooser.Filter = new FileFilter { Name = "FFmpeg's concat file" };
+            concatFileChooser.Filter = new FileFilter { Name = "FFmpeg concat file" };
             concatFileChooser.Filter.AddMimeType("text/plain");
         }
 

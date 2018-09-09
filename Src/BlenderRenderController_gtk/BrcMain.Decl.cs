@@ -171,25 +171,6 @@ namespace BlenderRenderController
             UpdateUIValues();
         }
 
-        void On_AutoFramerange_Toggled(object s, GLib.NotifyArgs e)
-        {
-            _vm.AutoFrameRange = swAutoFrameRange.Active;
-        }
-
-        void On_AutoChunkSize_Toggled(object s, GLib.NotifyArgs e)
-        {
-            _vm.AutoChunkSize = swAutoChunkSize.Active;
-        }
-
-        void On_AutoMaxCores_Toggled(object s, GLib.NotifyArgs e)
-        {
-            _vm.AutoMaxCores = swAutoMaxCores.Active;
-        }
-
-        private void TsOpenRecent_Clicked(object sender, EventArgs e)
-        {
-            recentBlendsMenu.PopupAtWidget((Widget)sender, Gdk.Gravity.SouthWest, Gdk.Gravity.NorthWest, null);
-        }
 
         void CheckConfigs()
         {

@@ -79,6 +79,46 @@ namespace BRClib
             Process.Start(stInfo);
         }
 
+        public static (bool, string) ClearOutputFolder(string path)
+        {
+            bool result;
+            string errMsg = null;
+
+            try
+            {
+                DirectoryInfo dir = new DirectoryInfo(path);
+                DirectoryInfo[] subDirs = dir.GetDirectories();
+
+                // clear files in the output
+                foreach (FileInfo fi in dir.GetFiles())
+                {
+                    fi.Delete();
+                }
+
+                // clear files in the 'chunks' subdir
+                var chunkSDir = subDirs.FirstOrDefault(di => di.Name == "chunks");
+                if (chunkSDir != null)
+                {
+                    Directory.Delete(chunkSDir.FullName, true);
+                }
+
+                result = true;
+            }
+            catch (IOException)
+            {
+                errMsg = "Can't clear output folder, files are in use";
+                result = false;
+            }
+            catch (Exception ex)
+            {
+                errMsg = $"An unexpected error ocurred, sorry.\n\n{ex.Message} ({ex.HResult:X})";
+                result = false;
+            }
+
+            Debug.WriteLineIf(!result, errMsg);
+
+            return (result, errMsg);
+        }
 
         static string _configFilePath;
 

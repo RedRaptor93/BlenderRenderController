@@ -541,7 +541,7 @@ namespace BlenderRenderController
             this.blendFileLabel.Name = "blendFileLabel";
             this.blendFileLabel.Size = new System.Drawing.Size(94, 20);
             this.blendFileLabel.TabIndex = 25;
-            this.blendFileLabel.Text = "Project info";
+            this.blendFileLabel.Text = "Project Info";
             // 
             // outputFolderLabel
             // 

@@ -8,7 +8,7 @@ namespace BlenderRenderController
 {
     static class Glade
     {
-        public static Builder Load(string gladeFile)
+        public static Builder LoadUI(string gladeFile)
         {
             Builder builder;
 

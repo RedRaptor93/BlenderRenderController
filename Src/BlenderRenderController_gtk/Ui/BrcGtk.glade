@@ -130,8 +130,8 @@ THE SOFTWARE.
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Blender Render Controller</property>
     <property name="window_position">center</property>
-    <property name="default_width">640</property>
-    <property name="default_height">630</property>
+    <property name="default_width">618</property>
+    <property name="default_height">650</property>
     <property name="icon">brc_icon.png</property>
     <child type="titlebar">
       <placeholder/>
