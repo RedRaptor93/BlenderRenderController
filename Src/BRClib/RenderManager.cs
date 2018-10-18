@@ -14,7 +14,6 @@ using System.Threading;
 using System.IO;
 using System.Diagnostics;
 using FrameSet = System.Collections.Concurrent.ConcurrentHashSet<int>;
-using Timer = System.Timers.Timer;
 using static BRClib.Global;
 
 namespace BRClib
@@ -49,7 +48,7 @@ namespace BRClib
 
             _RunWorker = true;
             _Worker = new Thread(QLoop);
-            _Worker.Name = "Render queueing thread";
+            _Worker.Name = "Render queue thread";
             _Worker.Start();
         }
 
