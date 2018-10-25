@@ -295,12 +295,12 @@ namespace BRClib.ViewModels
 
         public void OpenReportIssuePage()
         {
-            ShellOpen("https://github.com/RedRaptor93/BlenderRenderController/wiki/Reporting-an-issue");
+            ShellOpen("https://github.com/rehdi93/BlenderRenderController/wiki/Reporting-an-issue");
         }
 
         public void OpenProjectPage()
         {
-            ShellOpen("https://github.com/RedRaptor93/BlenderRenderController");
+            ShellOpen("https://github.com/rehdi93/BlenderRenderController");
         }
 
         public void UnloadProject()

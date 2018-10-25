@@ -1469,7 +1469,7 @@ THE SOFTWARE.
     <property name="version">x.x.x.x</property>
     <property name="copyright" translatable="yes">Pedro Oliva Rodrigues</property>
     <property name="comments" translatable="yes">Saving time with VSE!</property>
-    <property name="website">https://github.com/RedRaptor93/BlenderRenderController</property>
+    <property name="website">https://github.com/rehdi93/BlenderRenderController</property>
     <property name="website_label" translatable="yes">Github</property>
     <property name="authors">Pedro Oliva Rodrigues</property>
     <property name="logo">brc_icon.png</property>

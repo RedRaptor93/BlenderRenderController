@@ -8,7 +8,7 @@ Before starting, you should have the following dependencies installed:
 ### Windows
 - .NET framework 4.6.1 or higher
 
-There are 2 [installers](https://github.com/RedRaptor93/BlenderRenderController/releases/latest) available, the main difference being the 'portable' won't create shortcuts and has the portable mode enabled by default. **Portable mode** meaning BRC won't create files outside of its executable directory (except when rendering). Can safely be moved around.
+There are 2 [installers](https://github.com/rehdi93/BlenderRenderController/releases/latest) available, the main difference being the 'portable' won't create shortcuts and has the portable mode enabled by default. **Portable mode** meaning BRC won't create files outside of its executable directory (except when rendering). Can safely be moved around.
 
 You don't need to use the portable setup to get portable mode, you can edit the `BlenderRenderController.exe.config` and under 'appsettings', set "portable" to "true".
 
