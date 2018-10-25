@@ -5,18 +5,18 @@ Before starting, you should have the following dependencies installed:
 - Blender, obviously.
 - [FFmpeg](https://ffmpeg.org/download.html), required for joining the parts together. 
 
+## Requirements
+
 ### Windows
 - .NET framework 4.6.1 or higher
 
-There are 2 [installers](https://github.com/rehdi93/BlenderRenderController/releases/latest) available, the main difference being the 'portable' won't create shortcuts and has the portable mode enabled by default. **Portable mode** meaning BRC won't create files outside of its executable directory (except when rendering). Can safely be moved around.
-
-You don't need to use the portable setup to get portable mode, you can edit the `BlenderRenderController.exe.config` and under 'appsettings', set "portable" to "true".
-
 ### Linux (beta)
 - .NET core runtime 2.0 or higher
-- GTK3 3.20 or higher
+- GTK3 3.18 or higher
+
+Early version, might not work 100%...
    
-## Using
+## How to use
 1. Create your Blender VSE project normally within Blender.
  
 2. Open Blender Render Controller, browse for the .blend file.

@@ -1,6 +1,6 @@
 ## To do list
 
-- Linux port (IN PROGRESS!)
+- <s>Linux port (IN PROGRESS!)</s>
 	- Manual concat dialog
 
 
