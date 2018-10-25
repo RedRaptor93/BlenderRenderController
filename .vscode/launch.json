@@ -10,11 +10,11 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/BlenderRenderController_gtk/bin/Debug/netcoreapp2.0/BlenderRenderController.dll",
+            "program": "${workspaceFolder}/Src/BlenderRenderController_gtk/bin/Debug/netcoreapp2.0/BlenderRenderController.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/BlenderRenderController_gtk",
+            "cwd": "${workspaceFolder}/Src/BlenderRenderController_gtk",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
-            "console": "externalTerminal",
+            "console": "internalConsole",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart"
         },

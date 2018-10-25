@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26124.0
+MinimumVisualStudioVersion = 15.0.26124.0
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Src", "Src", "{87A7BC13-D11B-4D1F-8358-1DC58A3B2EF9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlenderRenderController_gtk", "Src\BlenderRenderController_gtk\BlenderRenderController_gtk.csproj", "{29AD5354-DDA2-4A71-80C7-783FC4A0B574}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BRClib", "Src\BRClib\BRClib.csproj", "{A3FE139B-469D-4873-A91C-A83E6601B0D7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{29AD5354-DDA2-4A71-80C7-783FC4A0B574}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29AD5354-DDA2-4A71-80C7-783FC4A0B574}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29AD5354-DDA2-4A71-80C7-783FC4A0B574}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{29AD5354-DDA2-4A71-80C7-783FC4A0B574}.Debug|x64.Build.0 = Debug|Any CPU
+		{29AD5354-DDA2-4A71-80C7-783FC4A0B574}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{29AD5354-DDA2-4A71-80C7-783FC4A0B574}.Debug|x86.Build.0 = Debug|Any CPU
+		{29AD5354-DDA2-4A71-80C7-783FC4A0B574}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29AD5354-DDA2-4A71-80C7-783FC4A0B574}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29AD5354-DDA2-4A71-80C7-783FC4A0B574}.Release|x64.ActiveCfg = Release|Any CPU
+		{29AD5354-DDA2-4A71-80C7-783FC4A0B574}.Release|x64.Build.0 = Release|Any CPU
+		{29AD5354-DDA2-4A71-80C7-783FC4A0B574}.Release|x86.ActiveCfg = Release|Any CPU
+		{29AD5354-DDA2-4A71-80C7-783FC4A0B574}.Release|x86.Build.0 = Release|Any CPU
+		{A3FE139B-469D-4873-A91C-A83E6601B0D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3FE139B-469D-4873-A91C-A83E6601B0D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3FE139B-469D-4873-A91C-A83E6601B0D7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A3FE139B-469D-4873-A91C-A83E6601B0D7}.Debug|x64.Build.0 = Debug|Any CPU
+		{A3FE139B-469D-4873-A91C-A83E6601B0D7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A3FE139B-469D-4873-A91C-A83E6601B0D7}.Debug|x86.Build.0 = Debug|Any CPU
+		{A3FE139B-469D-4873-A91C-A83E6601B0D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3FE139B-469D-4873-A91C-A83E6601B0D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3FE139B-469D-4873-A91C-A83E6601B0D7}.Release|x64.ActiveCfg = Release|Any CPU
+		{A3FE139B-469D-4873-A91C-A83E6601B0D7}.Release|x64.Build.0 = Release|Any CPU
+		{A3FE139B-469D-4873-A91C-A83E6601B0D7}.Release|x86.ActiveCfg = Release|Any CPU
+		{A3FE139B-469D-4873-A91C-A83E6601B0D7}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{29AD5354-DDA2-4A71-80C7-783FC4A0B574} = {87A7BC13-D11B-4D1F-8358-1DC58A3B2EF9}
+		{A3FE139B-469D-4873-A91C-A83E6601B0D7} = {87A7BC13-D11B-4D1F-8358-1DC58A3B2EF9}
+	EndGlobalSection
+EndGlobal

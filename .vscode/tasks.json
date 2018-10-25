@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/BlenderRenderController_gtk/BlenderRenderController_gtk.csproj"
+                "${workspaceFolder}/Src/BlenderRenderController_gtk/BlenderRenderController_gtk.csproj"
             ],
             "problemMatcher": "$msCompile"
         }
