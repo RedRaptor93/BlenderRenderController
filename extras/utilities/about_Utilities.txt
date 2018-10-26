@@ -6,12 +6,7 @@ This folder contains the following files:
 
 To use them, place them in the same folder as the executable.
 
--*BRC_unix.sh*- is a simple shell script to serve as a shortcut to launch BRC in Linux using Mono
-
-To run this program in Linux, you will need:
-- Mono 4.8 or higher
-- Blender
-- Ffmpeg
+-*BRC_unix.sh*- is a simple shell script to serve as a shortcut to launch BRC in Linux
 
 Keep in mind that, while it SHOULD work, Linux support is at an early state, make sure you know what your doing!
 
