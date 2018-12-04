@@ -444,10 +444,6 @@ namespace BRClib.ViewModels
                 retCode = 2;
                 data.OutputPath = Path.GetDirectoryName(filepath);
             }
-            else
-            {
-                data.OutputPath = Path.GetDirectoryName(data.OutputPath);
-            }
 
             Data = data;
             BlendFile = filepath;

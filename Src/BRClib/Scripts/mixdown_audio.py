@@ -24,7 +24,6 @@ if a_codec == 'PCM':
 elif a_codec == 'VORBIS':
     a_conteiner = 'ogg'
 elif a_codec == 'NONE':
-    # fallback to BRC default
     fallback = True
 else:
     a_conteiner = a_codec.lower()
