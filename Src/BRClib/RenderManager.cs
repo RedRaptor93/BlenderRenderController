@@ -264,10 +264,11 @@ namespace BRClib
         {
             if (e.Data != null)
             {
-                if (e.Data.IndexOf("Fra:", StringComparison.InvariantCulture) == 0)
+                const string label = "Fra:";
+                if (e.Data.IndexOf(label, StringComparison.InvariantCulture) == 0)
                 {
-                    var line = e.Data.Split(' ')[0].Replace("Fra:", "");
-                    _FramesRendered.Add(int.Parse(line));
+                    var frame = e.Data.Split(' ')[0].Replace(label, "");
+                    _FramesRendered.Add(int.Parse(frame));
                 }
             }
         }
@@ -290,30 +291,18 @@ namespace BRClib
             ReportProgress(_FramesRendered.Count, _State.TotalChunks);
 
             AfterRenderStarted?.Invoke(this, Settings.AfterRender);
-            bool ar = AfterRenderProc(Settings.AfterRender);
-            BrcRenderResult result;
-            if (WasAborted)
-            {
-                result = BrcRenderResult.Aborted;
-            }
-            else if (ar)
-            {
-                result = BrcRenderResult.AllOk;
-            }
-            else
-            {
-                result = BrcRenderResult.AfterRenderFailed;
-            }
+
+            BrcRenderResult result = AfterRenderProc(Settings.AfterRender);
 
             Finished?.Invoke(this, result);
         }
 
-        private bool AfterRenderProc(AfterRenderAction action)
+        private BrcRenderResult AfterRenderProc(AfterRenderAction action)
         {
-            if (WasAborted) return false;
+            if (WasAborted) return BrcRenderResult.Aborted;
 
             if (action == AfterRenderAction.NOTHING) 
-                return true;
+                return BrcRenderResult.Ok;
 
             logger.Info("AfterRender started. Action: {0}", action);
 
@@ -363,7 +352,7 @@ namespace BRClib
                 ["concat"] = null
             };
 
-            if (WasAborted) return false;
+            if (WasAborted) return BrcRenderResult.Aborted;
 
             switch (action)
             {
@@ -372,7 +361,7 @@ namespace BRClib
                     mixdownProc = mixdowncmd.GetProcess();
                     RunProc(ref mixdownProc, "mixdown");
 
-                    if (WasAborted) return false;
+                    if (WasAborted) return BrcRenderResult.Aborted;
 
                     concatProc = concatcmd.GetProcess();
                     RunProc(ref concatProc, "concat");
@@ -397,50 +386,50 @@ namespace BRClib
                     break;
             }
 
-            if (WasAborted) return false;
+            if (WasAborted) return BrcRenderResult.Aborted;
 
             // check for bad exit codes
-            var badProcResults = _Processes.Where(p => p != null && p.ExitCode != 0).ToArray();
-
-            if (badProcResults.Length > 0)
+            if (mixdownProc?.ExitCode != 0 || concatProc?.ExitCode != 0)
             {
                 string arReportFile = Path.Combine(_Job.OutputPath, "AfterRenderReport_" + 
                                         Path.ChangeExtension(Path.GetRandomFileName(), "txt"));
 
                 using (var sw = File.AppendText(arReportFile))
                 {
-                    // do not write reports if exit code was caused by cancellation
-                    if (!WasAborted)
+                    foreach (var item in arReports)
                     {
-                        if (mixdownProc?.ExitCode != 0)
-                        {
-                            WriteReport(sw, "Mixdown ", arReports["mixdown"]);
-                        }
+                        if (WasAborted)
+                            break;
+                        if (item.Value.ExitCode == 0)
+                            continue;
 
-                        if (concatProc?.ExitCode != 0)
-                        {
-                            WriteReport(sw, "FFMpeg concat ", arReports["concat"]);
-                        }
+                        sw.Write("\n\n");
+                        sw.Write(item.Key);
+                        sw.WriteLine("Exit code: {0}\n\nStd Error:\n{1}\n\n\nStd Output:\n{2}",
+                                    item.Value.ExitCode,
+                                    item.Value.StdError,
+                                    item.Value.StdOutput);
                     }
-
                 }
-                return false;
+
+                if (mixdowncmd.ExitCode != 0)
+                {
+                    return BrcRenderResult.MixdownFail;
+                }
+                else if (concatcmd.ExitCode != 0)
+                {
+                    return BrcRenderResult.ConcatFail;
+                }
+                else
+                {
+                    return BrcRenderResult.Unexpected;
+                }
             }
             else
             {
-                return !WasAborted;
+                return WasAborted ? BrcRenderResult.Aborted : BrcRenderResult.Ok;
             }
 
-
-            void WriteReport(StreamWriter writer, string title, ProcessResult result)
-            {
-                writer.Write("\n\n");
-                writer.Write(title);
-                writer.WriteLine(string.Format("Exit code: {0}\n\nStd Error:\n{1}\n\n\nStd Output:\n{2}",
-                                    result.ExitCode,
-                                    result.StdError,
-                                    result.StdOutput));
-            }
 
             void RunProc(ref Process proc, string key)
             {
@@ -453,7 +442,6 @@ namespace BRClib
 
                 arReports[key] = new ProcessResult(proc.ExitCode, soTask.Result, seTask.Result);
             }
-
         }
 
         private void DisposeProcesses()
@@ -487,13 +475,6 @@ namespace BRClib
         }
 
 
-        List<Process> _Processes;
-        FrameSet _FramesRendered;
-        RenderJob _Job;
-        byte _reportCount;
-
-        private static Logger logger = LogManager.GetCurrentClassLogger();
-
         struct RenderState
         {
             public int ChunksToDo,
@@ -508,6 +489,15 @@ namespace BRClib
             public int ChunksCompleted => TotalChunks - ChunksToDo;
 
         }
+
+
+        List<Process> _Processes;
+        FrameSet _FramesRendered;
+        RenderJob _Job;
+        byte _reportCount;
+
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         RenderState _State;
 
         volatile bool _RunWorker, _Aborted;

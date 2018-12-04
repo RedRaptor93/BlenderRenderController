@@ -4,8 +4,7 @@
 // This code is released under the MIT licence
 
 using System;
-using System.Collections.ObjectModel;
-using System.IO;
+
 
 namespace BRClib
 {
@@ -25,9 +24,12 @@ namespace BRClib
 
     public enum BrcRenderResult
     {
-        AllOk,
+        Ok,
         Aborted,
-        AfterRenderFailed,
-        ChunkRenderFailed
+        ChunkRenderFailed,
+        MixdownFail,
+        ConcatFail,
+
+        Unexpected = 99
     }
 }

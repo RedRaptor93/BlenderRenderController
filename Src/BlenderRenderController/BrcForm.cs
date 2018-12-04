@@ -284,7 +284,7 @@ namespace BlenderRenderController
         {
             // all slow work is done
 
-            if (e == BrcRenderResult.AllOk)
+            if (e == BrcRenderResult.Ok)
             {
                 if (Settings.AfterRender != AfterRenderAction.NOTHING &&
                     Settings.DeleteChunksFolder)
@@ -309,7 +309,7 @@ namespace BlenderRenderController
                 if (dialog == DialogResult.Yes)
                     OpenOutputFolder();
             }
-            else if (e == BrcRenderResult.AfterRenderFailed)
+            else if (e == BrcRenderResult.ConcatFail || e == BrcRenderResult.MixdownFail)
             {
                 MessageBox.Show(BRCRes.RM_AfterRenderFailed, BRCRes.G_error,
                     MessageBoxButtons.OK, MessageBoxIcon.Error);

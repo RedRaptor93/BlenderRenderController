@@ -316,7 +316,7 @@ namespace BlenderRenderController
         {
             Dialog dlg = null;
 
-            if (e == BrcRenderResult.AllOk)
+            if (e == BrcRenderResult.Ok)
             {
                 if (Settings.AfterRender == AfterRenderAction.NOTHING
                     && Settings.DeleteChunksFolder)
@@ -349,7 +349,7 @@ namespace BlenderRenderController
             {
                 Status("Operation aborted");
             }
-            else if (e == BrcRenderResult.AfterRenderFailed)
+            else if (e == BrcRenderResult.ConcatFail || e == BrcRenderResult.MixdownFail)
             {
                 dlg = new MessageDialog(this, DialogFlags.Modal, MessageType.Error, ButtonsType.Ok,
                     BRCRes.RM_AfterRenderFailed);
