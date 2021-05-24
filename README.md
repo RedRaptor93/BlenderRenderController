@@ -1,4 +1,6 @@
-# Blender Render Controller 
+## _this project is no longer in development_
+
+# Blender Render Controller
 
 ## Download &#8615;
 Latest release [HERE](https://github.com/rehdi93/BlenderRenderController/releases/latest).
